@@ -349,7 +349,7 @@ const FALLBACK = [
   {day:1,date:"7/23(목)",start:"09:20",end:"10:50",city:"부산→오사카",place:"김해공항→KIX",transport:"비행기",type:"move",title:"왕복 항공편 탑승",desc:"09:20 김해 출발, 약 10:50 KIX 도착",cost_jpy:0,cost_krw:566080,note:"예약·결제 완료(왕복·2인)",cost_cat:"교통",paid:true,move_note:"약 1시간 30분 비행"},
   {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바",transport:"라피트",type:"move",title:"난카이 특급 라피트",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔)",cost_jpy:1560,note:"",cost_cat:"교통",move_note:"약 42km · 38분"},
   {day:1,date:"7/23(목)",start:"13:30",end:"14:30",city:"오사카",place:"난바 일대",transport:"도보",type:"eat",title:"첫 끼 · 오코노미야키/우동",desc:"난바 일대 첫 점심",cost_jpy:1500,note:"",cost_cat:"식비",tbd:true},
-  {day:1,date:"7/23(목)",start:"14:30",end:"17:30",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig",title:"도토리공화국 신사이바시점 + 다이마루",desc:"전국 최대 도토리공화국·가오나시 포토존. 도보 10~15분",cost_jpy:0,note:"한낮 실내(폭염대비)"},
+  {day:1,date:"7/23(목)",start:"14:30",end:"17:30",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig/shop",title:"도토리공화국 신사이바시점 + 다이마루",desc:"전국 최대 도토리공화국·가오나시 포토존. 도보 10~15분",cost_jpy:0,note:"한낮 실내(폭염대비)"},
   {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:""},
   {day:1,date:"7/23(목)",start:"20:00",end:"21:30",city:"오사카",place:"난바/도톤보리",transport:"도보",type:"eat",title:"이자카야 + 사케 첫 만찬",desc:"니혼슈 워밍업(2인)",cost_jpy:5000,note:"",cost_cat:"식비",tbd:true},
   {day:2,date:"7/24(금)",start:"07:30",end:"08:40",city:"오사카→교토",place:"난바→교토카와라마치",transport:"지하철+한큐",type:"move",title:"한큐 교토선 특급",desc:"카와라마치=순행 종착 인근",cost_jpy:650,note:"",cost_cat:"교통",move_note:"약 47km · 43분"},
@@ -358,7 +358,7 @@ const FALLBACK = [
   {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장",cost_cat:"입장"},
   {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(사쿠라노미야)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경 시작",cost_jpy:0,note:""},
   {day:3,date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"사쿠라노미야 공원",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"강물 반사 '이중 불꽃'",cost_jpy:0,note:"우천시 중단"},
-  {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"shop",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:3000,note:"일요일=야마나카 본점 휴무",cost_cat:"쇼핑"},
+  {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"shop/sig",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:3000,note:"일요일=야마나카 본점 휴무",cost_cat:"쇼핑"},
   {day:4,date:"7/26(일)",start:"15:30",end:"",city:"오사카→부산",place:"KIX→김해",transport:"비행기",type:"move",title:"귀국 비행편 탑승",desc:"15:30 KIX 출발",cost_jpy:0,note:"수고하셨습니다!"},
 ];
 const FALLBACK_DAYS = [
@@ -390,6 +390,13 @@ const $ = (s,el=document)=>el.querySelector(s);
 const TYPE_LABEL = {fes:"축제",sig:"관광",eat:"미식",move:"이동",shop:"쇼핑",stay:"숙소",etc:"기타"};
 const TYPE_ICON  = {fes:"祭",sig:"★",eat:"食",move:"→",shop:"買",stay:"宿",etc:"·"};
 function normType(t){t=(t||"").trim().toLowerCase();return TYPE_LABEL[t]?t:"etc";}
+// type 컬럼에 여러 분류 지정 가능: "sig/shop" → [관광, 쇼핑]
+function normTypes(t){
+  const parts=String(t||"").split(/[\/|]+/).map(s=>s.trim().toLowerCase()).filter(Boolean);
+  const out=[];
+  for(const p of parts){ if(TYPE_LABEL[p]&&!out.includes(p)) out.push(p); }
+  return out.length?out:["etc"];
+}
 // 이동수단 → 종류별 이모지 (조합 지원: "지하철+한큐" → 🚇🚆)
 function transportIcon(t){
   const rules=[[/비행기|항공/,"✈️"],[/지하철/,"🚇"],[/버스/,"🚌"],[/택시/,"🚕"],
@@ -419,7 +426,7 @@ function normalizeItems(rows){
   return rows.map(r=>({
     day:toNum(r.day)||1,date:(r.date||"").trim(),start:(r.start||"").trim(),end:(r.end||"").trim(),
     city:(r.city||"").trim(),place:(r.place||"").trim(),transport:(r.transport||"").trim(),
-    type:normType(r.type),title:(r.title||"").trim(),desc:(r.desc||"").trim(),
+    type:normTypes(r.type)[0],types:normTypes(r.type),title:(r.title||"").trim(),desc:(r.desc||"").trim(),
     cost_jpy:toNum(r.cost_jpy),cost_krw:toNum(r.cost_krw),note:(r.note||"").trim(),
     cost_cat:(r.cost_cat||"").trim(),paid:isTrue(r.paid),
     move_note:(r.move_note||"").trim(),tbd:isTrue(r.tbd),
@@ -541,10 +548,11 @@ function itemHTML(it){
   const q=esc(mapQuery(it)), label=esc(it.place||it.title);
   const hasDetail = it.desc || it.note;
   const tbd = it.tbd?'<span class="tbd">미정</span>':'';
+  const badges = (it.types||[t]).map(tp=>`<span class="badge t-${tp}">${TYPE_ICON[tp]} ${TYPE_LABEL[tp]}</span>`).join("");
   return `<article class="item t-${t} collapsed${it.tbd?' is-tbd':''}">
     <div class="item-top">
       <span class="time">${esc(it.start)}${it.end?'–'+esc(it.end):''}</span>
-      <span class="badge t-${t}">${TYPE_ICON[t]} ${TYPE_LABEL[t]}</span>
+      ${badges}
       ${it.place?`<button class="place" data-q="${q}" data-label="${label}"><span class="pin">📍</span>${esc(it.place)}</button>`:''}
       ${hasDetail?'<span class="caret">▾</span>':''}
     </div>
