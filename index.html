@@ -72,16 +72,31 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 
 /* ===== Cost ===== */
 .cost{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 13px;margin:8px 0;box-shadow:var(--shadow)}
-.cost .row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;padding:2px 0}
-.cost .row .k{color:var(--ink-soft)}
-.cost .row.flight .v{color:var(--ai);font-weight:700}
-.cost .row.local .v b{color:var(--kin)}
+.cost .row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;padding:3px 0}
+.cost .row .k{color:var(--ink-soft);display:flex;align-items:center;gap:6px}
+.cost .row .v{font-weight:700;color:var(--ink)}
+.cost .row .v.paid,.costrow .cv b.paid,.cost .legend .paid{color:var(--shu)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:0 0 auto}
+.dot.paid{background:var(--shu)} .dot.est{background:var(--ink)}
 .cost .total{border-top:1px dashed var(--line);margin-top:6px;padding-top:7px}
 .cost .total .k{font-family:'Shippori Mincho',serif;font-weight:700}
 .cost .total .v{font-family:'Shippori Mincho',serif;font-weight:800;color:var(--shu);font-size:18px}
 .fx{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-soft);margin-top:7px;justify-content:flex-end}
 .fx input{width:58px;padding:4px 6px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:12.5px;text-align:center;background:var(--washi-2);color:var(--ink)}
-.cost .memo{font-size:10.5px;color:var(--ink-soft);margin-top:4px;text-align:right}
+.cost .legend{font-size:10.5px;color:var(--ink-soft);margin-top:7px;line-height:1.6;border-top:1px solid var(--line);padding-top:6px}
+.cost .legend .paid{font-weight:700}
+/* cost groups (accordion) */
+.cgroup{background:var(--card);border:1px solid var(--line);border-radius:11px;margin-bottom:7px;box-shadow:var(--shadow);overflow:hidden}
+.cghead{width:100%;display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:11px 13px;font-family:inherit;text-align:left}
+.cgname{font-family:'Shippori Mincho',serif;font-weight:700;font-size:14px;color:var(--ai)}
+.cgname small{color:var(--ink-soft);font-weight:400;font-size:11px}
+.cgsum{margin-left:auto;font-family:'Shippori Mincho',serif;font-weight:800;color:var(--shu);font-size:14px}
+.cgbody{max-height:600px;overflow:hidden;transition:max-height .25s ease;padding:0 11px 9px}
+.cgroup.collapsed .cgbody{max-height:0;padding-top:0;padding-bottom:0}
+.cgroup.collapsed .caret{transform:rotate(-90deg)}
+.ccat{font-size:9.5px;font-weight:700;color:var(--ink-soft);background:var(--washi-2);border:1px solid var(--line);padding:1px 6px;border-radius:999px;margin-left:5px;white-space:nowrap}
+.tbd{font-size:9.5px;font-weight:700;color:#fff;background:var(--ink-soft);padding:1px 7px;border-radius:999px;margin-left:6px;letter-spacing:.5px;vertical-align:1px}
+.item.is-tbd h3{color:var(--ink-soft)}
 
 /* ===== Day tabs (가로로 크게·메뉴 아래 고정) ===== */
 .tabs{position:sticky;top:63px;z-index:20;display:flex;gap:7px;overflow-x:auto;padding:7px 0 9px;margin:0 0 6px;background:var(--washi);scrollbar-width:none}
@@ -98,8 +113,9 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .day-head .n{font-family:'Shippori Mincho',serif;font-weight:800;font-size:19px;color:var(--ai)}
 .day-head .dt{font-size:12.5px;color:var(--ink-soft)}
 .day-head .now{margin-left:auto;font-size:10.5px;font-weight:700;color:#fff;background:var(--shu);padding:2px 9px;border-radius:999px;letter-spacing:1px}
-.day-summary{font-size:12px;color:var(--ink-soft);margin:0 2px 10px;line-height:1.7}
-.day-summary b{color:var(--ai-soft);font-weight:700}
+.day-summary{font-size:13.5px;color:var(--ink);margin:0 2px 11px;line-height:1.8;background:rgba(31,64,104,.05);border-radius:10px;padding:8px 11px}
+.day-summary b{color:var(--ai-soft);font-weight:700;font-size:12px}
+.day-summary .ln{display:block}
 
 /* ===== Timeline ===== */
 .tl{position:relative;padding-left:18px}
@@ -249,17 +265,20 @@ footer .src{font-size:10px;opacity:.8}
   <!-- ===== 비용 VIEW ===== -->
   <section id="view-cost" class="view hidden">
     <div class="cost">
-      <div class="row flight"><span class="k">✈ 항공권 (왕복·2인)</span><span class="v" id="cost-flight">₩0</span></div>
-      <div class="row local"><span class="k">🗾 현지 예상 (2인)</span><span class="v"><b id="cost-local-jpy">¥0</b> <span id="cost-local-krw">≈ ₩0</span></span></div>
+      <div class="row"><span class="k"><span class="dot paid"></span>확정 지출 <small>(실제 결제)</small></span><span class="v paid" id="cost-confirmed">₩0</span></div>
+      <div class="row"><span class="k"><span class="dot est"></span>예상 지출</span><span class="v" id="cost-estimated">₩0</span></div>
       <div class="row total"><span class="k">합계</span><span class="v" id="cost-total">₩0</span></div>
       <label class="fx">환율 100엔 = <input id="fx" type="number" inputmode="decimal" step="0.1" value="9.3" /> 원</label>
-      <div class="memo">※ 숙소비 미포함 · 현지비는 일정표 합산(예상)</div>
+      <div class="legend"><span class="paid">🔴 확정 지출</span> = 실제 결제 완료 · <span>⚫ 예상 지출</span> = 아직 미결제 추정 &nbsp;|&nbsp; 2인 합산 · 숙소비 미정</div>
     </div>
-    <div class="sec-h">일자별 비용</div>
+
+    <div class="sec-h">카테고리별 비용</div>
+    <p class="sec-sub">행을 누르면 세부 내역이 펼쳐집니다.</p>
+    <div id="cost-by-cat"></div>
+
+    <div class="sec-h" style="margin-top:18px">일자별 비용</div>
+    <p class="sec-sub">행을 누르면 세부 내역이 펼쳐집니다.</p>
     <div id="cost-by-day"></div>
-    <div class="sec-h" style="margin-top:18px">항목별 비용</div>
-    <p class="sec-sub">비용이 있는 일정만 표시</p>
-    <div id="cost-by-item"></div>
   </section>
 
   <!-- ===== 준비 VIEW ===== -->
@@ -325,16 +344,16 @@ const CONFIG = {
 
 /* ===== 내장 폴백(파일 직접 열람용) — CSV와 동일 스키마 ===== */
 const FALLBACK = [
-  {day:1,date:"7/23(목)",start:"09:20",end:"10:50",city:"부산→오사카",place:"김해공항→KIX",transport:"비행기",type:"move",title:"왕복 항공편 탑승",desc:"09:20 김해 출발, 약 10:50 KIX 도착",cost_jpy:0,cost_krw:566080,note:"예약·결제 완료(왕복·2인)"},
-  {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바",transport:"라피트",type:"move",title:"난카이 특급 라피트(약 38분)",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔)",cost_jpy:1560,note:""},
-  {day:1,date:"7/23(목)",start:"13:30",end:"14:30",city:"오사카",place:"난바 일대",transport:"도보",type:"eat",title:"첫 끼 · 오코노미야키/우동",desc:"난바 일대 첫 점심",cost_jpy:1500,note:""},
+  {day:1,date:"7/23(목)",start:"09:20",end:"10:50",city:"부산→오사카",place:"김해공항→KIX",transport:"비행기",type:"move",title:"왕복 항공편 탑승",desc:"09:20 김해 출발, 약 10:50 KIX 도착",cost_jpy:0,cost_krw:566080,note:"예약·결제 완료(왕복·2인)",cost_cat:"교통",paid:true,move_note:"약 1시간 30분 비행"},
+  {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바",transport:"라피트",type:"move",title:"난카이 특급 라피트",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔)",cost_jpy:1560,note:"",cost_cat:"교통",move_note:"약 42km · 38분"},
+  {day:1,date:"7/23(목)",start:"13:30",end:"14:30",city:"오사카",place:"난바 일대",transport:"도보",type:"eat",title:"첫 끼 · 오코노미야키/우동",desc:"난바 일대 첫 점심",cost_jpy:1500,note:"",cost_cat:"식비",tbd:true},
   {day:1,date:"7/23(목)",start:"14:30",end:"17:30",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig",title:"도토리공화국 신사이바시점 + 다이마루",desc:"전국 최대 도토리공화국·가오나시 포토존. 도보 10~15분",cost_jpy:0,note:"한낮 실내(폭염대비)"},
   {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:""},
-  {day:1,date:"7/23(목)",start:"20:00",end:"21:30",city:"오사카",place:"난바/도톤보리",transport:"도보",type:"eat",title:"이자카야 + 사케 첫 만찬",desc:"니혼슈 워밍업(2인)",cost_jpy:5000,note:""},
-  {day:2,date:"7/24(금)",start:"07:30",end:"08:40",city:"오사카→교토",place:"난바→교토카와라마치",transport:"지하철+한큐",type:"move",title:"한큐 교토선 특급(약 43분)",desc:"카와라마치=순행 종착 인근",cost_jpy:650,note:""},
+  {day:1,date:"7/23(목)",start:"20:00",end:"21:30",city:"오사카",place:"난바/도톤보리",transport:"도보",type:"eat",title:"이자카야 + 사케 첫 만찬",desc:"니혼슈 워밍업(2인)",cost_jpy:5000,note:"",cost_cat:"식비",tbd:true},
+  {day:2,date:"7/24(금)",start:"07:30",end:"08:40",city:"오사카→교토",place:"난바→교토카와라마치",transport:"지하철+한큐",type:"move",title:"한큐 교토선 특급",desc:"카와라마치=순행 종착 인근",cost_jpy:650,note:"",cost_cat:"교통",move_note:"약 47km · 43분"},
   {day:2,date:"7/24(금)",start:"09:30",end:"11:20",city:"교토",place:"오이케도리~시조",transport:"도보",type:"fes",title:"★기온마츠리 야마보코 후기 순행",desc:"'츠지마와시' 백미. 유료석 8000엔~ 옵션",cost_jpy:0,note:"양산·물 필수"},
-  {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"7·8월 18:30 폐문·현금만"},
-  {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장"},
+  {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"7·8월 18:30 폐문·현금만",cost_cat:"입장",move_note:"버스 약 4km · 15분"},
+  {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장",cost_cat:"입장"},
   {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(사쿠라노미야)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경 시작",cost_jpy:0,note:""},
   {day:3,date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"사쿠라노미야 공원",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"강물 반사 '이중 불꽃'",cost_jpy:0,note:"우천시 중단"},
   {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"sig",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:0,note:"일요일=야마나카 본점 휴무"},
@@ -378,6 +397,7 @@ function transportIcon(t){
   return ics.length?ics.join(""):"🚃";
 }
 function toNum(v){const n=parseFloat(String(v).replace(/[^0-9.\-]/g,""));return isNaN(n)?0:n;}
+function isTrue(v){return v===true||String(v||"").trim()==="1"||String(v||"").trim().toLowerCase()==="true";}
 function timeKey(s){const m=String(s||"").match(/(\d{1,2}):(\d{2})/);return m?(+m[1])*60+(+m[2]):9999;}
 const fmtJPY = n => "¥"+Math.round(n).toLocaleString();
 const fmtKRW = n => "₩"+Math.round(n).toLocaleString();
@@ -399,6 +419,8 @@ function normalizeItems(rows){
     city:(r.city||"").trim(),place:(r.place||"").trim(),transport:(r.transport||"").trim(),
     type:normType(r.type),title:(r.title||"").trim(),desc:(r.desc||"").trim(),
     cost_jpy:toNum(r.cost_jpy),cost_krw:toNum(r.cost_krw),note:(r.note||"").trim(),
+    cost_cat:(r.cost_cat||"").trim(),paid:isTrue(r.paid),
+    move_note:(r.move_note||"").trim(),tbd:isTrue(r.tbd),
   })).filter(x=>x.title || x.place);
 }
 
@@ -421,30 +443,53 @@ async function loadDays(){
 }
 
 /* ===================== 비용 ===================== */
+const COST_CATS = ["교통","숙박","식비","입장","쇼핑","기타"];
+function itemKrw(i){ return i.cost_krw + i.cost_jpy*FX/100; }   // 원화 환산 총액
+function itemCat(i){ return COST_CATS.includes(i.cost_cat)?i.cost_cat:"기타"; }
+function hasCost(i){ return i.cost_jpy>0 || i.cost_krw>0; }
+function costAmtHTML(i){
+  const amt = i.cost_krw>0 ? fmtKRW(i.cost_krw) : fmtJPY(i.cost_jpy);
+  const cat = i.cost_cat?`<span class="ccat">${esc(i.cost_cat)}</span>`:'';
+  return `<b class="${i.paid?'paid':''}">${amt}</b>${cat}`;
+}
+function costItemRow(i){
+  return `<div class="costrow">
+    <span class="cd"><small>${esc(i.date||"")} ${esc(i.start||"")}</small><br>${esc(i.title)}${i.tbd?'<span class="tbd">미정</span>':''}</span>
+    <span class="cv">${costAmtHTML(i)}</span></div>`;
+}
 function renderCost(){
-  const jpy = ITEMS.reduce((s,i)=>s+i.cost_jpy,0);
-  const krw = ITEMS.reduce((s,i)=>s+i.cost_krw,0);   // 원화 직접 비용(항공권 등)
-  const local = jpy*FX/100;
-  $("#cost-flight").textContent = fmtKRW(krw);
-  $("#cost-local-jpy").textContent = fmtJPY(jpy);
-  $("#cost-local-krw").textContent = "≈ "+fmtKRW(local);
-  $("#cost-total").textContent = fmtKRW(krw + local);
+  let confirmed=0, estimated=0;
+  ITEMS.forEach(i=>{ const v=itemKrw(i); if(i.paid)confirmed+=v; else estimated+=v; });
+  $("#cost-confirmed").textContent = fmtKRW(confirmed);
+  $("#cost-estimated").textContent = fmtKRW(estimated);
+  $("#cost-total").textContent = fmtKRW(confirmed+estimated);
   renderCostDetail();
 }
+// 펼침 가능한 그룹 행
+function costGroup(name, sub, items, allTbd){
+  const head = (sub===0&&allTbd) ? '<span class="cgsum">미정</span>'
+    : `<span class="cgsum">≈ ${fmtKRW(sub)}</span>`;
+  return `<div class="cgroup collapsed">
+    <button class="cghead"><span class="cgname">${esc(name)} <small>(${items.length}건)</small></span>${head}<span class="caret">▾</span></button>
+    <div class="cgbody">${items.map(costItemRow).join("")||'<div class="costrow"><span class="cd">내역 없음</span></div>'}</div>
+  </div>`;
+}
 function renderCostDetail(){
-  const days=groupByDay(ITEMS);
-  $("#cost-by-day").innerHTML = days.map(g=>{
-    const j=g.items.reduce((s,i)=>s+i.cost_jpy,0);
-    const k=g.items.reduce((s,i)=>s+i.cost_krw,0);
-    const krwTot=k + j*FX/100;
-    return `<div class="costrow"><span class="cd">${g.day}일차 <small>${esc(g.date||"")}</small></span>
-      <span class="cv">${j?fmtJPY(j):""}${k?`${j?" + ":""}${fmtKRW(k)}`:""} <b>≈ ${fmtKRW(krwTot)}</b></span></div>`;
+  const priced=ITEMS.filter(hasCost);
+  // 카테고리별
+  $("#cost-by-cat").innerHTML = COST_CATS.map(cat=>{
+    const items=ITEMS.filter(i=>itemCat(i)===cat && (hasCost(i)||i.tbd&&i.cost_cat===cat));
+    if(!items.length) return "";
+    const sub=items.reduce((s,i)=>s+itemKrw(i),0);
+    const allTbd=items.every(i=>!hasCost(i));
+    return costGroup(cat, sub, items, allTbd);
   }).join("");
-  const priced=ITEMS.filter(i=>i.cost_jpy>0||i.cost_krw>0);
-  $("#cost-by-item").innerHTML = priced.map(i=>{
-    const amt = i.cost_krw>0 ? fmtKRW(i.cost_krw) : fmtJPY(i.cost_jpy);
-    return `<div class="costrow"><span class="cd"><small>${esc(i.date||"")} ${esc(i.start||"")}</small><br>${esc(i.title)}</span>
-      <span class="cv"><b>${amt}</b></span></div>`;
+  // 일자별
+  $("#cost-by-day").innerHTML = groupByDay(ITEMS).map(g=>{
+    const items=g.items.filter(hasCost);
+    if(!items.length) return "";
+    const sub=items.reduce((s,i)=>s+itemKrw(i),0);
+    return costGroup(`${g.day}일차 · ${g.date||""}`, sub, items, false);
   }).join("");
 }
 
@@ -482,19 +527,26 @@ function mapQuery(it){
 }
 function itemHTML(it){
   const t=it.type,meta=[];
-  if(it.transport&&it.transport!=="-") meta.push(`<span>${transportIcon(it.transport)} ${esc(it.transport)}</span>`);
-  if(it.cost_krw>0) meta.push(`<span>💴 <b>${fmtKRW(it.cost_krw)}</b></span>`);
-  else if(it.cost_jpy>0) meta.push(`<span>💴 <b>${fmtJPY(it.cost_jpy)}</b></span>`);
+  if(it.transport&&it.transport!=="-"){
+    const mn = it.move_note?` <span class="mnote">(${esc(it.move_note)})</span>`:'';
+    meta.push(`<span>${transportIcon(it.transport)} ${esc(it.transport)}${mn}</span>`);
+  }
+  if(hasCost(it)){
+    const amt = it.cost_krw>0 ? fmtKRW(it.cost_krw) : fmtJPY(it.cost_jpy);
+    const cat = it.cost_cat?` <span class="ccat">${esc(it.cost_cat)}</span>`:'';
+    meta.push(`<span>💴 <b class="${it.paid?'paid':''}">${amt}</b>${cat}</span>`);
+  }
   const q=esc(mapQuery(it)), label=esc(it.place||it.title);
   const hasDetail = it.desc || it.note;
-  return `<article class="item t-${t} collapsed">
+  const tbd = it.tbd?'<span class="tbd">미정</span>':'';
+  return `<article class="item t-${t} collapsed${it.tbd?' is-tbd':''}">
     <div class="item-top">
       <span class="time">${esc(it.start)}${it.end?'–'+esc(it.end):''}</span>
       <span class="badge t-${t}">${TYPE_ICON[t]} ${TYPE_LABEL[t]}</span>
       ${it.place?`<button class="place" data-q="${q}" data-label="${label}"><span class="pin">📍</span>${esc(it.place)}</button>`:''}
       ${hasDetail?'<span class="caret">▾</span>':''}
     </div>
-    <h3>${esc(it.title)}</h3>
+    <h3>${esc(it.title)}${tbd}</h3>
     ${meta.length?`<div class="meta">${meta.join("")}</div>`:''}
     ${hasDetail?`<div class="item-detail">
       ${it.desc?`<p class="desc">${esc(it.desc)}</p>`:''}
@@ -516,7 +568,7 @@ function renderTimeline(days){
   const root=$("#timeline");root.innerHTML="";const todayIdx=dayIndexToday()+1;
   days.forEach(g=>{
     const sec=document.createElement("section");sec.className="day";sec.id="day-"+g.day;
-    const m=DAYS[g.day]||{},summary=(m.am||m.pm)?`<div class="day-summary"><b>🌅 오전</b> ${esc(m.am||"-")} &nbsp;·&nbsp; <b>🌆 오후</b> ${esc(m.pm||"-")}</div>`:"";
+    const m=DAYS[g.day]||{},summary=(m.am||m.pm)?`<div class="day-summary"><span class="ln"><b>🌅 오전</b> ${esc(m.am||"-")}</span><span class="ln"><b>🌆 오후</b> ${esc(m.pm||"-")}</span></div>`:"";
     sec.innerHTML=`<div class="day-head">
         <span class="n">${g.day}일차</span>
         <span class="dt">${g.date||""} · ${esc(g.items[0]?.city||"")}</span>
@@ -659,10 +711,12 @@ async function init(){
   fxEl.addEventListener("input",()=>{FX=toNum(fxEl.value)||CONFIG.DEFAULT_FX;renderCost();});
 
   setupMenu();
-  // 장소→지도 / 일정 항목→세부내역 펼침
+  // 장소→지도 / 일정 항목→세부내역 펼침 / 비용 그룹 펼침
   document.addEventListener("click",e=>{
     const p=e.target.closest(".place");
     if(p){openMap(p.dataset.q,p.dataset.label);return;}
+    const cg=e.target.closest(".cghead");
+    if(cg){cg.parentElement.classList.toggle("collapsed");return;}
     const it=e.target.closest(".item");
     if(it&&it.closest("#timeline")){it.classList.toggle("collapsed");}
   });
