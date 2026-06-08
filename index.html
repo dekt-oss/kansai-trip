@@ -17,7 +17,7 @@
   --shu:#c0432b; --kin:#9a7b34; --kin-soft:#b89a52;
   --ink:#2a2620; --ink-soft:#5d564a; --line:#d8cbab;
   --card:#fffdf6; --shadow:0 2px 10px rgba(42,38,32,.10);
-  --eat:#3c7d6e; --move:#6b7280; --etc:#7a6a8a;
+  --eat:#3c7d6e; --move:#6b7280; --etc:#7a6a8a; --shop:#b5781f; --stay:#4a6b9a;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
@@ -126,10 +126,12 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .item.t-sig{border-left-color:var(--kin)} .item.t-sig::before{border-color:var(--kin)}
 .item.t-eat{border-left-color:var(--eat)} .item.t-eat::before{border-color:var(--eat)}
 .item.t-move{border-left-color:var(--move)} .item.t-move::before{border-color:var(--move)}
+.item.t-shop{border-left-color:var(--shop)} .item.t-shop::before{border-color:var(--shop)}
+.item.t-stay{border-left-color:var(--stay)} .item.t-stay::before{border-color:var(--stay)}
 .item-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .time{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;color:var(--ai);white-space:nowrap}
 .badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:999px;color:#fff;background:var(--move)}
-.badge.t-fes{background:var(--shu)} .badge.t-sig{background:var(--kin)} .badge.t-eat{background:var(--eat)} .badge.t-move{background:var(--move)} .badge.t-etc{background:var(--etc)}
+.badge.t-fes{background:var(--shu)} .badge.t-sig{background:var(--kin)} .badge.t-eat{background:var(--eat)} .badge.t-move{background:var(--move)} .badge.t-shop{background:var(--shop)} .badge.t-stay{background:var(--stay)} .badge.t-etc{background:var(--etc)}
 .item{cursor:pointer}
 .item h3{font-family:'Shippori Mincho',serif;font-weight:700;font-size:15px;margin:6px 0 3px;color:var(--ink)}
 .item .desc{font-size:12.5px;color:var(--ink-soft);margin:0}
@@ -268,7 +270,7 @@ footer .src{font-size:10px;opacity:.8}
       <div class="row"><span class="k"><span class="dot paid"></span>확정 지출 <small>(실제 결제)</small></span><span class="v paid" id="cost-confirmed">₩0</span></div>
       <div class="row"><span class="k"><span class="dot est"></span>예상 지출</span><span class="v" id="cost-estimated">₩0</span></div>
       <div class="row total"><span class="k">합계</span><span class="v" id="cost-total">₩0</span></div>
-      <label class="fx">환율 100엔 = <input id="fx" type="number" inputmode="decimal" step="0.1" value="9.3" /> 원</label>
+      <label class="fx">환율 100엔 = <input id="fx" type="number" inputmode="decimal" step="1" value="960" /> 원</label>
       <div class="legend"><span class="paid">🔴 확정 지출</span> = 실제 결제 완료 · <span>⚫ 예상 지출</span> = 아직 미결제 추정 &nbsp;|&nbsp; 2인 합산 · 숙소비 미정</div>
     </div>
 
@@ -338,7 +340,7 @@ const CONFIG = {
   LOCAL_DECISIONS_CSV: "data/decisions.csv",
   TRIP_START: "2026-07-23",
   TRIP_END:   "2026-07-26",
-  DEFAULT_FX: 9.3,                  // 100엔 당 원 (항공권 등 원화 비용은 schedule.csv의 cost_krw 컬럼에 입력)
+  DEFAULT_FX: 960,                  // 100엔 당 원 (100엔 = 960원). 항공권 등 원화 비용은 schedule.csv의 cost_krw 컬럼
   WEATHER: true,
 };
 
@@ -356,7 +358,7 @@ const FALLBACK = [
   {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장",cost_cat:"입장"},
   {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(사쿠라노미야)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경 시작",cost_jpy:0,note:""},
   {day:3,date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"사쿠라노미야 공원",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"강물 반사 '이중 불꽃'",cost_jpy:0,note:"우천시 중단"},
-  {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"sig",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:0,note:"일요일=야마나카 본점 휴무"},
+  {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"shop",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:3000,note:"일요일=야마나카 본점 휴무",cost_cat:"쇼핑"},
   {day:4,date:"7/26(일)",start:"15:30",end:"",city:"오사카→부산",place:"KIX→김해",transport:"비행기",type:"move",title:"귀국 비행편 탑승",desc:"15:30 KIX 출발",cost_jpy:0,note:"수고하셨습니다!"},
 ];
 const FALLBACK_DAYS = [
@@ -385,8 +387,8 @@ const PREP = [
 
 /* ===================== 유틸 ===================== */
 const $ = (s,el=document)=>el.querySelector(s);
-const TYPE_LABEL = {fes:"축제",sig:"관광",eat:"미식",move:"이동",etc:"기타"};
-const TYPE_ICON  = {fes:"祭",sig:"★",eat:"食",move:"→",etc:"·"};
+const TYPE_LABEL = {fes:"축제",sig:"관광",eat:"미식",move:"이동",shop:"쇼핑",stay:"숙소",etc:"기타"};
+const TYPE_ICON  = {fes:"祭",sig:"★",eat:"食",move:"→",shop:"買",stay:"宿",etc:"·"};
 function normType(t){t=(t||"").trim().toLowerCase();return TYPE_LABEL[t]?t:"etc";}
 // 이동수단 → 종류별 이모지 (조합 지원: "지하철+한큐" → 🚇🚆)
 function transportIcon(t){
