@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#1f4068" />
+<title>간사이 여행 대시보드</title>
+<meta name="description" content="오사카·교토 간사이 여행 일정 대시보드 — 타임라인·D-day·비용·체크리스트" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Shippori+Mincho:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<style>
+:root{
+  --washi:#f4ecd8;
+  --washi-2:#efe6cf;
+  --ai:#1f4068;       /* 藍 indigo */
+  --ai-soft:#2c5688;
+  --shu:#c0432b;      /* 朱 vermilion */
+  --kin:#9a7b34;      /* 金 gold */
+  --kin-soft:#b89a52;
+  --ink:#2a2620;
+  --ink-soft:#5d564a;
+  --line:#d8cbab;
+  --card:#fffdf6;
+  --shadow:0 2px 10px rgba(42,38,32,.10);
+  --eat:#3c7d6e;
+  --move:#6b7280;
+  --etc:#7a6a8a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:'Gowun Batang',serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(192,67,43,.05), transparent 40%),
+    radial-gradient(circle at 88% 20%, rgba(31,64,104,.06), transparent 42%),
+    var(--washi);
+  background-attachment:fixed;
+  line-height:1.6;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px 96px}
+
+/* ===== Header ===== */
+header{
+  position:relative;
+  padding:26px 18px 22px;
+  margin:14px 0 10px;
+  border-radius:18px;
+  color:#f8f3e6;
+  background:linear-gradient(135deg,var(--ai) 0%,var(--ai-soft) 70%);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+header::after{
+  content:"関西";
+  position:absolute;right:14px;bottom:-14px;
+  font-family:'Shippori Mincho',serif;font-weight:800;
+  font-size:84px;color:rgba(255,255,255,.07);letter-spacing:4px;
+  pointer-events:none;
+}
+.kicker{font-size:12px;letter-spacing:3px;color:var(--kin-soft);font-weight:700;margin:0 0 6px}
+h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:26px;margin:0 0 4px;letter-spacing:1px}
+.sub{font-size:13px;color:rgba(248,243,230,.82);margin:0}
+
+/* ===== Status row ===== */
+.status{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 6px;
+}
+.stat{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:11px 10px;text-align:center;box-shadow:var(--shadow);
+}
+.stat .lab{font-size:10.5px;letter-spacing:1.5px;color:var(--ink-soft);font-weight:700}
+.stat .val{font-family:'Shippori Mincho',serif;font-weight:800;color:var(--ai);font-size:19px;margin-top:2px;line-height:1.2}
+.stat .val small{font-size:11px;font-weight:600;color:var(--ink-soft)}
+.stat.dday .val{color:var(--shu)}
+
+/* ===== Cost / FX ===== */
+.cost{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:12px 14px;margin:8px 0;box-shadow:var(--shadow);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.cost .total{font-family:'Shippori Mincho',serif}
+.cost .total b{color:var(--kin);font-size:18px}
+.cost .krw{color:var(--ai);font-weight:700}
+.fx{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft)}
+.fx input{
+  width:62px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;
+  font-family:inherit;font-size:13px;text-align:center;background:var(--washi-2);color:var(--ink);
+}
+
+/* ===== Tabs ===== */
+.tabs{
+  position:sticky;top:0;z-index:20;
+  display:flex;gap:7px;overflow-x:auto;padding:10px 2px;margin:2px -2px 6px;
+  background:linear-gradient(var(--washi) 70%, rgba(244,236,216,0));
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+  padding:8px 14px;border-radius:999px;font-family:'Shippori Mincho',serif;font-weight:600;
+  font-size:13.5px;cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.tab .d{display:block;font-size:10px;color:var(--ink-soft);font-weight:400;margin-top:1px}
+.tab.active{background:var(--ai);color:#fff;border-color:var(--ai)}
+.tab.active .d{color:rgba(255,255,255,.75)}
+.tab.today{box-shadow:0 0 0 2px var(--shu) inset}
+
+/* ===== Day section ===== */
+.day{margin:18px 0 6px;scroll-margin-top:64px}
+.day-head{
+  display:flex;align-items:baseline;gap:10px;margin:0 2px 10px;
+  border-bottom:2px solid var(--kin-soft);padding-bottom:6px;
+}
+.day-head .n{
+  font-family:'Shippori Mincho',serif;font-weight:800;font-size:20px;color:var(--ai);
+}
+.day-head .dt{font-size:13px;color:var(--ink-soft)}
+.day-head .now{
+  margin-left:auto;font-size:11px;font-weight:700;color:#fff;background:var(--shu);
+  padding:2px 9px;border-radius:999px;letter-spacing:1px;
+}
+
+/* ===== Timeline ===== */
+.tl{position:relative;padding-left:18px}
+.tl::before{
+  content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;
+  background:linear-gradient(var(--kin-soft),var(--line));border-radius:2px;
+}
+.item{
+  position:relative;background:var(--card);border:1px solid var(--line);
+  border-left:4px solid var(--line);border-radius:13px;padding:11px 13px;
+  margin:0 0 10px;box-shadow:var(--shadow);
+}
+.item::before{
+  content:"";position:absolute;left:-17px;top:16px;width:11px;height:11px;border-radius:50%;
+  background:var(--card);border:3px solid var(--kin-soft);
+}
+.item.t-fes{border-left-color:var(--shu)}
+.item.t-fes::before{border-color:var(--shu)}
+.item.t-sig{border-left-color:var(--kin)}
+.item.t-sig::before{border-color:var(--kin)}
+.item.t-eat{border-left-color:var(--eat)}
+.item.t-eat::before{border-color:var(--eat)}
+.item.t-move{border-left-color:var(--move)}
+.item.t-move::before{border-color:var(--move)}
+.item-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.time{font-family:'Shippori Mincho',serif;font-weight:700;font-size:13px;color:var(--ai);white-space:nowrap}
+.badge{
+  font-size:10.5px;font-weight:700;letter-spacing:.5px;padding:2px 8px;border-radius:999px;
+  color:#fff;background:var(--move);
+}
+.badge.t-fes{background:var(--shu)}
+.badge.t-sig{background:var(--kin)}
+.badge.t-eat{background:var(--eat)}
+.badge.t-move{background:var(--move)}
+.badge.t-etc{background:var(--etc)}
+.place{font-size:11.5px;color:var(--ink-soft);margin-left:auto}
+.place .tp{opacity:.8}
+.item h3{font-family:'Shippori Mincho',serif;font-weight:700;font-size:15.5px;margin:7px 0 3px;color:var(--ink)}
+.item .desc{font-size:13px;color:var(--ink-soft);margin:0}
+.item .meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:7px;font-size:11.5px;color:var(--ink-soft)}
+.item .meta span b{color:var(--kin)}
+.item .note{
+  margin-top:7px;font-size:11.5px;color:var(--shu);background:rgba(192,67,43,.06);
+  border-radius:8px;padding:5px 8px;
+}
+
+/* ===== Weather ===== */
+.weather{margin:10px 0 4px}
+.weather h2,.prep h2,.spots h2{
+  font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;color:var(--ai);
+  margin:0 0 8px;display:flex;align-items:center;gap:7px;
+}
+.weather h2::before,.prep h2::before,.spots h2::before{
+  content:"";width:14px;height:14px;border-radius:3px;background:var(--kin-soft);transform:rotate(45deg);
+}
+.wgrid{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.wgrid::-webkit-scrollbar{display:none}
+.wcard{
+  flex:0 0 auto;min-width:88px;text-align:center;background:var(--card);
+  border:1px solid var(--line);border-radius:12px;padding:9px 8px;box-shadow:var(--shadow);
+}
+.wcard .wd{font-size:11px;color:var(--ink-soft);font-weight:700}
+.wcard .ic{font-size:22px;margin:3px 0}
+.wcard .tmp{font-family:'Shippori Mincho',serif;font-weight:700;font-size:14px}
+.wcard .tmp .lo{color:var(--ai-soft);font-size:12px;font-weight:600}
+.wcard .pop{font-size:10.5px;color:var(--ai-soft)}
+
+/* ===== Prep checklist ===== */
+.prep{margin:22px 0 4px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+@media (max-width:430px){.checks{grid-template-columns:1fr}}
+.chk{
+  display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);
+  border-radius:11px;padding:9px 11px;cursor:pointer;box-shadow:var(--shadow);user-select:none;
+}
+.chk input{appearance:none;width:19px;height:19px;border:2px solid var(--kin-soft);border-radius:6px;
+  flex:0 0 auto;position:relative;cursor:pointer;background:var(--washi-2)}
+.chk input:checked{background:var(--ai);border-color:var(--ai)}
+.chk input:checked::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:13px;
+  display:flex;align-items:center;justify-content:center;font-weight:700}
+.chk span{font-size:13.5px;transition:.15s}
+.chk input:checked + span{color:var(--ink-soft);text-decoration:line-through;opacity:.65}
+
+/* ===== Spots ===== */
+.spots{margin:22px 0 4px}
+.spot{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 13px;
+  margin-bottom:8px;box-shadow:var(--shadow);
+}
+.spot h3{font-family:'Shippori Mincho',serif;font-weight:700;font-size:14.5px;margin:0 0 2px;color:var(--ink);
+  display:flex;align-items:center;gap:7px}
+.spot .cat{font-size:10px;font-weight:700;color:#fff;background:var(--kin);padding:2px 7px;border-radius:999px}
+.spot p{font-size:12.5px;color:var(--ink-soft);margin:0}
+
+/* ===== misc ===== */
+.notice{
+  text-align:center;font-size:12px;color:var(--ink-soft);padding:14px;
+  background:rgba(154,123,52,.07);border:1px dashed var(--kin-soft);border-radius:12px;margin:10px 0;
+}
+.notice.err{color:var(--shu);border-color:var(--shu);background:rgba(192,67,43,.06)}
+footer{text-align:center;font-size:11.5px;color:var(--ink-soft);margin-top:26px;line-height:1.8}
+footer .src{font-size:10.5px;opacity:.8}
+.skeleton{height:70px;border-radius:13px;background:linear-gradient(90deg,var(--washi-2),#fff,var(--washi-2));
+  background-size:200% 100%;animation:sh 1.3s infinite;margin-bottom:10px;border:1px solid var(--line)}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">KANSAI · OSAKA · KYOTO</p>
+    <h1>간사이 여행 대시보드</h1>
+    <p class="sub" id="trip-range">2026.07.23 ~ 07.26 · 3박 4일</p>
+  </header>
+
+  <div class="status">
+    <div class="stat dday">
+      <div class="lab">D-DAY</div>
+      <div class="val" id="dday">–</div>
+    </div>
+    <div class="stat">
+      <div class="lab">일정</div>
+      <div class="val" id="stat-items">–<small> 건</small></div>
+    </div>
+    <div class="stat">
+      <div class="lab">기간</div>
+      <div class="val" id="stat-days">4<small> 일</small></div>
+    </div>
+  </div>
+
+  <div class="cost">
+    <div class="total">예상 비용 <b id="cost-jpy">¥0</b> <span class="krw" id="cost-krw">≈ ₩0</span></div>
+    <label class="fx">환율 100엔 =
+      <input id="fx" type="number" inputmode="decimal" step="0.1" value="9.3" /> 원
+    </label>
+  </div>
+
+  <nav class="tabs" id="tabs" aria-label="일자 탭"></nav>
+
+  <section class="weather hidden" id="weather-sec">
+    <h2>오사카·교토 예보</h2>
+    <div class="wgrid" id="weather"></div>
+  </section>
+
+  <main id="timeline">
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+  </main>
+
+  <section class="spots hidden" id="spots-sec">
+    <h2>추천 스폿 · 메모</h2>
+    <div id="spots"></div>
+  </section>
+
+  <section class="prep" id="prep-sec">
+    <h2>준비물 체크리스트</h2>
+    <div class="checks" id="checks"></div>
+  </section>
+
+  <footer>
+    <div>간사이 여행 대시보드 · 시트 편집 후 새로고침하면 자동 반영</div>
+    <div class="src" id="data-src">내장 기본 데이터 표시 중</div>
+  </footer>
+
+</div>
+
+<script>
+/* =======================================================================
+   간사이 여행 대시보드 — 설정
+   ----------------------------------------------------------------------
+   Google Sheet → 파일 > 공유 > 웹에 게시 > CSV 로 공개 후 URL을 아래에 붙여넣으세요.
+   비워두면 내장 기본 데이터로 동작합니다(시트 없이도 미리보기 가능).
+   ======================================================================= */
+const CONFIG = {
+  // 일정 시트(gid=0) published CSV URL. 예:
+  // "https://docs.google.com/spreadsheets/d/e/2PACX-xxxx/pub?gid=0&single=true&output=csv"
+  SHEET_CSV: "",
+  // (옵션) 추천스폿 시트 published CSV URL
+  SPOTS_CSV: "",
+  TRIP_START: "2026-07-23",   // D-day / 오늘 강조 기준
+  TRIP_END:   "2026-07-26",
+  DEFAULT_FX: 9.3,            // 100엔 당 원
+  WEATHER: true,             // Open-Meteo 예보 카드
+};
+
+/* ===== 내장 기본(폴백) 데이터 — 시트가 그대로 따라야 할 스키마 ===== */
+const FALLBACK = [
+  {day:1,date:"7/23(목)",start:"15:00",end:"16:30",city:"오사카",place:"간사이공항→난바",transport:"라피트",type:"move",title:"간사이공항 도착 · 호텔 체크인",desc:"라피트 특급으로 난바 이동, 숙소에 짐 풀기.",cost_jpy:1450,note:"ICOCA 충전·교통패스 확인"},
+  {day:1,date:"7/23(목)",start:"17:00",end:"18:30",city:"오사카",place:"신사이바시",transport:"도보",type:"sig",title:"신사이바시 지브리 스토어",desc:"도토로·키키 굿즈. 폐점 전 여유 있게.",cost_jpy:4000,note:"인기 굿즈는 품절 주의"},
+  {day:1,date:"7/23(목)",start:"19:00",end:"21:00",city:"오사카",place:"도톤보리",transport:"도보",type:"eat",title:"도톤보리 야경 · 첫 저녁",desc:"글리코 사인, 다코야키·타코타코킹. 운하 산책.",cost_jpy:3000,note:"인파 많음·소매치기 주의"},
+
+  {day:2,date:"7/24(금)",start:"09:00",end:"09:40",city:"교토",place:"오사카→교토",transport:"특급",type:"move",title:"교토 이동",desc:"한큐/JR 특급으로 교토역. 코인로커 활용.",cost_jpy:410,note:"러시아워 혼잡"},
+  {day:2,date:"7/24(금)",start:"09:50",end:"11:30",city:"교토",place:"오이케도리~시조",transport:"도보",type:"fes",title:"기온 야마보코 후기 순행",desc:"9:30 출발 순행. 교차로 방향전환 '츠지마와시'가 백미.",cost_jpy:0,note:"양산·물 필수 / 폭염"},
+  {day:2,date:"7/24(금)",start:"12:00",end:"13:00",city:"교토",place:"니시키 시장",transport:"도보",type:"eat",title:"니시키 시장 점심",desc:"교토의 부엌. 두유도넛·어묵·말차.",cost_jpy:2500,note:"먹으며 걷기 금지 점포 있음"},
+  {day:2,date:"7/24(금)",start:"14:00",end:"16:00",city:"교토",place:"청수사",transport:"버스",type:"sig",title:"청수사 · 산넨자카",desc:"기요미즈 무대, 지슈 신사. 산넨자카·니넨자카 골목.",cost_jpy:500,note:"오르막·돌계단 많음"},
+  {day:2,date:"7/24(금)",start:"17:00",end:"20:00",city:"교토",place:"기온",transport:"도보",type:"sig",title:"기온 · 하나미코지",desc:"하나미코지·시라카와. 저녁엔 게이샤 마주칠 수도.",cost_jpy:3500,note:"사진 촬영 매너 주의"},
+
+  {day:3,date:"7/25(토)",start:"09:00",end:"11:00",city:"오사카",place:"오사카성",transport:"지하철",type:"sig",title:"오사카성 · 천수각",desc:"공원 산책 후 천수각 전망대. 니시노마루 정원.",cost_jpy:600,note:"개장 직후가 한산"},
+  {day:3,date:"7/25(토)",start:"11:30",end:"13:30",city:"오사카",place:"우메다",transport:"지하철",type:"eat",title:"우메다 · 공중정원 전망대",desc:"점심 후 우메다 스카이빌딩. 백화점 디저트.",cost_jpy:3500,note:"전망대 티켓 시간대 지정"},
+  {day:3,date:"7/25(토)",start:"15:00",end:"17:00",city:"오사카",place:"야마나카 사케",transport:"전철",type:"etc",title:"야마나카 사케 양조장 견학",desc:"긴키 지역 사케. 시음·기념 구매.",cost_jpy:2000,note:"음주 후 도보 이동 유의"},
+  {day:3,date:"7/25(토)",start:"18:00",end:"21:30",city:"오사카",place:"텐진 후나토교",transport:"전철",type:"fes",title:"텐진 마츠리 후나토교 · 불꽃",desc:"수상 배다리 행렬, 봉납 불꽃놀이로 피날레.",cost_jpy:0,note:"명당 일찍 선점 · 귀가 인파"},
+
+  {day:4,date:"7/26(일)",start:"10:00",end:"12:30",city:"오사카",place:"난바",transport:"도보",type:"sig",title:"난바 · 쇼핑 마무리",desc:"돈키·드럭스토어 기념품, 남은 ICOCA 정리.",cost_jpy:5000,note:"면세 여권 지참"},
+  {day:4,date:"7/26(일)",start:"13:00",end:"14:00",city:"오사카",place:"난바→공항",transport:"라피트",type:"move",title:"공항 이동",desc:"라피트로 간사이공항. 체크인 여유.",cost_jpy:1450,note:"출발 3시간 전 도착 권장"},
+  {day:4,date:"7/26(일)",start:"14:30",end:"16:30",city:"오사카",place:"간사이공항",transport:"-",type:"move",title:"체크인 · 귀국",desc:"면세 수령, 마지막 라멘/스타벅스.",cost_jpy:2000,note:"유동성 자금 환전 정리"},
+];
+
+const FALLBACK_SPOTS = [
+  {category:"지브리",title:"신사이바시 지브리 스토어",note:"도토로·하울 굿즈. 한정판은 오픈런."},
+  {category:"사케",title:"야마나카 사케 / 나다 양조장",note:"시음 세트. 키모토·준마이 추천."},
+  {category:"명소",title:"후시미 이나리 (여유 시 추가)",note:"센본토리이. 새벽이 한적."},
+  {category:"교통",title:"ICOCA + 간사이 스루패스",test:"",note:"지하철·사철 자유. 라피트는 별도 특급권."},
+];
+
+const PREP = [
+  "여권 / 항공권","엔화 현금 + 카드","ICOCA 카드","휴대폰 eSIM/유심",
+  "보조배터리","양산 / 우산","자외선차단제","상비약 / 멀미약",
+  "돼지코 어댑터","갈아입을 옷","우천 대비 우비","호텔 바우처",
+];
+
+/* ===================== 유틸 ===================== */
+const $ = (s,el=document)=>el.querySelector(s);
+const TYPE_LABEL = {fes:"축제",sig:"시그니처",eat:"미식",move:"이동",etc:"기타"};
+const TYPE_ICON  = {fes:"祭",sig:"★",eat:"食",move:"→",etc:"·"};
+function normType(t){t=(t||"").trim().toLowerCase();return TYPE_LABEL[t]?t:"etc";}
+function toNum(v){const n=parseFloat(String(v).replace(/[^0-9.\-]/g,""));return isNaN(n)?0:n;}
+function timeKey(s){const m=String(s||"").match(/(\d{1,2}):(\d{2})/);return m?(+m[1])*60+(+m[2]):9999;}
+const fmtJPY = n => "¥"+Math.round(n).toLocaleString();
+const fmtKRW = n => "₩"+Math.round(n).toLocaleString();
+
+/* ===================== 상태 ===================== */
+let ITEMS = [];
+let FX = CONFIG.DEFAULT_FX;
+
+/* ===================== 데이터 로드 ===================== */
+function fetchCsv(url){
+  return new Promise((resolve,reject)=>{
+    Papa.parse(url,{download:true,header:true,skipEmptyLines:true,
+      complete:r=>resolve(r.data),error:reject});
+  });
+}
+function normalizeItems(rows){
+  return rows.map(r=>({
+    day:toNum(r.day)||1,
+    date:(r.date||"").trim(),
+    start:(r.start||"").trim(),
+    end:(r.end||"").trim(),
+    city:(r.city||"").trim(),
+    place:(r.place||"").trim(),
+    transport:(r.transport||"").trim(),
+    type:normType(r.type),
+    title:(r.title||"").trim(),
+    desc:(r.desc||"").trim(),
+    cost_jpy:toNum(r.cost_jpy),
+    note:(r.note||"").trim(),
+  })).filter(x=>x.title || x.place);
+}
+
+async function loadData(){
+  if(CONFIG.SHEET_CSV){
+    try{
+      const rows = await fetchCsv(CONFIG.SHEET_CSV);
+      const items = normalizeItems(rows);
+      if(items.length){
+        ITEMS = items;
+        $("#data-src").textContent = "Google Sheet 연결됨 · 새로고침 시 갱신";
+        return;
+      }
+      throw new Error("빈 시트");
+    }catch(e){
+      ITEMS = normalizeItems(FALLBACK);
+      const f = $("#timeline");
+      const n = document.createElement("div");
+      n.className="notice err";
+      n.textContent="시트를 불러오지 못해 기본 데이터를 표시합니다. (게시 설정·URL 확인)";
+      $("#data-src").textContent="시트 로드 실패 · 기본 데이터";
+      console.warn("Sheet load failed:",e);
+    }
+  }else{
+    ITEMS = normalizeItems(FALLBACK);
+  }
+}
+
+async function loadSpots(){
+  let spots = FALLBACK_SPOTS;
+  if(CONFIG.SPOTS_CSV){
+    try{
+      const rows = await fetchCsv(CONFIG.SPOTS_CSV);
+      const s = rows.map(r=>({category:(r.category||r.cat||"").trim(),
+        title:(r.title||r.place||"").trim(),note:(r.note||r.desc||"").trim()}))
+        .filter(x=>x.title);
+      if(s.length) spots = s;
+    }catch(e){console.warn("Spots load failed:",e);}
+  }
+  renderSpots(spots);
+}
+
+/* ===================== 렌더 ===================== */
+function groupByDay(items){
+  const map = new Map();
+  for(const it of items){
+    if(!map.has(it.day)) map.set(it.day,[]);
+    map.get(it.day).push(it);
+  }
+  return [...map.entries()].sort((a,b)=>a[0]-b[0])
+    .map(([day,arr])=>({day,date:arr[0].date,items:arr.sort((a,b)=>timeKey(a.start)-timeKey(b.start))}));
+}
+
+function dayDateObj(idx){
+  const d = new Date(CONFIG.TRIP_START+"T00:00:00");
+  d.setDate(d.getDate()+(idx-1));
+  return d;
+}
+function todayDayIndex(){
+  const now = new Date(); now.setHours(0,0,0,0);
+  const start = new Date(CONFIG.TRIP_START+"T00:00:00");
+  const diff = Math.round((now-start)/86400000);
+  return diff;
+}
+
+function renderTabs(days){
+  const tabs = $("#tabs");
+  tabs.innerHTML = "";
+  const todayIdx = todayDayIndex()+1;
+  days.forEach(g=>{
+    const b = document.createElement("button");
+    b.className = "tab";
+    b.dataset.day = g.day;
+    if(g.day===todayIdx) b.classList.add("today");
+    b.innerHTML = `${g.day}일차<span class="d">${g.date||""}</span>`;
+    b.onclick = ()=>{
+      const el = document.getElementById("day-"+g.day);
+      if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+    };
+    tabs.appendChild(b);
+  });
+}
+
+function renderTimeline(days){
+  const root = $("#timeline");
+  root.innerHTML = "";
+  const todayIdx = todayDayIndex()+1;
+  days.forEach(g=>{
+    const sec = document.createElement("section");
+    sec.className = "day";
+    sec.id = "day-"+g.day;
+    const isToday = g.day===todayIdx;
+    sec.innerHTML = `
+      <div class="day-head">
+        <span class="n">${g.day}일차</span>
+        <span class="dt">${g.date||""} · ${g.items[0]?.city||""}</span>
+        ${isToday?'<span class="now">오늘</span>':''}
+      </div>
+      <div class="tl">${g.items.map(itemHTML).join("")}</div>`;
+    root.appendChild(sec);
+  });
+  setupScrollSpy(days);
+}
+
+function itemHTML(it){
+  const t = it.type;
+  const meta = [];
+  if(it.transport && it.transport!=="-") meta.push(`<span>🚃 ${esc(it.transport)}</span>`);
+  if(it.cost_jpy>0) meta.push(`<span>💴 <b>${fmtJPY(it.cost_jpy)}</b></span>`);
+  return `
+  <article class="item t-${t}">
+    <div class="item-top">
+      <span class="time">${esc(it.start)}${it.end?'–'+esc(it.end):''}</span>
+      <span class="badge t-${t}">${TYPE_ICON[t]} ${TYPE_LABEL[t]}</span>
+      ${it.place?`<span class="place"><span class="tp">${esc(it.city)}</span> · ${esc(it.place)}</span>`:''}
+    </div>
+    <h3>${esc(it.title)}</h3>
+    ${it.desc?`<p class="desc">${esc(it.desc)}</p>`:''}
+    ${meta.length?`<div class="meta">${meta.join("")}</div>`:''}
+    ${it.note?`<div class="note">⚠ ${esc(it.note)}</div>`:''}
+  </article>`;
+}
+function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function renderStats(){
+  $("#stat-items").innerHTML = ITEMS.length+"<small> 건</small>";
+  const days = new Set(ITEMS.map(i=>i.day)).size;
+  $("#stat-days").innerHTML = days+"<small> 일</small>";
+  renderCost();
+  renderDday();
+}
+function renderCost(){
+  const jpy = ITEMS.reduce((s,i)=>s+i.cost_jpy,0);
+  $("#cost-jpy").textContent = fmtJPY(jpy);
+  $("#cost-krw").textContent = "≈ "+fmtKRW(jpy*FX/100);
+}
+function renderDday(){
+  const start = new Date(CONFIG.TRIP_START+"T00:00:00");
+  const end   = new Date(CONFIG.TRIP_END+"T23:59:59");
+  const now = new Date();
+  const el = $("#dday");
+  const days = Math.ceil((start-now)/86400000);
+  if(now>end){ el.textContent="다녀왔어요"; el.style.fontSize="15px"; }
+  else if(now>=start){ el.textContent="여행중"; }
+  else if(days===0){ el.textContent="D-DAY"; }
+  else { el.innerHTML = "D-"+days; }
+}
+
+function renderSpots(spots){
+  if(!spots.length) return;
+  $("#spots-sec").classList.remove("hidden");
+  $("#spots").innerHTML = spots.map(s=>`
+    <div class="spot">
+      <h3>${s.category?`<span class="cat">${esc(s.category)}</span>`:''}${esc(s.title)}</h3>
+      ${s.note?`<p>${esc(s.note)}</p>`:''}
+    </div>`).join("");
+}
+
+/* ===================== 체크리스트(localStorage) ===================== */
+const LS_KEY = "kansai_prep_v1";
+function loadChecks(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)||"{}"); }
+  catch(e){ return {}; }
+}
+function saveChecks(state){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  catch(e){ /* 미리보기(파일 프로토콜 등) 폴백 — 저장 생략 */ }
+}
+function renderChecks(){
+  const state = loadChecks();
+  const root = $("#checks");
+  root.innerHTML = "";
+  PREP.forEach((label,i)=>{
+    const id = "p"+i;
+    const lab = document.createElement("label");
+    lab.className = "chk";
+    lab.innerHTML = `<input type="checkbox" ${state[id]?"checked":""}><span>${esc(label)}</span>`;
+    const input = lab.querySelector("input");
+    input.addEventListener("change",()=>{
+      const s = loadChecks(); s[id]=input.checked; saveChecks(s);
+    });
+    root.appendChild(lab);
+  });
+}
+
+/* ===================== 스크롤 스파이(현재 day 탭 강조) ===================== */
+function setupScrollSpy(days){
+  const tabs = [...document.querySelectorAll(".tab")];
+  const sections = days.map(g=>document.getElementById("day-"+g.day)).filter(Boolean);
+  const setActive = day=>{
+    tabs.forEach(t=>t.classList.toggle("active", +t.dataset.day===day));
+  };
+  if("IntersectionObserver" in window){
+    const io = new IntersectionObserver(entries=>{
+      const vis = entries.filter(e=>e.isIntersecting)
+        .sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+      if(vis) setActive(+vis.target.id.split("-")[1]);
+    },{rootMargin:"-45% 0px -50% 0px",threshold:[0,.25,.5,1]});
+    sections.forEach(s=>io.observe(s));
+  }
+  if(days.length) setActive(days[0].day);
+}
+
+/* ===================== 날씨(Open-Meteo) ===================== */
+const WICON = {0:"☀️",1:"🌤️",2:"⛅",3:"☁️",45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌧️",
+  61:"🌧️",63:"🌧️",65:"🌧️",80:"🌦️",81:"🌧️",82:"⛈️",95:"⛈️",96:"⛈️",99:"⛈️"};
+async function loadWeather(){
+  if(!CONFIG.WEATHER) return;
+  // 오사카 좌표
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=34.69&longitude=135.50`
+    +`&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`
+    +`&timezone=Asia%2FTokyo&start_date=${CONFIG.TRIP_START}&end_date=${CONFIG.TRIP_END}`;
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("weather "+res.status);
+    const d = await res.json();
+    const dd = d.daily; if(!dd || !dd.time) return;
+    const W = ["일","월","화","수","목","금","토"];
+    const cards = dd.time.map((t,i)=>{
+      const date = new Date(t+"T00:00:00");
+      const wd = W[date.getDay()];
+      return `<div class="wcard">
+        <div class="wd">${t.slice(5).replace("-","/")} (${wd})</div>
+        <div class="ic">${WICON[dd.weather_code[i]]||"🌤️"}</div>
+        <div class="tmp">${Math.round(dd.temperature_2m_max[i])}°<span class="lo"> / ${Math.round(dd.temperature_2m_min[i])}°</span></div>
+        <div class="pop">💧${dd.precipitation_probability_max[i]??0}%</div>
+      </div>`;
+    }).join("");
+    $("#weather").innerHTML = cards;
+    $("#weather-sec").classList.remove("hidden");
+  }catch(e){ console.warn("Weather unavailable:",e); }
+}
+
+/* ===================== 초기화 ===================== */
+function renderAll(){
+  const days = groupByDay(ITEMS);
+  renderTabs(days);
+  renderTimeline(days);
+  renderStats();
+}
+
+async function init(){
+  // 환율 입력
+  FX = CONFIG.DEFAULT_FX;
+  const fxEl = $("#fx"); fxEl.value = FX;
+  fxEl.addEventListener("input",()=>{ FX = toNum(fxEl.value)||CONFIG.DEFAULT_FX; renderCost(); });
+
+  renderChecks();
+  await loadData();
+  renderAll();
+  loadSpots();
+  loadWeather();
+
+  // 오늘이 여행 기간이면 해당 day로 스크롤
+  const ti = todayDayIndex();
+  if(ti>=0 && ti<new Set(ITEMS.map(i=>i.day)).size){
+    setTimeout(()=>{
+      const el = document.getElementById("day-"+(ti+1));
+      if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+    },300);
+  }
+}
+init();
+</script>
+</body>
+</html>
