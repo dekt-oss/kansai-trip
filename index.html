@@ -289,7 +289,7 @@ footer .src{font-size:10.5px;opacity:.8}
   </section>
 
   <footer>
-    <div>간사이 여행 대시보드 · 시트 편집 후 새로고침하면 자동 반영</div>
+    <div>간사이 여행 대시보드 · 데이터 편집 후 새로고침하면 자동 반영</div>
     <div class="src" id="data-src">내장 기본 데이터 표시 중</div>
   </footer>
 
@@ -303,11 +303,14 @@ footer .src{font-size:10.5px;opacity:.8}
    비워두면 내장 기본 데이터로 동작합니다(시트 없이도 미리보기 가능).
    ======================================================================= */
 const CONFIG = {
-  // 일정 시트(gid=0) published CSV URL. 예:
-  // "https://docs.google.com/spreadsheets/d/e/2PACX-xxxx/pub?gid=0&single=true&output=csv"
+  // ── 데이터 소스 우선순위: SHEET_CSV → LOCAL_CSV → 내장 FALLBACK ──
+  // (옵션) Google Sheet published CSV URL. 비워두면 아래 레포 내 CSV를 사용.
+  // 예: "https://docs.google.com/spreadsheets/d/e/2PACX-xxxx/pub?gid=0&single=true&output=csv"
   SHEET_CSV: "",
-  // (옵션) 추천스폿 시트 published CSV URL
   SPOTS_CSV: "",
+  // 레포 안 데이터 파일(기본 소스). 클로드가 이 파일만 고치면 자동 반영.
+  LOCAL_CSV: "data/schedule.csv",
+  LOCAL_SPOTS_CSV: "data/spots.csv",
   TRIP_START: "2026-07-23",   // D-day / 오늘 강조 기준
   TRIP_END:   "2026-07-26",
   DEFAULT_FX: 9.3,            // 100엔 당 원
@@ -388,35 +391,32 @@ function normalizeItems(rows){
 }
 
 async function loadData(){
-  if(CONFIG.SHEET_CSV){
+  // 1순위: Google Sheet(설정 시)  2순위: 레포 내 CSV  3순위: 내장 데이터
+  const sources = [];
+  if(CONFIG.SHEET_CSV) sources.push({url:CONFIG.SHEET_CSV, label:"Google Sheet 연결됨 · 새로고침 시 갱신"});
+  if(CONFIG.LOCAL_CSV) sources.push({url:CONFIG.LOCAL_CSV, label:"레포 데이터(data/schedule.csv) · 푸시 시 자동 반영"});
+  for(const s of sources){
     try{
-      const rows = await fetchCsv(CONFIG.SHEET_CSV);
+      const rows = await fetchCsv(s.url + (s.url.includes("?")?"&":"?") + "_=" + Date.now()); // 캐시 우회
       const items = normalizeItems(rows);
       if(items.length){
         ITEMS = items;
-        $("#data-src").textContent = "Google Sheet 연결됨 · 새로고침 시 갱신";
+        $("#data-src").textContent = s.label;
         return;
       }
-      throw new Error("빈 시트");
-    }catch(e){
-      ITEMS = normalizeItems(FALLBACK);
-      const f = $("#timeline");
-      const n = document.createElement("div");
-      n.className="notice err";
-      n.textContent="시트를 불러오지 못해 기본 데이터를 표시합니다. (게시 설정·URL 확인)";
-      $("#data-src").textContent="시트 로드 실패 · 기본 데이터";
-      console.warn("Sheet load failed:",e);
-    }
-  }else{
-    ITEMS = normalizeItems(FALLBACK);
+    }catch(e){ console.warn("Data source failed:", s.url, e); }
   }
+  // 모두 실패(예: file:// 로 직접 열람) → 내장 데이터 폴백
+  ITEMS = normalizeItems(FALLBACK);
+  $("#data-src").textContent = "내장 기본 데이터 표시 중";
 }
 
 async function loadSpots(){
   let spots = FALLBACK_SPOTS;
-  if(CONFIG.SPOTS_CSV){
+  const url = CONFIG.SPOTS_CSV || CONFIG.LOCAL_SPOTS_CSV;
+  if(url){
     try{
-      const rows = await fetchCsv(CONFIG.SPOTS_CSV);
+      const rows = await fetchCsv(url + (url.includes("?")?"&":"?") + "_=" + Date.now());
       const s = rows.map(r=>({category:(r.category||r.cat||"").trim(),
         title:(r.title||r.place||"").trim(),note:(r.note||r.desc||"").trim()}))
         .filter(x=>x.title);

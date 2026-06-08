@@ -22,34 +22,35 @@
 
 ---
 
-## 🚀 빠른 시작
+## 🚀 데이터 소스 (우선순위)
 
-### 1) 그대로 보기 (시트 없이)
-`index.html`을 브라우저로 열면 내장 기본 일정으로 동작합니다.
+대시보드는 아래 순서로 데이터를 찾습니다.
 
-### 2) 구글 시트 연결 (자동 갱신)
+1. **`CONFIG.SHEET_CSV`** — Google Sheet published CSV (설정한 경우만)
+2. **`data/schedule.csv`** — 레포 안 CSV 파일 ← **기본·권장**
+3. **내장 `FALLBACK`** — 위 둘이 모두 실패할 때(예: `file://` 직접 열람)
+
+### ✅ 권장 워크플로 — 레포 CSV 편집 (Claude 자동 반영)
+별도 구글 시트 없이, **`data/schedule.csv`** 한 파일만 고치면 됩니다.
+
+```
+Claude에 "수정 요청"  →  data/schedule.csv 편집·커밋·푸시  →  GitHub Pages 자동 배포  →  새로고침 반영
+```
+
+- 추천스폿은 `data/spots.csv` (`category, title, note`)
+- 컬럼 스키마는 아래 표 참고. `data/schedule.sample.csv` 가 동일 양식의 예시입니다.
+- 사람이 직접 셀을 편집하고 싶으면 엑셀/구글시트로 열어 → CSV로 내보내 같은 파일에 덮어쓰면 됩니다.
+
+### (옵션) Google Sheet 연결
+비개발자가 브라우저에서 셀만 고치게 하고 싶을 때만 사용합니다.
 1. `data/schedule.sample.csv`의 **헤더(컬럼명)** 를 그대로 사용해 구글 시트를 만듭니다.
-2. **파일 → 공유 → 웹에 게시(Publish to web) → 전체 문서 또는 해당 탭 → CSV** 선택 후 게시.
-3. 발급된 URL을 복사합니다. 형식:
+2. **파일 → 공유 → 웹에 게시(Publish to web) → 해당 탭 → CSV** 게시 → URL 복사:
    ```
    https://docs.google.com/spreadsheets/d/e/{ID}/pub?gid=0&single=true&output=csv
    ```
-4. `index.html` 상단 `CONFIG.SHEET_CSV` 에 붙여넣습니다. (추천스폿 탭은 `SPOTS_CSV`)
-5. 저장 → 새로고침. 이제 **시트를 고치면 새로고침만으로 반영**됩니다.
+3. `index.html` 상단 `CONFIG.SHEET_CSV` 에 붙여넣기. (설정 시 시트가 1순위)
 
-```js
-const CONFIG = {
-  SHEET_CSV: "https://docs.google.com/.../pub?gid=0&single=true&output=csv",
-  SPOTS_CSV: "",          // (옵션) 추천스폿 시트
-  TRIP_START: "2026-07-23",
-  TRIP_END:   "2026-07-26",
-  DEFAULT_FX: 9.3,        // 100엔 당 원화
-  WEATHER: true,
-};
-```
-
-> 공개 CSV 엔드포인트는 CORS가 허용되어 브라우저 `fetch()`로 바로 읽을 수 있습니다.
-> 읽기 전용 공개 데이터라 **시크릿/키가 필요 없습니다.**
+> 공개 CSV는 CORS 허용이라 브라우저 `fetch()`로 바로 읽히고, 읽기 전용 공개 데이터라 **시크릿/키가 불필요**합니다.
 
 ---
 
