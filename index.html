@@ -48,15 +48,15 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 
 /* ===== Main menu (상위 메뉴) ===== */
 .mainmenu{
-  position:sticky;top:0;z-index:30;display:flex;gap:6px;padding:8px 0 6px;margin-bottom:4px;
-  background:linear-gradient(var(--washi) 78%, rgba(244,236,216,0));
+  position:sticky;top:0;z-index:30;display:flex;gap:6px;padding:8px 0 7px;margin-bottom:2px;
+  background:var(--washi);box-shadow:0 6px 8px -6px rgba(42,38,32,.18);
 }
 .mainmenu button{
   flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
-  padding:9px 4px;border-radius:11px;font-family:'Shippori Mincho',serif;font-weight:700;
-  font-size:13.5px;cursor:pointer;transition:.15s;
+  padding:8px 3px;border-radius:11px;font-family:'Shippori Mincho',serif;font-weight:700;
+  font-size:12.5px;cursor:pointer;transition:.15s;
 }
-.mainmenu button .c{display:block;font-size:10px;font-weight:400;color:var(--ink-soft);margin-top:1px}
+.mainmenu button .c{display:block;font-size:9.5px;font-weight:400;color:var(--ink-soft);margin-top:1px}
 .mainmenu button.active{background:var(--ai);color:#fff;border-color:var(--ai)}
 .mainmenu button.active .c{color:rgba(255,255,255,.75)}
 .view{animation:fade .2s}
@@ -83,17 +83,17 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .fx input{width:58px;padding:4px 6px;border:1px solid var(--line);border-radius:7px;font-family:inherit;font-size:12.5px;text-align:center;background:var(--washi-2);color:var(--ink)}
 .cost .memo{font-size:10.5px;color:var(--ink-soft);margin-top:4px;text-align:right}
 
-/* ===== Day tabs ===== */
-.tabs{position:sticky;top:50px;z-index:20;display:flex;gap:7px;overflow-x:auto;padding:9px 2px;margin:2px -2px 6px;background:linear-gradient(var(--washi) 70%, rgba(244,236,216,0));scrollbar-width:none}
+/* ===== Day tabs (가로로 크게·메뉴 아래 고정) ===== */
+.tabs{position:sticky;top:63px;z-index:20;display:flex;gap:7px;overflow-x:auto;padding:7px 0 9px;margin:0 0 6px;background:var(--washi);scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);padding:7px 13px;border-radius:999px;font-family:'Shippori Mincho',serif;font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap;transition:.15s}
-.tab .d{display:block;font-size:9.5px;color:var(--ink-soft);font-weight:400;margin-top:1px}
+.tab{flex:1 0 auto;min-width:72px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);padding:10px 10px;border-radius:13px;font-family:'Shippori Mincho',serif;font-weight:700;font-size:14.5px;cursor:pointer;white-space:nowrap;transition:.15s;text-align:center}
+.tab .d{display:block;font-size:10px;color:var(--ink-soft);font-weight:400;margin-top:2px}
 .tab.active{background:var(--ai);color:#fff;border-color:var(--ai)}
 .tab.active .d{color:rgba(255,255,255,.75)}
 .tab.today{box-shadow:0 0 0 2px var(--shu) inset}
 
 /* ===== Day section ===== */
-.day{margin:16px 0 6px;scroll-margin-top:104px}
+.day{margin:16px 0 6px;scroll-margin-top:116px}
 .day-head{display:flex;align-items:baseline;gap:9px;margin:0 2px 4px;border-bottom:2px solid var(--kin-soft);padding-bottom:5px}
 .day-head .n{font-family:'Shippori Mincho',serif;font-weight:800;font-size:19px;color:var(--ai)}
 .day-head .dt{font-size:12.5px;color:var(--ink-soft)}
@@ -114,15 +114,25 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .time{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;color:var(--ai);white-space:nowrap}
 .badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:999px;color:#fff;background:var(--move)}
 .badge.t-fes{background:var(--shu)} .badge.t-sig{background:var(--kin)} .badge.t-eat{background:var(--eat)} .badge.t-move{background:var(--move)} .badge.t-etc{background:var(--etc)}
+.item{cursor:pointer}
 .item h3{font-family:'Shippori Mincho',serif;font-weight:700;font-size:15px;margin:6px 0 3px;color:var(--ink)}
 .item .desc{font-size:12.5px;color:var(--ink-soft);margin:0}
 .item .meta{display:flex;gap:11px;flex-wrap:wrap;margin-top:6px;font-size:11px;color:var(--ink-soft)}
 .item .meta span b{color:var(--kin)}
 .item .note{margin-top:6px;font-size:11px;color:var(--shu);background:rgba(192,67,43,.06);border-radius:8px;padding:5px 8px}
+/* 접기/펼치기 */
+.caret{margin-left:6px;color:var(--kin-soft);font-size:13px;transition:transform .2s;flex:0 0 auto}
+.item-detail{overflow:hidden;transition:max-height .25s ease;max-height:400px;margin-top:6px}
+.item.collapsed .item-detail{max-height:0;margin-top:0}
+.item.collapsed .caret{transform:rotate(-90deg)}
 /* place → map trigger */
 .place{margin-left:auto;display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--ai-soft);background:rgba(31,64,104,.07);border:1px solid rgba(31,64,104,.15);padding:3px 8px;border-radius:999px;cursor:pointer;font-weight:600}
 .place:active{transform:scale(.97)}
 .place .pin{font-size:11px}
+/* 비용 내역 */
+.costrow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:6px;box-shadow:var(--shadow)}
+.costrow .cd{font-size:12.5px;color:var(--ink)} .costrow .cd small{color:var(--ink-soft);font-size:11px}
+.costrow .cv{font-size:12.5px;color:var(--ink-soft);text-align:right;white-space:nowrap} .costrow .cv b{color:var(--shu);font-family:'Shippori Mincho',serif}
 
 /* ===== Section headings ===== */
 .sec-h{font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;color:var(--ai);margin:18px 0 4px;display:flex;align-items:center;gap:7px}
@@ -206,8 +216,9 @@ footer .src{font-size:10px;opacity:.8}
 
   <nav class="mainmenu" id="mainmenu">
     <button data-view="plan" class="active">📅 일정<span class="c">타임라인·지도</span></button>
+    <button data-view="cost">💴 비용<span class="c">합계·내역</span></button>
     <button data-view="prep">✅ 준비<span class="c">예약·준비물</span></button>
-    <button data-view="decide">⚖️ 결정<span class="c">A · B 선택</span></button>
+    <button data-view="decide">⚖️ 결정<span class="c">A · B</span></button>
   </nav>
 
   <!-- ===== 일정 VIEW ===== -->
@@ -216,14 +227,6 @@ footer .src{font-size:10px;opacity:.8}
       <div class="stat dday"><div class="lab">D-DAY</div><div class="val" id="dday">–</div></div>
       <div class="stat"><div class="lab">일정</div><div class="val" id="stat-items">–<small> 건</small></div></div>
       <div class="stat"><div class="lab">기간</div><div class="val" id="stat-days">4<small> 일</small></div></div>
-    </div>
-
-    <div class="cost">
-      <div class="row flight"><span class="k">✈ 항공권 (확정·2인)</span><span class="v" id="cost-flight">₩0</span></div>
-      <div class="row local"><span class="k">🗾 현지 예상 (2인)</span><span class="v"><b id="cost-local-jpy">¥0</b> <span id="cost-local-krw">≈ ₩0</span></span></div>
-      <div class="row total"><span class="k">합계</span><span class="v" id="cost-total">₩0</span></div>
-      <label class="fx">환율 100엔 = <input id="fx" type="number" inputmode="decimal" step="0.1" value="9.3" /> 원</label>
-      <div class="memo">※ 숙소비 미포함 · 현지비는 일정표 합산(예상)</div>
     </div>
 
     <nav class="tabs" id="tabs" aria-label="일자 탭"></nav>
@@ -241,6 +244,22 @@ footer .src{font-size:10px;opacity:.8}
       <div class="sec-h">추천 스폿 · 메모</div>
       <div id="spots"></div>
     </section>
+  </section>
+
+  <!-- ===== 비용 VIEW ===== -->
+  <section id="view-cost" class="view hidden">
+    <div class="cost">
+      <div class="row flight"><span class="k">✈ 항공권 (왕복·2인)</span><span class="v" id="cost-flight">₩0</span></div>
+      <div class="row local"><span class="k">🗾 현지 예상 (2인)</span><span class="v"><b id="cost-local-jpy">¥0</b> <span id="cost-local-krw">≈ ₩0</span></span></div>
+      <div class="row total"><span class="k">합계</span><span class="v" id="cost-total">₩0</span></div>
+      <label class="fx">환율 100엔 = <input id="fx" type="number" inputmode="decimal" step="0.1" value="9.3" /> 원</label>
+      <div class="memo">※ 숙소비 미포함 · 현지비는 일정표 합산(예상)</div>
+    </div>
+    <div class="sec-h">일자별 비용</div>
+    <div id="cost-by-day"></div>
+    <div class="sec-h" style="margin-top:18px">항목별 비용</div>
+    <p class="sec-sub">비용이 있는 일정만 표시</p>
+    <div id="cost-by-item"></div>
   </section>
 
   <!-- ===== 준비 VIEW ===== -->
@@ -300,14 +319,13 @@ const CONFIG = {
   LOCAL_DECISIONS_CSV: "data/decisions.csv",
   TRIP_START: "2026-07-23",
   TRIP_END:   "2026-07-26",
-  DEFAULT_FX: 9.3,                  // 100엔 당 원
-  FLIGHT_KRW: 566080,               // 부산-오사카 왕복 항공권(확정·2인)
+  DEFAULT_FX: 9.3,                  // 100엔 당 원 (항공권 등 원화 비용은 schedule.csv의 cost_krw 컬럼에 입력)
   WEATHER: true,
 };
 
 /* ===== 내장 폴백(파일 직접 열람용) — CSV와 동일 스키마 ===== */
 const FALLBACK = [
-  {day:1,date:"7/23(목)",start:"09:20",end:"10:50",city:"부산→오사카",place:"김해공항→KIX",transport:"비행기",type:"move",title:"왕복 항공편 탑승",desc:"09:20 김해 출발, 약 10:50 KIX 도착",cost_jpy:0,note:"예약·결제 완료"},
+  {day:1,date:"7/23(목)",start:"09:20",end:"10:50",city:"부산→오사카",place:"김해공항→KIX",transport:"비행기",type:"move",title:"왕복 항공편 탑승",desc:"09:20 김해 출발, 약 10:50 KIX 도착",cost_jpy:0,cost_krw:566080,note:"예약·결제 완료(왕복·2인)"},
   {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바",transport:"라피트",type:"move",title:"난카이 특급 라피트(약 38분)",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔)",cost_jpy:1560,note:""},
   {day:1,date:"7/23(목)",start:"13:30",end:"14:30",city:"오사카",place:"난바 일대",transport:"도보",type:"eat",title:"첫 끼 · 오코노미야키/우동",desc:"난바 일대 첫 점심",cost_jpy:1500,note:""},
   {day:1,date:"7/23(목)",start:"14:30",end:"17:30",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig",title:"도토리공화국 신사이바시점 + 다이마루",desc:"전국 최대 도토리공화국·가오나시 포토존. 도보 10~15분",cost_jpy:0,note:"한낮 실내(폭염대비)"},
@@ -348,9 +366,17 @@ const PREP = [
 
 /* ===================== 유틸 ===================== */
 const $ = (s,el=document)=>el.querySelector(s);
-const TYPE_LABEL = {fes:"축제",sig:"시그니처",eat:"미식",move:"이동",etc:"기타"};
+const TYPE_LABEL = {fes:"축제",sig:"관광",eat:"미식",move:"이동",etc:"기타"};
 const TYPE_ICON  = {fes:"祭",sig:"★",eat:"食",move:"→",etc:"·"};
 function normType(t){t=(t||"").trim().toLowerCase();return TYPE_LABEL[t]?t:"etc";}
+// 이동수단 → 종류별 이모지 (조합 지원: "지하철+한큐" → 🚇🚆)
+function transportIcon(t){
+  const rules=[[/비행기|항공/,"✈️"],[/지하철/,"🚇"],[/버스/,"🚌"],[/택시/,"🚕"],
+    [/도보|걷기/,"🚶"],[/기차|열차|전철|전차|특급|급행|라피트|난카이|한큐|JR/i,"🚆"]];
+  const ics=[];
+  for(const [re,ic] of rules){ if(re.test(String(t||""))&&!ics.includes(ic)) ics.push(ic); }
+  return ics.length?ics.join(""):"🚃";
+}
 function toNum(v){const n=parseFloat(String(v).replace(/[^0-9.\-]/g,""));return isNaN(n)?0:n;}
 function timeKey(s){const m=String(s||"").match(/(\d{1,2}):(\d{2})/);return m?(+m[1])*60+(+m[2]):9999;}
 const fmtJPY = n => "¥"+Math.round(n).toLocaleString();
@@ -372,7 +398,7 @@ function normalizeItems(rows){
     day:toNum(r.day)||1,date:(r.date||"").trim(),start:(r.start||"").trim(),end:(r.end||"").trim(),
     city:(r.city||"").trim(),place:(r.place||"").trim(),transport:(r.transport||"").trim(),
     type:normType(r.type),title:(r.title||"").trim(),desc:(r.desc||"").trim(),
-    cost_jpy:toNum(r.cost_jpy),note:(r.note||"").trim(),
+    cost_jpy:toNum(r.cost_jpy),cost_krw:toNum(r.cost_krw),note:(r.note||"").trim(),
   })).filter(x=>x.title || x.place);
 }
 
@@ -397,11 +423,29 @@ async function loadDays(){
 /* ===================== 비용 ===================== */
 function renderCost(){
   const jpy = ITEMS.reduce((s,i)=>s+i.cost_jpy,0);
+  const krw = ITEMS.reduce((s,i)=>s+i.cost_krw,0);   // 원화 직접 비용(항공권 등)
   const local = jpy*FX/100;
-  $("#cost-flight").textContent = fmtKRW(CONFIG.FLIGHT_KRW);
+  $("#cost-flight").textContent = fmtKRW(krw);
   $("#cost-local-jpy").textContent = fmtJPY(jpy);
   $("#cost-local-krw").textContent = "≈ "+fmtKRW(local);
-  $("#cost-total").textContent = fmtKRW(CONFIG.FLIGHT_KRW + local);
+  $("#cost-total").textContent = fmtKRW(krw + local);
+  renderCostDetail();
+}
+function renderCostDetail(){
+  const days=groupByDay(ITEMS);
+  $("#cost-by-day").innerHTML = days.map(g=>{
+    const j=g.items.reduce((s,i)=>s+i.cost_jpy,0);
+    const k=g.items.reduce((s,i)=>s+i.cost_krw,0);
+    const krwTot=k + j*FX/100;
+    return `<div class="costrow"><span class="cd">${g.day}일차 <small>${esc(g.date||"")}</small></span>
+      <span class="cv">${j?fmtJPY(j):""}${k?`${j?" + ":""}${fmtKRW(k)}`:""} <b>≈ ${fmtKRW(krwTot)}</b></span></div>`;
+  }).join("");
+  const priced=ITEMS.filter(i=>i.cost_jpy>0||i.cost_krw>0);
+  $("#cost-by-item").innerHTML = priced.map(i=>{
+    const amt = i.cost_krw>0 ? fmtKRW(i.cost_krw) : fmtJPY(i.cost_jpy);
+    return `<div class="costrow"><span class="cd"><small>${esc(i.date||"")} ${esc(i.start||"")}</small><br>${esc(i.title)}</span>
+      <span class="cv"><b>${amt}</b></span></div>`;
+  }).join("");
 }
 
 /* ===================== D-day / 오늘 ===================== */
@@ -438,19 +482,24 @@ function mapQuery(it){
 }
 function itemHTML(it){
   const t=it.type,meta=[];
-  if(it.transport&&it.transport!=="-") meta.push(`<span>🚃 ${esc(it.transport)}</span>`);
-  if(it.cost_jpy>0) meta.push(`<span>💴 <b>${fmtJPY(it.cost_jpy)}</b></span>`);
+  if(it.transport&&it.transport!=="-") meta.push(`<span>${transportIcon(it.transport)} ${esc(it.transport)}</span>`);
+  if(it.cost_krw>0) meta.push(`<span>💴 <b>${fmtKRW(it.cost_krw)}</b></span>`);
+  else if(it.cost_jpy>0) meta.push(`<span>💴 <b>${fmtJPY(it.cost_jpy)}</b></span>`);
   const q=esc(mapQuery(it)), label=esc(it.place||it.title);
-  return `<article class="item t-${t}">
+  const hasDetail = it.desc || it.note;
+  return `<article class="item t-${t} collapsed">
     <div class="item-top">
       <span class="time">${esc(it.start)}${it.end?'–'+esc(it.end):''}</span>
       <span class="badge t-${t}">${TYPE_ICON[t]} ${TYPE_LABEL[t]}</span>
       ${it.place?`<button class="place" data-q="${q}" data-label="${label}"><span class="pin">📍</span>${esc(it.place)}</button>`:''}
+      ${hasDetail?'<span class="caret">▾</span>':''}
     </div>
     <h3>${esc(it.title)}</h3>
-    ${it.desc?`<p class="desc">${esc(it.desc)}</p>`:''}
     ${meta.length?`<div class="meta">${meta.join("")}</div>`:''}
-    ${it.note?`<div class="note">⚠ ${esc(it.note)}</div>`:''}
+    ${hasDetail?`<div class="item-detail">
+      ${it.desc?`<p class="desc">${esc(it.desc)}</p>`:''}
+      ${it.note?`<div class="note">⚠ ${esc(it.note)}</div>`:''}
+    </div>`:''}
   </article>`;
 }
 function renderTabs(days){
@@ -597,7 +646,7 @@ function setupMenu(){
   const btns=[...document.querySelectorAll("#mainmenu button")];
   btns.forEach(b=>b.addEventListener("click",()=>{
     btns.forEach(x=>x.classList.toggle("active",x===b));
-    ["plan","prep","decide"].forEach(v=>$("#view-"+v).classList.toggle("hidden",v!==b.dataset.view));
+    ["plan","cost","prep","decide"].forEach(v=>$("#view-"+v).classList.toggle("hidden",v!==b.dataset.view));
     window.scrollTo({top:0,behavior:"smooth"});
   }));
 }
@@ -610,10 +659,12 @@ async function init(){
   fxEl.addEventListener("input",()=>{FX=toNum(fxEl.value)||CONFIG.DEFAULT_FX;renderCost();});
 
   setupMenu();
-  // 지도 모달 이벤트
+  // 장소→지도 / 일정 항목→세부내역 펼침
   document.addEventListener("click",e=>{
     const p=e.target.closest(".place");
-    if(p){openMap(p.dataset.q,p.dataset.label);}
+    if(p){openMap(p.dataset.q,p.dataset.label);return;}
+    const it=e.target.closest(".item");
+    if(it&&it.closest("#timeline")){it.classList.toggle("collapsed");}
   });
   $("#map-close").addEventListener("click",closeMap);
   $("#map-modal").addEventListener("click",e=>{if(e.target.id==="map-modal")closeMap();});
