@@ -217,6 +217,16 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .info-v{font-size:13.5px;color:var(--ink);font-weight:700;margin-top:1px}
 .info-v a{color:var(--ai);text-decoration:none;border-bottom:1px solid var(--ai-soft)}
 .info-n{font-size:11px;color:var(--ink-soft);margin-top:2px}
+.mapwrap{border-radius:13px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:var(--washi-2)}
+.mapwrap iframe{width:100%;height:62vh;min-height:380px;border:0;display:block}
+.map-open-link{display:inline-block;margin:9px 2px 2px;font-size:12.5px;font-weight:700;color:var(--ai);text-decoration:none;border-bottom:1px solid var(--ai-soft)}
+.map-howto{background:var(--card);border:1px dashed var(--kin-soft);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;box-shadow:var(--shadow)}
+.map-howto b{color:var(--ink)}
+.map-howto ol{margin:7px 0 4px;padding-left:18px}
+.map-howto li{margin:4px 0}
+.map-howto a{color:var(--ai)}
+.map-howto code{background:var(--washi-2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:11.5px}
+.map-howto-tip{display:block;margin-top:6px;color:var(--kin);font-weight:700}
 
 /* ===== Section headings ===== */
 .sec-h{font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;color:var(--ai);margin:18px 0 4px;display:flex;align-items:center;gap:7px}
@@ -330,7 +340,8 @@ footer .src{font-size:10px;opacity:.8}
   </header>
 
   <nav class="mainmenu" id="mainmenu">
-    <button data-view="plan" class="active">📅 일정<span class="c">타임라인·지도</span></button>
+    <button data-view="plan" class="active">📅 일정<span class="c">타임라인</span></button>
+    <button data-view="map">🗺 지도<span class="c">핀·동선</span></button>
     <button data-view="cost">💴 비용<span class="c">합계·내역</span></button>
     <button data-view="prep">✅ 준비<span class="c">예약·준비물</span></button>
     <button data-view="decide">⚖️ 결정<span class="c">A · B</span></button>
@@ -361,6 +372,15 @@ footer .src{font-size:10px;opacity:.8}
     <main id="timeline">
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
     </main>
+  </section>
+
+  <!-- ===== 지도 VIEW ===== -->
+  <section id="view-map" class="view hidden">
+    <div class="sec-h">여행 지도</div>
+    <p class="sec-sub">핀을 누르면 장소 정보·길찾기가 열립니다. 새 창으로 크게 보기도 가능해요.</p>
+    <div class="mapwrap"><iframe id="mymaps" title="여행 지도" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+    <a id="map-bigger" class="map-open-link" target="_blank" rel="noopener">↗ 지도 새 창으로 크게 보기</a>
+    <div id="map-howto" class="map-howto hidden"></div>
   </section>
 
   <!-- ===== 비용 VIEW ===== -->
@@ -512,6 +532,10 @@ const CONFIG = {
   TRIP_END:   "2026-07-26",
   DEFAULT_FX: 960,                  // 100엔 당 원 (100엔 = 960원). 항공권 등 원화 비용은 schedule.csv의 cost_krw 컬럼
   WEATHER: true,
+  // 🗺 지도 탭: Google My Maps에서 만든 '나의 지도'의 공유→지도 퍼가기(iframe) src를 붙여넣으세요.
+  // 예: https://www.google.com/maps/d/embed?mid=XXXXXXXX
+  // 비워두면 오사카·교토 일대 기본 지도가 표시되고, 핀 지도 만드는 방법 안내가 함께 나옵니다.
+  MAP_EMBED_URL: "",
 };
 
 /* ===== 내장 폴백(파일 직접 열람용) — CSV와 동일 스키마 ===== */
@@ -999,6 +1023,31 @@ async function loadInfo(){
   }).join("");
 }
 
+/* ===================== 지도(My Maps 임베드) ===================== */
+function loadMap(){
+  const ifr=$("#mymaps"), big=$("#map-bigger"), howto=$("#map-howto");
+  if(!ifr)return;
+  const url=(CONFIG.MAP_EMBED_URL||"").trim();
+  if(url){
+    ifr.src=url;
+    big.href=url.replace("/embed","/viewer");
+    howto.classList.add("hidden");
+  }else{
+    // 기본: 오사카·교토 일대 지도 + 내 지도 만드는 법 안내
+    ifr.src="https://maps.google.com/maps?q=%EC%98%A4%EC%82%AC%EC%B9%B4&z=10&output=embed";
+    big.href="https://www.google.com/maps/search/%EC%98%A4%EC%82%AC%EC%B9%B4+%EA%B5%90%ED%86%A0";
+    howto.innerHTML=`<b>📌 내 핀 지도 만들기 (무료 · 키 불필요)</b>
+      <ol>
+        <li><a href="https://www.google.com/maps/d/" target="_blank" rel="noopener">Google My Maps</a>에서 <b>새 지도</b> 만들기 → 장소 검색해 <b>핀 추가</b></li>
+        <li>오른쪽 위 <b>공유</b>에서 “링크가 있는 모든 사용자”로 공개</li>
+        <li><b>⋮ 메뉴 → 내 사이트에 지도 퍼가기</b>의 <code>&lt;iframe src="…"&gt;</code>에서 <b>src 주소만</b> 복사</li>
+        <li><code>index.html</code>의 <code>CONFIG.MAP_EMBED_URL</code>에 붙여넣고 저장 → 이 탭에 표시됩니다</li>
+      </ol>
+      <span class="map-howto-tip">이후 My Maps에서 핀을 추가/삭제하면 이 지도에 자동 반영돼요.</span>`;
+    howto.classList.remove("hidden");
+  }
+}
+
 /* ===================== 웹 저장(Apps Script) ===================== */
 function lsGetA(k){try{return JSON.parse(localStorage.getItem(k)||"[]");}catch(e){return [];}}
 function lsSetA(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
@@ -1198,7 +1247,7 @@ async function loadWeather(){
 }
 
 /* ===================== 상위 메뉴 ===================== */
-const VIEWS=["plan","cost","prep","decide","spot","shop","memo"];
+const VIEWS=["plan","map","cost","prep","decide","spot","shop","memo"];
 function setupMenu(){
   const btns=[...document.querySelectorAll("#mainmenu button")];
   btns.forEach(b=>b.addEventListener("click",()=>{
@@ -1271,7 +1320,7 @@ async function init(){
   await loadData();
   await loadDays();   // DAYS 준비 후 타임라인 렌더
   renderPlan();
-  loadSpots();loadTodo();loadDecisions();loadShopping();loadMemos();loadInfo();
+  loadSpots();loadTodo();loadDecisions();loadShopping();loadMemos();loadInfo();loadMap();
   loadWeather().then(renderNowNext);   // 날씨 로드 후 지금/다음 카드에 날씨칩 반영
 
   const ti=dayIndexToday();
