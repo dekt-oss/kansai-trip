@@ -145,6 +145,10 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .viewseg button{border:0;background:transparent;color:var(--ink-soft);font-family:inherit;font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer}
 .viewseg button.on{background:var(--ai);color:#fff}
 /* ===== 표(테이블) 보기 ===== */
+.tlegend{display:flex;flex-wrap:wrap;gap:7px 11px;font-size:10.5px;color:var(--ink-soft);margin:6px 2px 8px}
+.tlegend span{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.tlegend .ldot{width:9px;height:13px;border-radius:2px;display:inline-block}
+.tlegend .lm{color:var(--kin);font-weight:700}
 .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow);background:var(--card)}
 .ptable{border-collapse:collapse;width:100%;min-width:640px}
 .ptable thead th{background:var(--ai);color:#fff;font-family:'Shippori Mincho',serif;font-weight:700;font-size:11.5px;padding:8px 10px;text-align:left;white-space:nowrap}
@@ -898,6 +902,13 @@ function renderTypeFilter(){
     + present.map(tp=>chip(tp,`${TYPE_ICON[tp]} ${TYPE_LABEL[tp]}`,TYPE_FILTER.has(tp))).join("");
 }
 // 표(테이블) 보기 — 한 항목 = 한 행
+const TABLE_LEGEND=`<div class="tlegend">`
+  +`<span><i class="ldot" style="background:var(--shu)"></i>축제</span>`
+  +`<span><i class="ldot" style="background:var(--kin)"></i>관광</span>`
+  +`<span><i class="ldot" style="background:var(--eat)"></i>미식</span>`
+  +`<span><i class="ldot" style="background:var(--shop)"></i>쇼핑</span>`
+  +`<span><i class="ldot" style="background:var(--ai)"></i>이동</span>`
+  +`<span class="lm">🎯 옵션</span><span class="lm">📷 포토</span><span class="lm">🛍️ 특산</span></div>`;
 function rowHTML(it){
   const t=it.type, types=it.types||[t];
   const tags=types.map(tp=>`<span class="badge t-${tp}">${TYPE_ICON[tp]} ${TYPE_LABEL[tp]}</span>`).join("");
@@ -930,7 +941,7 @@ function renderTimeline(days){
         ${g.day===todayIdx?'<span class="now">오늘</span>':''}
       </div>${TYPE_FILTER.size?"":summary}`;
     const body = (PLAN_VIEW==="table")
-      ? `<div class="tblwrap"><table class="ptable"><thead><tr><th>시간</th><th>일정 / 장소</th><th>이동</th><th>비용</th><th>세부내용 · 비고</th></tr></thead><tbody>${items.map(rowHTML).join("")}</tbody></table></div>`
+      ? `${TABLE_LEGEND}<div class="tblwrap"><table class="ptable"><thead><tr><th>시간</th><th>일정 / 장소</th><th>이동</th><th>비용</th><th>세부내용 · 비고</th></tr></thead><tbody>${items.map(rowHTML).join("")}</tbody></table></div>`
       : `<div class="tl">${items.map(itemHTML).join("")}</div>`;
     sec.innerHTML=head+body;
     root.appendChild(sec);
