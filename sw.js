@@ -1,5 +1,5 @@
 /* 간사이 여행 일정표 — 서비스워커 (오프라인 지원) */
-const CACHE = "kansai-v1";
+const CACHE = "kansai-v2";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./icons/icon.svg",
   "./data/schedule.csv", "./data/spots.csv", "./data/days.csv",
@@ -28,16 +28,19 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
   const sameOrigin = url.origin === location.origin;
 
-  // 데이터 CSV: network-first → 캐시 폴백 (캐시버스터 쿼리 무시하고 매칭)
-  if (sameOrigin && url.pathname.includes("/data/")) {
+  // 앱 화면(HTML/네비게이션) + 데이터 CSV: network-first → 캐시 폴백
+  // → 새 배포가 즉시 반영되도록(오프라인일 때만 캐시 사용)
+  const isHTML = req.mode === "navigate" || (sameOrigin && url.pathname.endsWith(".html"));
+  const isData = sameOrigin && url.pathname.includes("/data/");
+  if (isHTML || isData) {
     e.respondWith(
       fetch(req).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return r; })
-        .catch(() => caches.match(req, { ignoreSearch: true }))
+        .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || (isHTML ? caches.match("./index.html") : undefined)))
     );
     return;
   }
 
-  // 앱 셸/동일 출처 자원: cache-first
+  // 그 외 동일 출처 정적 자원(아이콘·매니페스트 등): cache-first
   if (sameOrigin) {
     e.respondWith(
       caches.match(req, { ignoreSearch: true }).then(r =>
