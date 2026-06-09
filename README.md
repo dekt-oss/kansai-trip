@@ -19,6 +19,7 @@
 - **일자 탭** — 1~4일차 네비(가로 확대), 스크롤 연동(현재 보이는 day 자동 강조), 상위 메뉴 아래 고정
 - **일자 요약** — 각 day 헤더에 오전/오후 핵심 일정 한 줄 표시 (`data/days.csv`)
 - **장소 지도** — 일정의 `📍 장소`를 누르면 모달에 구글맵 미리보기, 한 번 더 누르면 구글맵 앱으로 이동
+- **사진** — `image_url`이 있으면 카드에 썸네일, 누르면 크게(라이트박스). 없으면 생략. 사진은 `images/` 폴더에 두고 경로를 적거나 외부 URL 사용 (자세히는 `images/README.md`)
 - **D-day** — 여행 전 `D-n`, 기간 중 `여행중`, 이후 `다녀왔어요`
 - **날씨** — [Open-Meteo](https://open-meteo.com/)(키 불필요) 오사카 7/23~26 예보
 - **추천 스폿** — `data/spots.csv`
@@ -89,13 +90,14 @@ Claude에 "수정 요청"  →  data/schedule.csv 편집·커밋·푸시  →  G
 | `cost_jpy` | 예상비용(엔) | `0` |
 | `cost_krw` | 원화 확정비용(엔이 아닌 항목, 예: 항공권) | `566080` |
 | `note` | 비고 | `양산·물` |
+| `image_url` | 사진 주소(선택, `images/foo.jpg` 또는 외부 URL) | `images/sample-kiyomizu.svg` |
 
 **`type` 색/뱃지:** `fes`=축제(朱), `sig`=관광(金), `eat`=미식(녹), `move`=이동(회), `shop`=쇼핑(황갈), `stay`=숙소(청), 그 외 `etc`(보라). 한 항목에 여러 분류를 주려면 `/`로 구분 — 예: `sig/shop` → 관광·쇼핑 뱃지 둘 다 표시(첫 분류가 좌측 색).
 
 ### 그 외 데이터 파일
 | 파일 | 컬럼 | 용도 |
 |---|---|---|
-| `data/spots.csv` | `category, title, note` | 추천 스폿 |
+| `data/spots.csv` | `category, title, note, image_url` | 추천 스폿(사진 선택) |
 | `data/days.csv` | `day, date, am, pm` | 일자별 오전/오후 요약 |
 | `data/todo.csv` | `id, category, task, note, done` | 예약 체크리스트 (`done`=`1`이면 기본 체크) |
 | `data/decisions.csv` | `id, title, option_a, option_b, note` | A/B 결정 리스트 |

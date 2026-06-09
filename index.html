@@ -138,6 +138,12 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .item .meta{display:flex;gap:11px;flex-wrap:wrap;margin-top:6px;font-size:11px;color:var(--ink-soft)}
 .item .meta span b{color:var(--kin)}
 .item .note{margin-top:6px;font-size:11px;color:var(--shu);background:rgba(192,67,43,.06);border-radius:8px;padding:5px 8px}
+/* 사진 썸네일 + 라이트박스 */
+.thumb{display:block;width:100%;max-height:150px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid var(--line);cursor:zoom-in;background:var(--washi-2)}
+.spot .thumb{max-height:120px}
+.imgbox{position:fixed;inset:0;z-index:120;background:rgba(20,18,14,.85);display:flex;align-items:center;justify-content:center;padding:18px;cursor:zoom-out}
+.imgbox.hidden{display:none}
+.imgbox img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 14px 40px rgba(0,0,0,.5)}
 /* 접기/펼치기 */
 .caret{margin-left:6px;color:var(--kin-soft);font-size:13px;transition:transform .2s;flex:0 0 auto}
 .item-detail{overflow:hidden;transition:max-height .25s ease;max-height:400px;margin-top:6px}
@@ -325,6 +331,11 @@ footer .src{font-size:10px;opacity:.8}
   </div>
 </div>
 
+<!-- ===== 사진 라이트박스 ===== -->
+<div class="imgbox hidden" id="img-box">
+  <img id="img-full" alt="" />
+</div>
+
 <script>
 /* =======================================================================
    간사이 여행 일정표 — 설정
@@ -350,12 +361,12 @@ const FALLBACK = [
   {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바",transport:"라피트",type:"move",title:"난카이 특급 라피트",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔)",cost_jpy:1560,note:"",cost_cat:"교통",move_note:"약 42km · 38분"},
   {day:1,date:"7/23(목)",start:"13:30",end:"14:30",city:"오사카",place:"난바 일대",transport:"도보",type:"eat",title:"첫 끼 · 오코노미야키/우동",desc:"난바 일대 첫 점심",cost_jpy:1500,note:"",cost_cat:"식비",tbd:true},
   {day:1,date:"7/23(목)",start:"14:30",end:"17:30",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig/shop",title:"도토리공화국 신사이바시점 + 다이마루",desc:"전국 최대 도토리공화국·가오나시 포토존. 도보 10~15분",cost_jpy:0,note:"한낮 실내(폭염대비)"},
-  {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:""},
+  {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:"",image_url:"images/sample-dotonbori.svg"},
   {day:1,date:"7/23(목)",start:"20:00",end:"21:30",city:"오사카",place:"난바/도톤보리",transport:"도보",type:"eat",title:"이자카야 + 사케 첫 만찬",desc:"니혼슈 워밍업(2인)",cost_jpy:5000,note:"",cost_cat:"식비",tbd:true},
   {day:2,date:"7/24(금)",start:"07:30",end:"08:40",city:"오사카→교토",place:"난바→교토카와라마치",transport:"지하철+한큐",type:"move",title:"한큐 교토선 특급",desc:"카와라마치=순행 종착 인근",cost_jpy:650,note:"",cost_cat:"교통",move_note:"약 47km · 43분"},
   {day:2,date:"7/24(금)",start:"09:30",end:"11:20",city:"교토",place:"오이케도리~시조",transport:"도보",type:"fes",title:"★기온마츠리 야마보코 후기 순행",desc:"'츠지마와시' 백미. 유료석 8000엔~ 옵션",cost_jpy:0,note:"양산·물 필수"},
-  {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"7·8월 18:30 폐문·현금만",cost_cat:"입장",move_note:"버스 약 4km · 15분"},
-  {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장",cost_cat:"입장"},
+  {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"7·8월 18:30 폐문·현금만",cost_cat:"입장",move_note:"버스 약 4km · 15분",image_url:"images/sample-kiyomizu.svg"},
+  {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장",cost_cat:"입장",image_url:"images/sample-osakajo.svg"},
   {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(사쿠라노미야)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경 시작",cost_jpy:0,note:""},
   {day:3,date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"사쿠라노미야 공원",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"강물 반사 '이중 불꽃'",cost_jpy:0,note:"우천시 중단"},
   {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"shop/sig",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:3000,note:"일요일=야마나카 본점 휴무",cost_cat:"쇼핑"},
@@ -429,7 +440,7 @@ function normalizeItems(rows){
     type:normTypes(r.type)[0],types:normTypes(r.type),title:(r.title||"").trim(),desc:(r.desc||"").trim(),
     cost_jpy:toNum(r.cost_jpy),cost_krw:toNum(r.cost_krw),note:(r.note||"").trim(),
     cost_cat:(r.cost_cat||"").trim(),paid:isTrue(r.paid),
-    move_note:(r.move_note||"").trim(),tbd:isTrue(r.tbd),
+    move_note:(r.move_note||"").trim(),tbd:isTrue(r.tbd),image_url:(r.image_url||"").trim(),
   })).filter(x=>x.title || x.place);
 }
 
@@ -534,6 +545,9 @@ function mapQuery(it){
   let c=(it.city||"").split("→").pop().trim();
   return (p+" "+c+" 일본").replace(/\s+/g," ").trim();
 }
+function thumbHTML(url,alt){
+  return url?`<img class="thumb" loading="lazy" src="${esc(url)}" alt="${esc(alt)}" data-full="${esc(url)}" onerror="this.style.display='none'">`:'';
+}
 function itemHTML(it){
   const t=it.type,meta=[];
   if(it.transport&&it.transport!=="-"){
@@ -558,6 +572,7 @@ function itemHTML(it){
     </div>
     <h3>${esc(it.title)}${tbd}</h3>
     ${meta.length?`<div class="meta">${meta.join("")}</div>`:''}
+    ${thumbHTML(it.image_url, it.title)}
     ${hasDetail?`<div class="item-detail">
       ${it.desc?`<p class="desc">${esc(it.desc)}</p>`:''}
       ${it.note?`<div class="note">⚠ ${esc(it.note)}</div>`:''}
@@ -608,12 +623,12 @@ async function loadSpots(){
   let spots=FALLBACK_SPOTS;const url=CONFIG.SHEET_CSV?CONFIG.SPOTS_CSV:CONFIG.LOCAL_SPOTS_CSV;
   if(url){try{
     const r=await fetchCsv(url);
-    const s=r.map(x=>({category:(x.category||x.cat||"").trim(),title:(x.title||x.place||"").trim(),note:(x.note||x.desc||"").trim()})).filter(x=>x.title);
+    const s=r.map(x=>({category:(x.category||x.cat||"").trim(),title:(x.title||x.place||"").trim(),note:(x.note||x.desc||"").trim(),image_url:(x.image_url||"").trim()})).filter(x=>x.title);
     if(s.length)spots=s;
   }catch(e){}}
   if(!spots.length)return;
   $("#spots-sec").classList.remove("hidden");
-  $("#spots").innerHTML=spots.map(s=>`<div class="spot"><h3>${s.category?`<span class="cat">${esc(s.category)}</span>`:''}${esc(s.title)}</h3>${s.note?`<p>${esc(s.note)}</p>`:''}</div>`).join("");
+  $("#spots").innerHTML=spots.map(s=>`<div class="spot"><h3>${s.category?`<span class="cat">${esc(s.category)}</span>`:''}${esc(s.title)}</h3>${s.note?`<p>${esc(s.note)}</p>`:''}${thumbHTML(s.image_url,s.title)}</div>`).join("");
 }
 
 /* ===================== 예약 TODO ===================== */
@@ -684,6 +699,10 @@ function openMap(query,label){
 }
 function closeMap(){$("#map-modal").classList.add("hidden");$("#map-frame").src="about:blank";}
 
+/* ===================== 사진 라이트박스 ===================== */
+function openImg(src,alt){$("#img-full").src=src;$("#img-full").alt=alt||"";$("#img-box").classList.remove("hidden");}
+function closeImg(){$("#img-box").classList.add("hidden");$("#img-full").src="";}
+
 /* ===================== 날씨 ===================== */
 const WICON={0:"☀️",1:"🌤️",2:"⛅",3:"☁️",45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌧️",61:"🌧️",63:"🌧️",65:"🌧️",80:"🌦️",81:"🌧️",82:"⛈️",95:"⛈️",96:"⛈️",99:"⛈️"};
 async function loadWeather(){
@@ -721,8 +740,10 @@ async function init(){
   fxEl.addEventListener("input",()=>{FX=toNum(fxEl.value)||CONFIG.DEFAULT_FX;renderCost();});
 
   setupMenu();
-  // 장소→지도 / 일정 항목→세부내역 펼침 / 비용 그룹 펼침
+  // 사진→라이트박스 / 장소→지도 / 일정 항목→세부내역 펼침 / 비용 그룹 펼침
   document.addEventListener("click",e=>{
+    const th=e.target.closest(".thumb");
+    if(th){openImg(th.dataset.full||th.src, th.alt);return;}
     const p=e.target.closest(".place");
     if(p){openMap(p.dataset.q,p.dataset.label);return;}
     const cg=e.target.closest(".cghead");
@@ -730,9 +751,10 @@ async function init(){
     const it=e.target.closest(".item");
     if(it&&it.closest("#timeline")){it.classList.toggle("collapsed");}
   });
+  $("#img-box").addEventListener("click",closeImg);
   $("#map-close").addEventListener("click",closeMap);
   $("#map-modal").addEventListener("click",e=>{if(e.target.id==="map-modal")closeMap();});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMap();});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeMap();closeImg();}});
 
   renderPrep();
   await loadData();
