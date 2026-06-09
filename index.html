@@ -125,6 +125,11 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .tab.active .d{color:rgba(255,255,255,.75)}
 .tab.today{box-shadow:0 0 0 2px var(--shu) inset}
 
+/* ===== Type filter ===== */
+.tfilter{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 10px}
+.tchip{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-weight:700;font-size:11.5px;padding:5px 10px;border-radius:999px;cursor:pointer;transition:.12s}
+.tchip.on{background:var(--ai);color:#fff;border-color:var(--ai)}
+
 /* ===== Day section ===== */
 .day{margin:16px 0 6px;scroll-margin-top:116px}
 .day-head{display:flex;align-items:baseline;gap:9px;margin:0 2px 4px;border-bottom:2px solid var(--kin-soft);padding-bottom:5px}
@@ -274,6 +279,7 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .modal-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px}
 .modal-foot .hint{font-size:11px;color:var(--ink-soft)}
 .modal-foot .open{font-size:12.5px;font-weight:700;color:#fff;background:var(--ai);padding:8px 14px;border-radius:10px;text-decoration:none;white-space:nowrap}
+.modal-foot .dir{font-size:12.5px;font-weight:700;color:var(--ai);background:var(--washi-2);border:1px solid var(--line);padding:8px 14px;border-radius:10px;text-decoration:none;white-space:nowrap}
 
 /* ===== misc ===== */
 .notice{text-align:center;font-size:12px;color:var(--ink-soft);padding:14px;background:rgba(154,123,52,.07);border:1px dashed var(--kin-soft);border-radius:12px;margin:10px 0}
@@ -319,6 +325,8 @@ footer .src{font-size:10px;opacity:.8}
       <div class="sec-h">오사카·교토 예보</div>
       <div class="wgrid" id="weather"></div>
     </section>
+
+    <div class="tfilter" id="type-filter"></div>
 
     <main id="timeline">
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
@@ -430,8 +438,8 @@ footer .src{font-size:10px;opacity:.8}
       <a class="tap" id="map-tap" target="_blank" rel="noopener" aria-label="구글맵에서 열기"></a>
     </div>
     <div class="modal-foot">
-      <span class="hint">지도를 누르면 구글맵으로 이동</span>
-      <a class="open" id="map-open" target="_blank" rel="noopener">구글맵에서 열기 ↗</a>
+      <a class="dir" id="map-dir" target="_blank" rel="noopener">🧭 길찾기</a>
+      <a class="open" id="map-open" target="_blank" rel="noopener">구글맵 열기 ↗</a>
     </div>
   </div>
 </div>
@@ -672,7 +680,7 @@ function itemHTML(it){
     meta.push(`<span>💴 <b class="${it.paid?'paid':''}">${amt}</b>${cat}</span>`);
   }
   const q=esc(mapQuery(it)), label=esc(it.place||it.title);
-  const hasDetail = it.desc || it.note;
+  const hasDetail = !!it.desc;   // 설명만 접힘. 경고(note)는 항상 노출
   const tbd = it.tbd?'<span class="tbd">미정</span>':'';
   const badges = (it.types||[t]).map(tp=>`<span class="badge t-${tp}">${TYPE_ICON[tp]} ${TYPE_LABEL[tp]}</span>`).join("");
   // 완료 상태 + 오늘 기준 진행 상태(과거/현재) + 현재 위치 앵커
@@ -693,11 +701,9 @@ function itemHTML(it){
     </div>
     <h3>${esc(it.title)}${tbd}</h3>
     ${meta.length?`<div class="meta">${meta.join("")}</div>`:''}
+    ${it.note?`<div class="note">⚠ ${esc(it.note)}</div>`:''}
     ${thumbHTML(it.image_url, it.title)}
-    ${hasDetail?`<div class="item-detail">
-      ${it.desc?`<p class="desc">${esc(it.desc)}</p>`:''}
-      ${it.note?`<div class="note">⚠ ${esc(it.note)}</div>`:''}
-    </div>`:''}
+    ${hasDetail?`<div class="item-detail"><p class="desc">${esc(it.desc)}</p></div>`:''}
   </article>`;
 }
 /* ===== 현지 실시간(지금/다음·진행률·완료) ===== */
@@ -755,19 +761,35 @@ function renderTabs(days){
     tabs.appendChild(b);
   });
 }
+let TYPE_FILTER=new Set();   // 비어있으면 전체 표시
+function typeVisible(it){return TYPE_FILTER.size===0 || (it.types||[it.type]).some(tp=>TYPE_FILTER.has(tp));}
+function renderTypeFilter(){
+  const host=$("#type-filter");if(!host)return;
+  const present=[]; ITEMS.forEach(it=>(it.types||[it.type]).forEach(tp=>{if(!present.includes(tp))present.push(tp);}));
+  const order=["sig","fes","eat","shop","stay","move","etc"];
+  present.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+  const chip=(tp,lab,on)=>`<button class="tchip${on?' on':''}" data-tp="${tp}">${lab}</button>`;
+  host.innerHTML = chip("",`전체`,TYPE_FILTER.size===0)
+    + present.map(tp=>chip(tp,`${TYPE_ICON[tp]} ${TYPE_LABEL[tp]}`,TYPE_FILTER.has(tp))).join("");
+}
 function renderTimeline(days){
   const root=$("#timeline");root.innerHTML="";const todayIdx=dayIndexToday()+1;
+  let shown=0;
   days.forEach(g=>{
+    const items=g.items.filter(typeVisible);
+    if(!items.length)return;
+    shown+=items.length;
     const sec=document.createElement("section");sec.className="day";sec.id="day-"+g.day;
     const m=DAYS[g.day]||{},summary=(m.am||m.pm)?`<div class="day-summary"><span class="ln"><b>🌅 오전</b> ${esc(m.am||"-")}</span><span class="ln"><b>🌆 오후</b> ${esc(m.pm||"-")}</span></div>`:"";
     sec.innerHTML=`<div class="day-head">
         <span class="n">${g.day}일차</span>
         <span class="dt">${g.date||""} · ${esc(g.items[0]?.city||"")}</span>
         ${g.day===todayIdx?'<span class="now">오늘</span>':''}
-      </div>${summary}
-      <div class="tl">${g.items.map(itemHTML).join("")}</div>`;
+      </div>${TYPE_FILTER.size?"":summary}
+      <div class="tl">${items.map(itemHTML).join("")}</div>`;
     root.appendChild(sec);
   });
+  if(!shown)root.innerHTML='<p class="sec-sub" style="text-align:center;margin:20px 0">선택한 분류의 일정이 없습니다.</p>';
   setupScrollSpy(days);
 }
 function setupScrollSpy(days){
@@ -1035,6 +1057,7 @@ function openMap(query,label){
   $("#map-frame").src=`https://maps.google.com/maps?q=${q}&z=15&hl=ja&output=embed`;
   const open=`https://www.google.com/maps/search/?api=1&query=${q}`;
   $("#map-tap").href=open; $("#map-open").href=open;
+  $("#map-dir").href=`https://www.google.com/maps/dir/?api=1&destination=${q}`;
   $("#map-modal").classList.remove("hidden");
 }
 function closeMap(){$("#map-modal").classList.add("hidden");$("#map-frame").src="about:blank";}
@@ -1105,7 +1128,7 @@ function setupMenu(){
 }
 
 /* ===================== 초기화 ===================== */
-function renderPlan(){computeNowCtx();const days=groupByDay(ITEMS);renderTabs(days);renderTimeline(days);renderStats();renderNowNext();renderProgress();}
+function renderPlan(){computeNowCtx();const days=groupByDay(ITEMS);renderTabs(days);renderTypeFilter();renderTimeline(days);renderStats();renderNowNext();renderProgress();}
 async function init(){
   FX=CONFIG.DEFAULT_FX;
   const fxEl=$("#fx");fxEl.value=FX;
@@ -1121,6 +1144,10 @@ async function init(){
       if(s[key])delete s[key];else s[key]=1; lsSet(LS_DONE,s);
       const art=db.closest(".item");if(art){art.classList.toggle("done",!!s[key]);}
       db.classList.toggle("on",!!s[key]); NOW_CTX.done=s; renderProgress(); return;}
+    const tc=e.target.closest(".tchip");
+    if(tc){const tp=tc.dataset.tp;
+      if(tp===""){TYPE_FILTER.clear();}else{TYPE_FILTER.has(tp)?TYPE_FILTER.delete(tp):TYPE_FILTER.add(tp);}
+      renderTypeFilter();renderTimeline(groupByDay(ITEMS));return;}
     const th=e.target.closest(".thumb");
     if(th){openImg(th.dataset.full||th.src, th.alt);return;}
     const p=e.target.closest(".place");
