@@ -9,7 +9,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Shippori+Mincho:wght@500;600;700;800&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="icons/icon.svg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <style>
 :root{
   --washi:#f4ecd8; --washi-2:#efe6cf;
@@ -546,12 +549,25 @@ function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt
 /* ===================== 상태 ===================== */
 let ITEMS = [], DAYS = {}, FX = CONFIG.DEFAULT_FX;
 
-/* ===================== CSV 로드 ===================== */
-function fetchCsv(url){
+/* ===================== CSV 로드 (인라인 파서·CDN 의존 없음) ===================== */
+function parseCSV(text){
+  const rows=[];let row=[],f="",q=false;
+  for(let i=0;i<text.length;i++){const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else { if(c==='"')q=true; else if(c===','){row.push(f);f="";}
+      else if(c==='\n'){row.push(f);rows.push(row);row=[];f="";}
+      else if(c==='\r'){} else f+=c; }
+  }
+  if(f.length||row.length){row.push(f);rows.push(row);}
+  const clean=rows.filter(r=>!(r.length===1 && r[0].trim()===""));
+  if(!clean.length)return [];
+  const hdr=clean[0].map(h=>h.trim());
+  return clean.slice(1).map(r=>{const o={};hdr.forEach((h,j)=>o[h]=r[j]!==undefined?r[j]:"");return o;});
+}
+async function fetchCsv(url){
   const u = url + (url.includes("?")?"&":"?") + "_=" + Date.now(); // 캐시 우회
-  return new Promise((resolve,reject)=>{
-    Papa.parse(u,{download:true,header:true,skipEmptyLines:true,complete:r=>resolve(r.data),error:reject});
-  });
+  const res = await fetch(u,{cache:"no-store"}); if(!res.ok) throw new Error("csv "+res.status);
+  return parseCSV(await res.text());
 }
 function normalizeItems(rows){
   return rows.map(r=>({
@@ -1178,6 +1194,11 @@ async function init(){
   setInterval(()=>{computeNowCtx();renderNowNext();},60000);  // 1분마다 지금/다음 갱신
 }
 init();
+
+/* ===================== PWA(오프라인) 서비스워커 ===================== */
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(e=>console.warn("sw fail",e)));
+}
 </script>
 </body>
 </html>

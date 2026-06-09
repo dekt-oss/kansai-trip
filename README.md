@@ -139,8 +139,9 @@ Claude에 "수정 요청"  →  data/schedule.csv 편집·커밋·푸시  →  G
 
 ## 🛠 기술 스택
 
-- 바닐라 JS + [PapaParse](https://www.papaparse.com/) (CSV 파싱)
-- 빌드리스 단일 `index.html` (의존성 CDN)
+- 바닐라 JS + **인라인 CSV 파서**(외부 CDN 의존 없음)
+- 빌드리스 단일 `index.html`
+- **PWA**: `manifest.webmanifest` + `sw.js`(서비스워커)로 **홈 화면 추가·오프라인** 지원. 한 번 열어두면 비행기·로밍 환경에서도 앱셸·일정 데이터가 캐시되어 열림.
 - 디자인 톤: 와시 배경 / 藍 `#1f4068` / 朱 `#c0432b` / 金 `#9a7b34`, 폰트 *Gowun Batang · Shippori Mincho*
 - **사용 안 함:** 서버사이드 코드, DB, 비밀키
 
