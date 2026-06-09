@@ -261,6 +261,7 @@ footer .src{font-size:10px;opacity:.8}
     <button data-view="cost">💴 비용<span class="c">합계·내역</span></button>
     <button data-view="prep">✅ 준비<span class="c">예약·준비물</span></button>
     <button data-view="decide">⚖️ 결정<span class="c">A · B</span></button>
+    <button data-view="spot">⭐ 추천<span class="c">스폿·맛집</span></button>
     <button data-view="shop">🛍 쇼핑<span class="c">리스트·구매</span></button>
     <button data-view="memo">📝 메모<span class="c">기록·추천</span></button>
   </nav>
@@ -283,11 +284,6 @@ footer .src{font-size:10px;opacity:.8}
     <main id="timeline">
       <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
     </main>
-
-    <section id="spots-sec" class="hidden">
-      <div class="sec-h">추천 스폿 · 메모</div>
-      <div id="spots"></div>
-    </section>
   </section>
 
   <!-- ===== 비용 VIEW ===== -->
@@ -325,6 +321,23 @@ footer .src{font-size:10px;opacity:.8}
     <div class="sec-h">결정 리스트</div>
     <p class="sec-sub">옵션 A · B 중 골라 누르면 선택이 저장됩니다. 다시 누르면 미정으로.</p>
     <div id="decisions"></div>
+  </section>
+
+  <!-- ===== 추천 VIEW ===== -->
+  <section id="view-spot" class="view hidden">
+    <div class="sec-h">추천 스폿 · 맛집</div>
+    <p class="sec-sub">명소·맛집·메모. 아래에서 직접 추가할 수 있어요.</p>
+    <form id="spot-form" class="addform">
+      <input id="spot-title" placeholder="이름 (예: 이치란 도톤보리)" required />
+      <div class="row2">
+        <input id="spot-cat" placeholder="분류 (맛집/지브리/명소…)" />
+        <input id="spot-img" placeholder="이미지 URL (선택)" />
+      </div>
+      <input id="spot-note" placeholder="메모 (위치·영업시간·팁)" />
+      <button type="submit">+ 추가</button>
+    </form>
+    <div class="savehint" id="spot-hint"></div>
+    <div id="spots"></div>
   </section>
 
   <!-- ===== 쇼핑 VIEW ===== -->
@@ -408,6 +421,7 @@ const CONFIG = {
   WEBAPP_TOKEN: "",                 // (선택) code.gs의 TOKEN과 동일하게
   MEMOS_CSV: "",                    // (선택) memos 탭 published CSV — 동행 공유 메모 표시용
   SHOPPING_CSV: "",                 // (선택) shopping 탭 published CSV — 공유 쇼핑 표시용
+  SPOTS_SHARED_CSV: "",             // (선택) spots 탭 published CSV — 공유 추천 표시용
   TRIP_START: "2026-07-23",
   TRIP_END:   "2026-07-26",
   DEFAULT_FX: 960,                  // 100엔 당 원 (100엔 = 960원). 항공권 등 원화 비용은 schedule.csv의 cost_krw 컬럼
@@ -420,12 +434,12 @@ const FALLBACK = [
   {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바",transport:"라피트",type:"move",title:"난카이 특급 라피트",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔)",cost_jpy:1560,note:"",cost_cat:"교통",move_note:"약 42km · 38분"},
   {day:1,date:"7/23(목)",start:"13:30",end:"14:30",city:"오사카",place:"난바 일대",transport:"도보",type:"eat",title:"첫 끼 · 오코노미야키/우동",desc:"난바 일대 첫 점심",cost_jpy:1500,note:"",cost_cat:"식비",tbd:true},
   {day:1,date:"7/23(목)",start:"14:30",end:"17:30",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig/shop",title:"도토리공화국 신사이바시점 + 다이마루",desc:"전국 최대 도토리공화국·가오나시 포토존. 도보 10~15분",cost_jpy:0,note:"한낮 실내(폭염대비)"},
-  {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:"",image_url:"images/sample-dotonbori.svg"},
+  {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:""},
   {day:1,date:"7/23(목)",start:"20:00",end:"21:30",city:"오사카",place:"난바/도톤보리",transport:"도보",type:"eat",title:"이자카야 + 사케 첫 만찬",desc:"니혼슈 워밍업(2인)",cost_jpy:5000,note:"",cost_cat:"식비",tbd:true},
   {day:2,date:"7/24(금)",start:"07:30",end:"08:40",city:"오사카→교토",place:"난바→교토카와라마치",transport:"지하철+한큐",type:"move",title:"한큐 교토선 특급",desc:"카와라마치=순행 종착 인근",cost_jpy:650,note:"",cost_cat:"교통",move_note:"약 47km · 43분"},
   {day:2,date:"7/24(금)",start:"09:30",end:"11:20",city:"교토",place:"오이케도리~시조",transport:"도보",type:"fes",title:"★기온마츠리 야마보코 후기 순행",desc:"'츠지마와시' 백미. 유료석 8000엔~ 옵션",cost_jpy:0,note:"양산·물 필수"},
-  {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"7·8월 18:30 폐문·현금만",cost_cat:"입장",move_note:"버스 약 4km · 15분",image_url:"images/sample-kiyomizu.svg"},
-  {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장",cost_cat:"입장",image_url:"images/sample-osakajo.svg"},
+  {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"7·8월 18:30 폐문·현금만",cost_cat:"입장",move_note:"버스 약 4km · 15분"},
+  {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장",cost_cat:"입장"},
   {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(사쿠라노미야)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경 시작",cost_jpy:0,note:""},
   {day:3,date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"사쿠라노미야 공원",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"강물 반사 '이중 불꽃'",cost_jpy:0,note:"우천시 중단"},
   {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"shop/sig",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:3000,note:"일요일=야마나카 본점 휴무",cost_cat:"쇼핑"},
@@ -678,16 +692,40 @@ function setupScrollSpy(days){
 }
 
 /* ===================== 스폿 ===================== */
+const LS_SPOT_ADD="kansai_spot_add_v1";
+let SPOT_SEED=[], SPOT_SHARED=[];
+function normSpot(x){return {category:(x.category||x.cat||"").trim(),title:(x.title||x.name||x.place||"").trim(),
+  note:(x.note||x.desc||x.tip||"").trim(),image_url:(x.image_url||"").trim()};}
 async function loadSpots(){
-  let spots=FALLBACK_SPOTS;const url=CONFIG.SHEET_CSV?CONFIG.SPOTS_CSV:CONFIG.LOCAL_SPOTS_CSV;
-  if(url){try{
-    const r=await fetchCsv(url);
-    const s=r.map(x=>({category:(x.category||x.cat||"").trim(),title:(x.title||x.place||"").trim(),note:(x.note||x.desc||"").trim(),image_url:(x.image_url||"").trim()})).filter(x=>x.title);
-    if(s.length)spots=s;
-  }catch(e){}}
-  if(!spots.length)return;
-  $("#spots-sec").classList.remove("hidden");
-  $("#spots").innerHTML=spots.map(s=>`<div class="spot"><h3>${s.category?`<span class="cat">${esc(s.category)}</span>`:''}${esc(s.title)}</h3>${s.note?`<p>${esc(s.note)}</p>`:''}${thumbHTML(s.image_url,s.title)}</div>`).join("");
+  SPOT_SEED=[];SPOT_SHARED=[];
+  const url=CONFIG.SHEET_CSV?CONFIG.SPOTS_CSV:CONFIG.LOCAL_SPOTS_CSV;
+  if(url){try{const r=await fetchCsv(url);SPOT_SEED=r.map(normSpot).filter(x=>x.title);}catch(e){}}
+  if(!SPOT_SEED.length)SPOT_SEED=FALLBACK_SPOTS;
+  if(CONFIG.SPOTS_SHARED_CSV){try{const r=await fetchCsv(CONFIG.SPOTS_SHARED_CSV);SPOT_SHARED=r.map(normSpot).filter(x=>x.title);}catch(e){}}
+  saveHint($("#spot-hint"));
+  renderSpots();
+}
+function spotItems(){
+  const all=[...SPOT_SEED,...SPOT_SHARED,...lsGetA(LS_SPOT_ADD)];
+  const seen=new Set(),out=[];
+  all.forEach(x=>{const k=x.category+"|"+x.title;if(!seen.has(k)){seen.add(k);out.push(x);}});
+  return out;
+}
+function renderSpots(){
+  const spots=spotItems();
+  $("#spots").innerHTML=spots.map(s=>`<div class="spot"><h3>${s.category?`<span class="cat">${esc(s.category)}</span>`:''}${esc(s.title)}</h3>${s.note?`<p>${esc(s.note)}</p>`:''}${thumbHTML(s.image_url,s.title)}</div>`).join("")
+    ||'<p class="sec-sub">아직 추천이 없습니다. 위에서 추가하세요.</p>';
+}
+function setupSpots(){
+  $("#spot-form").addEventListener("submit",e=>{
+    e.preventDefault();
+    const title=$("#spot-title").value.trim();if(!title)return;
+    const obj={category:$("#spot-cat").value.trim(),title,note:$("#spot-note").value.trim(),image_url:$("#spot-img").value.trim()};
+    const adds=lsGetA(LS_SPOT_ADD);adds.push(obj);lsSetA(LS_SPOT_ADD,adds);
+    webappPost({sheet:"spots",...obj});
+    $("#spot-title").value="";$("#spot-cat").value="";$("#spot-note").value="";$("#spot-img").value="";
+    renderSpots();
+  });
 }
 
 /* ===================== 예약 TODO ===================== */
@@ -884,7 +922,7 @@ async function loadWeather(){
 }
 
 /* ===================== 상위 메뉴 ===================== */
-const VIEWS=["plan","cost","prep","decide","shop","memo"];
+const VIEWS=["plan","cost","prep","decide","spot","shop","memo"];
 function setupMenu(){
   const btns=[...document.querySelectorAll("#mainmenu button")];
   btns.forEach(b=>b.addEventListener("click",()=>{
@@ -920,7 +958,7 @@ async function init(){
   document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeMap();closeImg();}});
 
   renderPrep();
-  setupShopping();setupMemos();
+  setupSpots();setupShopping();setupMemos();
   await loadData();
   await loadDays();   // DAYS 준비 후 타임라인 렌더
   renderPlan();
