@@ -52,6 +52,12 @@ function doGet(e) {
   var name = (s === 'shopping' || s === 'spots') ? s : 'memos';
   var sh = ss.getSheetByName(name);
   var vals = sh ? sh.getDataRange().getValues() : [];
+  var cb = e && e.parameter && e.parameter.callback;
+  if (cb) {
+    // JSONP — 브라우저가 다른 기기에서도 CORS 없이 목록을 읽을 수 있게
+    return ContentService.createTextOutput(cb + '(' + JSON.stringify(vals) + ')')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
   return _json(vals);
 }
 

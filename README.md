@@ -57,9 +57,9 @@
 2. `apps-script/code.gs` 내용을 붙여넣고 저장
 3. **배포 → 새 배포 → 웹 앱** (실행: 나 / 액세스: **모든 사용자**) → 권한 승인 → **웹 앱 URL(.../exec)** 복사
 4. `index.html`의 `CONFIG.WEBAPP_URL`에 붙여넣기 (선택: 토큰 쓰면 `code.gs`의 `TOKEN`과 `CONFIG.WEBAPP_TOKEN`을 같은 값으로)
-5. (공유 목록까지 보려면) 시트의 `memos`·`shopping`·`spots` 탭을 **웹에 게시(CSV)** → 각 URL을 `CONFIG.MEMOS_CSV` / `CONFIG.SHOPPING_CSV` / `CONFIG.SPOTS_SHARED_CSV`에 입력
+5. 다른 기기·동행에게도 목록을 **보이게(읽기)** 하려면 → 웹앱이 JSONP로 직접 읽어주므로 **추가 설정 없이** 위 `WEBAPP_URL`만 있으면 됩니다. (코드를 새로 배포하면 자동 적용. published CSV 방식을 쓰려면 `CONFIG.MEMOS_CSV`/`SHOPPING_CSV`/`SPOTS_SHARED_CSV`에 게시 CSV URL 입력도 가능)
 
-- 쓰기는 `text/plain` POST(프리플라이트 회피), 읽기는 published CSV(CORS 허용) — 코드/레포에 비밀키 없음.
+- 쓰기는 `text/plain` POST(프리플라이트 회피), 읽기는 JSONP(`?callback=`) — CORS 없이 동작, 코드/레포에 비밀키 없음.
 - ⚠ 웹앱 access=모든 사용자라 URL을 아는 사람은 쓰기 가능 → 필요하면 `TOKEN`으로 가벼운 보호.
 
 ### 🖼 이미지 직접 업로드는?

@@ -701,7 +701,7 @@ async function loadSpots(){
   const url=CONFIG.SHEET_CSV?CONFIG.SPOTS_CSV:CONFIG.LOCAL_SPOTS_CSV;
   if(url){try{const r=await fetchCsv(url);SPOT_SEED=r.map(normSpot).filter(x=>x.title);}catch(e){}}
   if(!SPOT_SEED.length)SPOT_SEED=FALLBACK_SPOTS;
-  if(CONFIG.SPOTS_SHARED_CSV){try{const r=await fetchCsv(CONFIG.SPOTS_SHARED_CSV);SPOT_SHARED=r.map(normSpot).filter(x=>x.title);}catch(e){}}
+  SPOT_SHARED=(await loadShared("spots",CONFIG.SPOTS_SHARED_CSV)).map(normSpot).filter(x=>x.title);
   saveHint($("#spot-hint"));
   renderSpots();
 }
@@ -795,6 +795,35 @@ function webappPost(payload){
   return fetch(CONFIG.WEBAPP_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
     body:JSON.stringify(payload)}).then(()=>true).catch(e=>{console.warn("webapp post fail",e);return false;});
 }
+// JSONP 읽기(다른 기기에서도 CORS 없이 시트 목록 조회). 6초 타임아웃 → 실패 시 [].
+function jsonp(url){
+  return new Promise(resolve=>{
+    const cb="__kcb"+Math.random().toString(36).slice(2);
+    let done=false;
+    const s=document.createElement("script");
+    const timer=setTimeout(()=>finish(null),6000);
+    function finish(d){if(done)return;done=true;clearTimeout(timer);delete window[cb];s.remove();resolve(d);}
+    window[cb]=d=>finish(d);
+    s.onerror=()=>finish(null);
+    s.src=url+(url.includes("?")?"&":"?")+"callback="+cb;
+    document.body.appendChild(s);
+  });
+}
+// 행배열(첫 행=헤더) → 객체 배열
+function rowsToObjs(vals){
+  if(!Array.isArray(vals)||vals.length<2) return [];
+  const hdr=vals[0].map(h=>String(h).trim());
+  return vals.slice(1).map(r=>{const o={};hdr.forEach((h,i)=>o[h]=r[i]);return o;});
+}
+// 공유 데이터 로드: WEBAPP_URL(JSONP) 우선, 없으면 published CSV
+async function loadShared(sheet,csvUrl){
+  if(CONFIG.WEBAPP_URL){
+    const v=await jsonp(CONFIG.WEBAPP_URL+"?sheet="+sheet);
+    const objs=rowsToObjs(v); if(objs.length) return objs;
+  }
+  if(csvUrl){try{return await fetchCsv(csvUrl);}catch(e){}}
+  return [];
+}
 function saveHint(el){
   el.innerHTML = CONFIG.WEBAPP_URL
     ? "☁ 구글 시트에 저장됨 · 동행과 공유 (반영까지 잠시 걸릴 수 있음)"
@@ -809,7 +838,7 @@ function normShop(x){return {item:(x.item||"").trim(),store:(x.store||"").trim()
 async function loadShopping(){
   SHOP_SEED=[];SHOP_SHARED=[];
   if(CONFIG.LOCAL_SHOPPING_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_SHOPPING_CSV);SHOP_SEED=r.map(normShop).filter(x=>x.item);}catch(e){}}
-  if(CONFIG.SHOPPING_CSV){try{const r=await fetchCsv(CONFIG.SHOPPING_CSV);SHOP_SHARED=r.map(normShop).filter(x=>x.item);}catch(e){}}
+  SHOP_SHARED=(await loadShared("shopping",CONFIG.SHOPPING_CSV)).map(normShop).filter(x=>x.item);
   saveHint($("#shop-hint"));
   renderShopping();
 }
@@ -855,8 +884,7 @@ function normMemo(x){return {ts:(x.timestamp||x.ts||"").toString().trim(),day:(x
   text:(x.text||"").trim(),image_url:(x.image_url||"").trim()};}
 let MEMO_SHARED=[];
 async function loadMemos(){
-  MEMO_SHARED=[];
-  if(CONFIG.MEMOS_CSV){try{const r=await fetchCsv(CONFIG.MEMOS_CSV);MEMO_SHARED=r.map(normMemo).filter(x=>x.text);}catch(e){}}
+  MEMO_SHARED=(await loadShared("memos",CONFIG.MEMOS_CSV)).map(normMemo).filter(x=>x.text);
   saveHint($("#memo-hint"));
   renderMemos();
 }
