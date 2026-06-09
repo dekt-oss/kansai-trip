@@ -146,6 +146,7 @@ Claude에 "수정 요청"  →  data/schedule.csv 편집·커밋·푸시  →  G
 - 빌드리스 단일 `index.html`
 - **PWA**: `manifest.webmanifest` + `sw.js`(서비스워커)로 **홈 화면 추가·오프라인** 지원. 한 번 열어두면 비행기·로밍 환경에서도 앱셸·일정 데이터가 캐시되어 열림.
 - 디자인 톤: 와시 배경 / 藍 `#1f4068` / 朱 `#c0432b` / 金 `#9a7b34`, 폰트 *Gowun Batang · Shippori Mincho*
+- **다크모드**: 헤더 🌙 토글(시스템 설정 기본값·`localStorage` 저장)
 - **사용 안 함:** 서버사이드 코드, DB, 비밀키
 
 ---
