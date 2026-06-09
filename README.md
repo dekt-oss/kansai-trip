@@ -35,7 +35,33 @@
 **⚖️ 결정**
 - **A/B 결정 리스트** — 숙소(난바 vs 신사이바시)·식당·관람 옵션 등을 골라 저장 (`data/decisions.csv`)
 
+**🛍 쇼핑**
+- **쇼핑리스트** — 시드 항목(`data/shopping.csv`) + **웹에서 직접 추가**, 품목별 구매완료 체크, 예상 총액(¥/₩)
+
+**📝 메모**
+- **메모·추천 입력** — 웹에서 메모/추천스폿을 입력해 저장. day 태그, **이미지 URL**(썸네일) 지원
+
+> 메모·쇼핑 입력은 기본적으로 **이 기기(localStorage)** 에 저장됩니다. **Apps Script 웹앱을 연결**하면 구글 시트에 저장되어 다른 기기·동행과 공유됩니다(아래 설정 참고).
+
 > CSV를 못 불러오는 환경(예: `file://` 직접 열람)에서는 **내장 기본 데이터**로 미리보기됩니다.
+
+---
+
+## 📝 메모·쇼핑 웹 저장 (Apps Script · 선택)
+
+입력한 메모/쇼핑을 **여러 기기·동행과 공유**하려면 구글 시트 + Apps Script 웹앱을 연결합니다. (안 해도 이 기기엔 저장됩니다.)
+
+1. 데이터용 구글 시트 열기 → **확장 프로그램 → Apps Script**
+2. `apps-script/code.gs` 내용을 붙여넣고 저장
+3. **배포 → 새 배포 → 웹 앱** (실행: 나 / 액세스: **모든 사용자**) → 권한 승인 → **웹 앱 URL(.../exec)** 복사
+4. `index.html`의 `CONFIG.WEBAPP_URL`에 붙여넣기 (선택: 토큰 쓰면 `code.gs`의 `TOKEN`과 `CONFIG.WEBAPP_TOKEN`을 같은 값으로)
+5. (공유 목록까지 보려면) 시트의 `memos`·`shopping` 탭을 **웹에 게시(CSV)** → 각 URL을 `CONFIG.MEMOS_CSV` / `CONFIG.SHOPPING_CSV`에 입력
+
+- 쓰기는 `text/plain` POST(프리플라이트 회피), 읽기는 published CSV(CORS 허용) — 코드/레포에 비밀키 없음.
+- ⚠ 웹앱 access=모든 사용자라 URL을 아는 사람은 쓰기 가능 → 필요하면 `TOKEN`으로 가벼운 보호.
+
+### 🖼 이미지 직접 업로드는?
+정적 사이트라 **파일 업로드(저장)는 불가**합니다. 대신 메모의 **이미지 URL 칸**에 사진 주소를 붙여넣으면 썸네일로 표시됩니다(외부 호스팅 또는 레포 `images/` 경로). 진짜 파일 업로드가 필요하면 Apps Script가 구글 드라이브에 올리도록 확장하는 방법이 있습니다(요청 시 안내).
 
 ---
 
@@ -98,6 +124,8 @@ Claude에 "수정 요청"  →  data/schedule.csv 편집·커밋·푸시  →  G
 | 파일 | 컬럼 | 용도 |
 |---|---|---|
 | `data/spots.csv` | `category, title, note, image_url` | 추천 스폿(사진 선택) |
+| `data/shopping.csv` | `item, store, price_jpy, category, note` | 쇼핑리스트 시드 항목 |
+| `apps-script/code.gs` | — | 메모·쇼핑 웹 저장용 Apps Script(시트에 붙여넣기) |
 | `data/days.csv` | `day, date, am, pm` | 일자별 오전/오후 요약 |
 | `data/todo.csv` | `id, category, task, note, done` | 예약 체크리스트 (`done`=`1`이면 기본 체크) |
 | `data/decisions.csv` | `id, title, option_a, option_b, note` | A/B 결정 리스트 |
