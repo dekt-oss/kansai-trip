@@ -27,11 +27,13 @@
 - **추천 스폿·맛집** — 시드(`data/spots.csv`) + **웹에서 직접 추가**(분류·이름·메모·이미지 URL)
 
 **💴 비용**
-- **합계** — 확정 지출(🔴, `paid`) + 예상 지출(⚫) → 총합. 환율 입력칸(기본 100엔=960원, `CONFIG.DEFAULT_FX`)
-- **일자별 / 항목별 비용** — 자동 집계 (항공권 ₩566,080은 공항 일정에 포함)
+- **합계** — 확정 지출(🔴) + 예상 지출(⚫) → 총합. 환율 입력칸(기본 100엔=960원), **1인/2인 토글**
+- **항목 결제 체크(✓)** — 화면에서 결제 완료 처리 → 확정/예상 자동 갱신(`localStorage`)
+- **카테고리별 / 일자별 비용** — 자동 집계(아코디언)
 
 **✅ 준비**
-- **예약 체크리스트** — 예약·결제할 항목 (`data/todo.csv`), `localStorage` 저장
+- **핵심·비상 정보** — 항공·숙소·여권·총영사관·긴급 (`data/info.csv`), 전화/주소는 눌러서 연결
+- **예약 체크리스트** — 예약·결제할 항목 (`data/todo.csv`)
 - **준비물 체크리스트** — 출발 전 챙길 것
 
 **⚖️ 결정**
@@ -128,6 +130,7 @@ Claude에 "수정 요청"  →  data/schedule.csv 편집·커밋·푸시  →  G
 |---|---|---|
 | `data/spots.csv` | `category, title, note, image_url` | 추천 스폿(사진 선택) |
 | `data/shopping.csv` | `item, store, price_jpy, category, note` | 쇼핑리스트 시드 항목 |
+| `data/info.csv` | `label, value, note, type` | 핵심·비상 정보(`type`=`tel`/`map`이면 링크) |
 | `apps-script/code.gs` | — | 메모·쇼핑 웹 저장용 Apps Script(시트에 붙여넣기) |
 | `data/days.csv` | `day, date, am, pm` | 일자별 오전/오후 요약 |
 | `data/todo.csv` | `id, category, task, note, done` | 예약 체크리스트 (`done`=`1`이면 기본 체크) |
