@@ -22,6 +22,14 @@
   --card:#fffdf6; --shadow:0 2px 10px rgba(42,38,32,.10);
   --eat:#3c7d6e; --move:#6b7280; --etc:#7a6a8a; --shop:#b5781f; --stay:#4a6b9a;
 }
+html[data-theme="dark"]{
+  --washi:#1c1a16; --washi-2:#262219;
+  --ai:#7aa6dd; --ai-soft:#9cc0ea;
+  --shu:#e98a73; --kin:#cda95f; --kin-soft:#b89a52;
+  --ink:#ece4d4; --ink-soft:#b1a692; --line:#3a352c;
+  --card:#272420; --shadow:0 2px 10px rgba(0,0,0,.45);
+  --eat:#5bb39f; --move:#9aa1ad; --etc:#a995bd; --shop:#d6a24e; --stay:#7fa6da;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{
@@ -45,6 +53,8 @@ header::after{
   font-family:'Shippori Mincho',serif;font-weight:800;font-size:54px;
   color:rgba(255,255,255,.07);letter-spacing:3px;pointer-events:none;
 }
+.theme-btn{position:absolute;top:12px;right:12px;z-index:2;width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);color:#f8f3e6;font-size:15px;cursor:pointer;line-height:1;padding:0}
+.theme-btn:active{transform:scale(.94)}
 .kicker{font-size:10px;letter-spacing:2.5px;color:var(--kin-soft);font-weight:700;margin:0 0 3px}
 h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0 3px;letter-spacing:1px}
 .sub{font-size:11.5px;color:rgba(248,243,230,.82);margin:0}
@@ -247,7 +257,7 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .opt{border:1.5px solid var(--line);background:var(--washi-2);border-radius:11px;padding:10px;cursor:pointer;text-align:left;font-family:inherit;transition:.15s;position:relative}
 .opt .ab{font-family:'Shippori Mincho',serif;font-weight:800;font-size:12px;color:var(--kin);display:block;margin-bottom:3px}
 .opt .ot{font-size:12.5px;color:var(--ink);line-height:1.45}
-.opt.sel{border-color:var(--shu);background:#fff;box-shadow:0 0 0 2px rgba(192,67,43,.18)}
+.opt.sel{border-color:var(--shu);background:var(--card);box-shadow:0 0 0 2px rgba(192,67,43,.28)}
 .opt.sel .ab{color:var(--shu)}
 .opt.sel::after{content:"✓ 선택";position:absolute;top:7px;right:8px;font-size:10px;font-weight:700;color:var(--shu)}
 .decide .note{font-size:11px;color:var(--ink-soft);margin-top:8px}
@@ -313,6 +323,7 @@ footer .src{font-size:10px;opacity:.8}
 <div class="wrap">
 
   <header>
+    <button id="theme-toggle" class="theme-btn" aria-label="다크모드 전환" title="다크모드">🌙</button>
     <p class="kicker">KANSAI · OSAKA · KYOTO</p>
     <h1>간사이 여행 일정표</h1>
     <p class="sub" id="trip-range">2026.07.23 ~ 07.26 · 부산(김해)↔오사카 · 3박 4일 · 2인</p>
@@ -1200,7 +1211,20 @@ function setupMenu(){
 
 /* ===================== 초기화 ===================== */
 function renderPlan(){computeNowCtx();const days=groupByDay(ITEMS);renderTabs(days);renderTypeFilter();renderTimeline(days);renderStats();renderNowNext();renderProgress();}
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme",t);
+  const btn=$("#theme-toggle"); if(btn)btn.textContent=(t==="dark"?"☀️":"🌙");
+  const mc=document.querySelector('meta[name="theme-color"]'); if(mc)mc.setAttribute("content",t==="dark"?"#1c1a16":"#1f4068");
+  try{localStorage.setItem("kansai_theme",t);}catch(e){}
+}
+function initTheme(){
+  let t=null; try{t=localStorage.getItem("kansai_theme");}catch(e){}
+  if(!t)t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";
+  applyTheme(t);
+}
 async function init(){
+  initTheme();
+  $("#theme-toggle").addEventListener("click",()=>applyTheme(document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark"));
   FX=CONFIG.DEFAULT_FX;
   const fxEl=$("#fx");fxEl.value=FX;
   const updCalc=()=>{const cj=$("#calc-jpy");if(cj)$("#calc-krw").textContent=fmtKRW(toNum(cj.value)*FX/100);const cr=$("#calc-rate");if(cr)cr.textContent=`(100엔=${FX}원)`;};
