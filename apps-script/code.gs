@@ -23,15 +23,19 @@ function doPost(e) {
       return _json({ ok: false, error: 'bad token' });
     }
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var name = (d.sheet === 'shopping') ? 'shopping' : 'memos';
+    var name = (d.sheet === 'shopping' || d.sheet === 'spots') ? d.sheet : 'memos';
     var sh = ss.getSheetByName(name) || ss.insertSheet(name);
     if (sh.getLastRow() === 0) {
       sh.appendRow(name === 'shopping'
         ? ['timestamp', 'item', 'store', 'price_jpy', 'category', 'note']
+        : name === 'spots'
+        ? ['category', 'title', 'note', 'image_url']
         : ['timestamp', 'day', 'text', 'image_url']);
     }
     if (name === 'shopping') {
       sh.appendRow([new Date(), d.item || '', d.store || '', d.price_jpy || '', d.category || '', d.note || '']);
+    } else if (name === 'spots') {
+      sh.appendRow([d.category || '', d.title || '', d.note || '', d.image_url || '']);
     } else {
       sh.appendRow([new Date(), d.day || '', d.text || '', d.image_url || '']);
     }
@@ -44,7 +48,8 @@ function doPost(e) {
 
 function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var name = (e && e.parameter && e.parameter.sheet === 'shopping') ? 'shopping' : 'memos';
+  var s = e && e.parameter && e.parameter.sheet;
+  var name = (s === 'shopping' || s === 'spots') ? s : 'memos';
   var sh = ss.getSheetByName(name);
   var vals = sh ? sh.getDataRange().getValues() : [];
   return _json(vals);

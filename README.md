@@ -22,7 +22,9 @@
 - **사진** — `image_url`이 있으면 카드에 썸네일, 누르면 크게(라이트박스). 없으면 생략. 사진은 `images/` 폴더에 두고 경로를 적거나 외부 URL 사용 (자세히는 `images/README.md`)
 - **D-day** — 여행 전 `D-n`, 기간 중 `여행중`, 이후 `다녀왔어요`
 - **날씨** — [Open-Meteo](https://open-meteo.com/)(키 불필요) 오사카 7/23~26 예보
-- **추천 스폿** — `data/spots.csv`
+
+**⭐ 추천**
+- **추천 스폿·맛집** — 시드(`data/spots.csv`) + **웹에서 직접 추가**(분류·이름·메모·이미지 URL)
 
 **💴 비용**
 - **합계** — 확정 지출(🔴, `paid`) + 예상 지출(⚫) → 총합. 환율 입력칸(기본 100엔=960원, `CONFIG.DEFAULT_FX`)
@@ -41,7 +43,7 @@
 **📝 메모**
 - **메모·추천 입력** — 웹에서 메모/추천스폿을 입력해 저장. day 태그, **이미지 URL**(썸네일) 지원
 
-> 메모·쇼핑 입력은 기본적으로 **이 기기(localStorage)** 에 저장됩니다. **Apps Script 웹앱을 연결**하면 구글 시트에 저장되어 다른 기기·동행과 공유됩니다(아래 설정 참고).
+> 추천·메모·쇼핑 입력은 기본적으로 **이 기기(localStorage)** 에 저장됩니다. **Apps Script 웹앱을 연결**하면 구글 시트에 저장되어 다른 기기·동행과 공유됩니다(아래 설정 참고).
 
 > CSV를 못 불러오는 환경(예: `file://` 직접 열람)에서는 **내장 기본 데이터**로 미리보기됩니다.
 
@@ -55,7 +57,7 @@
 2. `apps-script/code.gs` 내용을 붙여넣고 저장
 3. **배포 → 새 배포 → 웹 앱** (실행: 나 / 액세스: **모든 사용자**) → 권한 승인 → **웹 앱 URL(.../exec)** 복사
 4. `index.html`의 `CONFIG.WEBAPP_URL`에 붙여넣기 (선택: 토큰 쓰면 `code.gs`의 `TOKEN`과 `CONFIG.WEBAPP_TOKEN`을 같은 값으로)
-5. (공유 목록까지 보려면) 시트의 `memos`·`shopping` 탭을 **웹에 게시(CSV)** → 각 URL을 `CONFIG.MEMOS_CSV` / `CONFIG.SHOPPING_CSV`에 입력
+5. (공유 목록까지 보려면) 시트의 `memos`·`shopping`·`spots` 탭을 **웹에 게시(CSV)** → 각 URL을 `CONFIG.MEMOS_CSV` / `CONFIG.SHOPPING_CSV` / `CONFIG.SPOTS_SHARED_CSV`에 입력
 
 - 쓰기는 `text/plain` POST(프리플라이트 회피), 읽기는 published CSV(CORS 허용) — 코드/레포에 비밀키 없음.
 - ⚠ 웹앱 access=모든 사용자라 URL을 아는 사람은 쓰기 가능 → 필요하면 `TOKEN`으로 가벼운 보호.
