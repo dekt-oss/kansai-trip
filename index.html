@@ -174,6 +174,9 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .wcard .tmp{font-family:'Shippori Mincho',serif;font-weight:700;font-size:13.5px}
 .wcard .tmp .lo{color:var(--ai-soft);font-size:11.5px;font-weight:600}
 .wcard .pop{font-size:10px;color:var(--ai-soft)}
+.wcard .wcity{font-size:9.5px;color:var(--kin);font-weight:700;margin-top:1px}
+.wnotice{background:var(--card);border:1px dashed var(--kin-soft);border-radius:12px;padding:13px 15px;font-size:12.5px;color:var(--ink-soft);line-height:1.7;text-align:center;box-shadow:var(--shadow)}
+.wnotice b{color:var(--shu)}
 
 /* ===== Checklist / TODO ===== */
 .checks{display:grid;grid-template-columns:1fr 1fr;gap:7px}
@@ -962,21 +965,51 @@ function closeImg(){$("#img-box").classList.add("hidden");$("#img-full").src="";
 
 /* ===================== 날씨 ===================== */
 const WICON={0:"☀️",1:"🌤️",2:"⛅",3:"☁️",45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌧️",61:"🌧️",63:"🌧️",65:"🌧️",80:"🌦️",81:"🌧️",82:"⛈️",95:"⛈️",96:"⛈️",99:"⛈️"};
+const COORDS={osaka:[34.69,135.50],kyoto:[35.01,135.77]};
+let WEATHER_BY_DATE={};   // ISO날짜 → {code,max,min,pop,city} (지금/다음 카드 등에서 재사용)
+function cityKeyForDay(g){
+  // 해당 일자의 대표 도시(교토/오사카)
+  const counts={};
+  (g.items||[]).forEach(it=>{const c=(it.city||"").replace(/.*→/,"").trim();if(c&&!c.includes("공항"))counts[c]=(counts[c]||0)+1;});
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  return (top&&/교토/.test(top[0]))?"kyoto":"osaka";
+}
+async function fetchDaily(lat,lon){
+  const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
+    +`&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`
+    +`&timezone=Asia%2FTokyo&start_date=${CONFIG.TRIP_START}&end_date=${CONFIG.TRIP_END}`;
+  const res=await fetch(url);if(!res.ok)throw 0;return (await res.json()).daily;
+}
 async function loadWeather(){
   if(!CONFIG.WEATHER)return;
-  const url=`https://api.open-meteo.com/v1/forecast?latitude=34.69&longitude=135.50&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTokyo&start_date=${CONFIG.TRIP_START}&end_date=${CONFIG.TRIP_END}`;
+  const sec=$("#weather-sec"),box=$("#weather");
+  const today=new Date();today.setHours(0,0,0,0);
+  const start=new Date(CONFIG.TRIP_START+"T00:00:00");
+  const dUntil=Math.round((start-today)/86400000);
+  sec.classList.remove("hidden");
+  if(dUntil>16){ // 예보 범위 밖 → 안내만
+    box.innerHTML=`<div class="wnotice">📅 날씨 예보는 출발 약 2주 전(D-16)부터 표시됩니다 · 현재 <b>D-${dUntil}</b><br>그날이 되면 자동으로 실시간 예보가 표시됩니다.</div>`;
+    return;
+  }
   try{
-    const res=await fetch(url);if(!res.ok)throw 0;const d=await res.json(),dd=d.daily;if(!dd||!dd.time)return;
+    const days=groupByDay(ITEMS);
+    const [osa,kyo]=await Promise.all([fetchDaily(...COORDS.osaka),fetchDaily(...COORDS.kyoto)]);
+    if(!osa||!osa.time){box.innerHTML="";sec.classList.add("hidden");return;}
     const W=["일","월","화","수","목","금","토"];
-    $("#weather").innerHTML=dd.time.map((t,i)=>{
+    WEATHER_BY_DATE={};
+    box.innerHTML=osa.time.map((t,i)=>{
+      const ck=days[i]?cityKeyForDay(days[i]):"osaka";
+      const d=(ck==="kyoto"&&kyo&&kyo.time)?kyo:osa;
+      const code=d.weather_code[i],mx=Math.round(d.temperature_2m_max[i]),mn=Math.round(d.temperature_2m_min[i]),pop=d.precipitation_probability_max[i]??0;
+      WEATHER_BY_DATE[t]={code,max:mx,min:mn,pop,city:ck};
       const dt=new Date(t+"T00:00:00");
       return `<div class="wcard"><div class="wd">${t.slice(5).replace("-","/")} (${W[dt.getDay()]})</div>
-        <div class="ic">${WICON[dd.weather_code[i]]||"🌤️"}</div>
-        <div class="tmp">${Math.round(dd.temperature_2m_max[i])}°<span class="lo"> / ${Math.round(dd.temperature_2m_min[i])}°</span></div>
-        <div class="pop">💧${dd.precipitation_probability_max[i]??0}%</div></div>`;
+        <div class="wcity">${ck==="kyoto"?"교토":"오사카"}</div>
+        <div class="ic">${WICON[code]||"🌤️"}</div>
+        <div class="tmp">${mx}°<span class="lo"> / ${mn}°</span></div>
+        <div class="pop">💧${pop}%</div></div>`;
     }).join("");
-    $("#weather-sec").classList.remove("hidden");
-  }catch(e){console.warn("weather unavailable",e);}
+  }catch(e){console.warn("weather unavailable",e);box.innerHTML=`<div class="wnotice">날씨를 불러오지 못했습니다. 네트워크 확인 후 새로고침해 주세요.</div>`;}
 }
 
 /* ===================== 상위 메뉴 ===================== */
