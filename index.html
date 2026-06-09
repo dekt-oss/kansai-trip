@@ -222,6 +222,16 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .mtag{font-size:10px;font-weight:700;color:#fff;background:var(--ai);padding:2px 8px;border-radius:999px}
 .mwhen{font-size:10.5px;color:var(--ink-soft);margin-left:auto}
 .memo-text{font-size:13.5px;color:var(--ink);white-space:pre-wrap;line-height:1.6}
+.memo{position:relative}
+.spot{position:relative}
+.lrow{display:flex;align-items:stretch;gap:6px;margin-bottom:7px}
+.lrow .chk{flex:1;margin-bottom:0}
+.del{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+  width:30px;border-radius:9px;cursor:pointer;font-size:13px;line-height:1;align-self:center;padding:7px 0}
+.del:active{transform:scale(.95)}
+.memo .del,.spot .del{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;padding:0}
+.memo-head{padding-right:28px} .spot h3{padding-right:28px}
+.del:hover{color:var(--shu);border-color:var(--shu)}
 
 /* ===== Map modal ===== */
 .modal{position:fixed;inset:0;z-index:100;background:rgba(20,18,14,.6);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
@@ -692,7 +702,7 @@ function setupScrollSpy(days){
 }
 
 /* ===================== 스폿 ===================== */
-const LS_SPOT_ADD="kansai_spot_add_v1";
+const LS_SPOT_ADD="kansai_spot_add_v1", LS_SPOT_HIDE="kansai_spot_hide_v1";
 let SPOT_SEED=[], SPOT_SHARED=[];
 function normSpot(x){return {category:(x.category||x.cat||"").trim(),title:(x.title||x.name||x.place||"").trim(),
   note:(x.note||x.desc||x.tip||"").trim(),image_url:(x.image_url||"").trim()};}
@@ -706,15 +716,32 @@ async function loadSpots(){
   renderSpots();
 }
 function spotItems(){
+  const hide=new Set(lsGetA(LS_SPOT_HIDE));
   const all=[...SPOT_SEED,...SPOT_SHARED,...lsGetA(LS_SPOT_ADD)];
   const seen=new Set(),out=[];
-  all.forEach(x=>{const k=x.category+"|"+x.title;if(!seen.has(k)){seen.add(k);out.push(x);}});
+  all.forEach(x=>{const k=x.category+"|"+x.title;if(!seen.has(k)&&!hide.has(k)){seen.add(k);out.push(x);}});
   return out;
 }
 function renderSpots(){
   const spots=spotItems();
-  $("#spots").innerHTML=spots.map(s=>`<div class="spot"><h3>${s.category?`<span class="cat">${esc(s.category)}</span>`:''}${esc(s.title)}</h3>${s.note?`<p>${esc(s.note)}</p>`:''}${thumbHTML(s.image_url,s.title)}</div>`).join("")
-    ||'<p class="sec-sub">아직 추천이 없습니다. 위에서 추가하세요.</p>';
+  $("#spots").innerHTML=spots.map(s=>{const key=s.category+"|"+s.title;
+    return `<div class="spot"><button class="del" data-list="spot" data-key="${esc(key)}" aria-label="삭제">✕</button>
+      <h3>${s.category?`<span class="cat">${esc(s.category)}</span>`:''}${esc(s.title)}</h3>${s.note?`<p>${esc(s.note)}</p>`:''}${thumbHTML(s.image_url,s.title)}</div>`;
+  }).join("")||'<p class="sec-sub">아직 추천이 없습니다. 위에서 추가하세요.</p>';
+}
+/* 삭제(이 기기에서 숨김 + 로컬 추가 항목 제거) */
+function deleteEntry(list,key){
+  if(!confirm("이 항목을 삭제할까요?\n(이 기기에서 사라집니다. 공유 시트에서도 지우려면 구글 시트에서 해당 행을 삭제하세요.)"))return;
+  const cfg={
+    memo:[LS_MEMO_HIDE,LS_MEMO,m=>(m.day||"")+"|"+m.text,()=>renderMemos()],
+    shop:[LS_SHOP_HIDE,LS_SHOP_ADD,x=>x.item+"|"+x.price_jpy,()=>renderShopping()],
+    spot:[LS_SPOT_HIDE,LS_SPOT_ADD,x=>x.category+"|"+x.title,()=>renderSpots()],
+  }[list];
+  if(!cfg)return;
+  const [hideK,addK,keyf,render]=cfg;
+  const h=lsGetA(hideK); if(!h.includes(key)){h.push(key);lsSetA(hideK,h);}
+  lsSetA(addK, lsGetA(addK).filter(x=>keyf(x)!==key));
+  render();
 }
 function setupSpots(){
   $("#spot-form").addEventListener("submit",e=>{
@@ -831,7 +858,7 @@ function saveHint(el){
 }
 
 /* ===================== 쇼핑리스트 ===================== */
-const LS_SHOP_ADD="kansai_shop_add_v1", LS_SHOP_CHK="kansai_shop_chk_v1";
+const LS_SHOP_ADD="kansai_shop_add_v1", LS_SHOP_CHK="kansai_shop_chk_v1", LS_SHOP_HIDE="kansai_shop_hide_v1";
 let SHOP_SEED=[], SHOP_SHARED=[];
 function normShop(x){return {item:(x.item||"").trim(),store:(x.store||"").trim(),
   price_jpy:toNum(x.price_jpy),category:(x.category||"").trim(),note:(x.note||"").trim()};}
@@ -843,21 +870,22 @@ async function loadShopping(){
   renderShopping();
 }
 function shopItems(){
-  // 시드 + 공유(시트) + 로컬추가, 중복(품목+가격) 제거
+  const hide=new Set(lsGetA(LS_SHOP_HIDE));
   const all=[...SHOP_SEED,...SHOP_SHARED,...lsGetA(LS_SHOP_ADD)];
   const seen=new Set(),out=[];
-  all.forEach(x=>{const k=x.item+"|"+x.price_jpy;if(!seen.has(k)){seen.add(k);out.push(x);}});
+  all.forEach(x=>{const k=x.item+"|"+x.price_jpy;if(!seen.has(k)&&!hide.has(k)){seen.add(k);out.push(x);}});
   return out;
 }
 function renderShopping(){
   const items=shopItems(),chk=lsGet(LS_SHOP_CHK),list=$("#shop-list");
   let total=0,done=0,doneAmt=0;
   list.innerHTML=items.map((x,i)=>{
-    const id="s"+i+"_"+(x.item||"").slice(0,8);
+    const id="s"+i+"_"+(x.item||"").slice(0,8),key=x.item+"|"+x.price_jpy;
     const on=!!chk[id];total+=x.price_jpy;if(on){done++;doneAmt+=x.price_jpy;}
-    return `<label class="chk shopitem"><input type="checkbox" data-sid="${esc(id)}" ${on?"checked":""}>
+    return `<div class="lrow"><label class="chk shopitem"><input type="checkbox" data-sid="${esc(id)}" ${on?"checked":""}>
       <span class="tx"><span class="nm">${esc(x.item)}</span>
-      <span class="nt">${x.category?`<span class="cat">${esc(x.category)}</span>`:''}${esc(x.store||"")}${x.price_jpy?` · ¥${x.price_jpy.toLocaleString()}`:''}${esc(x.note?(" · "+x.note):"")}</span></span></label>`;
+      <span class="nt">${x.category?`<span class="cat">${esc(x.category)}</span>`:''}${esc(x.store||"")}${x.price_jpy?` · ¥${x.price_jpy.toLocaleString()}`:''}${esc(x.note?(" · "+x.note):"")}</span></span></label>
+      <button class="del" data-list="shop" data-key="${esc(key)}" aria-label="삭제">✕</button></div>`;
   }).join("")||'<p class="sec-sub">아직 항목이 없습니다. 아래에서 추가하세요.</p>';
   $("#shop-summary").innerHTML=`<div class="costrow"><span class="cd">예상 합계 <small>${items.length}건 · 구매완료 ${done}건</small></span>
     <span class="cv"><b>¥${total.toLocaleString()}</b> ≈ ${fmtKRW(total*FX/100)}</span></div>`;
@@ -879,7 +907,7 @@ function setupShopping(){
 }
 
 /* ===================== 메모 · 추천 ===================== */
-const LS_MEMO="kansai_memo_v1";
+const LS_MEMO="kansai_memo_v1", LS_MEMO_HIDE="kansai_memo_hide_v1";
 function normMemo(x){return {ts:(x.timestamp||x.ts||"").toString().trim(),day:(x.day||"").trim(),
   text:(x.text||"").trim(),image_url:(x.image_url||"").trim()};}
 let MEMO_SHARED=[];
@@ -889,17 +917,19 @@ async function loadMemos(){
   renderMemos();
 }
 function memoItems(){
+  const hide=new Set(lsGetA(LS_MEMO_HIDE));
   const all=[...lsGetA(LS_MEMO),...MEMO_SHARED];
   const seen=new Set(),out=[];
-  all.forEach(x=>{const k=(x.day||"")+"|"+x.text;if(!seen.has(k)){seen.add(k);out.push(x);}});
-  // 최신 먼저
+  all.forEach(x=>{const k=(x.day||"")+"|"+x.text;if(!seen.has(k)&&!hide.has(k)){seen.add(k);out.push(x);}});
   return out.sort((a,b)=>String(b.ts).localeCompare(String(a.ts)));
 }
 function renderMemos(){
   const items=memoItems(),list=$("#memo-list");
   list.innerHTML=items.map(m=>{
-    const when=m.ts?new Date(m.ts).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}):"";
-    return `<div class="memo"><div class="memo-head">${m.day?`<span class="mtag">${esc(m.day)}</span>`:''}<span class="mwhen">${esc(when)}</span></div>
+    const when=m.ts?new Date(m.ts).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}):"",
+      key=(m.day||"")+"|"+m.text;
+    return `<div class="memo"><div class="memo-head">${m.day?`<span class="mtag">${esc(m.day)}</span>`:''}<span class="mwhen">${esc(when)}</span>
+      <button class="del" data-list="memo" data-key="${esc(key)}" aria-label="삭제">✕</button></div>
       <div class="memo-text">${esc(m.text)}</div>${thumbHTML(m.image_url,m.text)}</div>`;
   }).join("")||'<p class="sec-sub">아직 메모가 없습니다. 위에서 입력하세요.</p>';
 }
@@ -969,8 +999,10 @@ async function init(){
   fxEl.addEventListener("input",()=>{FX=toNum(fxEl.value)||CONFIG.DEFAULT_FX;renderCost();});
 
   setupMenu();
-  // 사진→라이트박스 / 장소→지도 / 일정 항목→세부내역 펼침 / 비용 그룹 펼침
+  // 삭제 / 사진→라이트박스 / 장소→지도 / 일정 항목→세부내역 펼침 / 비용 그룹 펼침
   document.addEventListener("click",e=>{
+    const del=e.target.closest(".del");
+    if(del){deleteEntry(del.dataset.list, del.dataset.key);return;}
     const th=e.target.closest(".thumb");
     if(th){openImg(th.dataset.full||th.src, th.alt);return;}
     const p=e.target.closest(".place");
