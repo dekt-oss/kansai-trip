@@ -138,6 +138,34 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .tab.active .d{color:rgba(255,255,255,.75)}
 .tab.today{box-shadow:0 0 0 2px var(--shu) inset}
 
+/* ===== 보기 전환(카드/표) ===== */
+.planbar{display:flex;align-items:center;gap:8px;margin:2px 0 8px}
+.planbar .pbl{font-size:11.5px;color:var(--ink-soft);font-weight:700}
+.viewseg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--washi-2)}
+.viewseg button{border:0;background:transparent;color:var(--ink-soft);font-family:inherit;font-size:12px;font-weight:700;padding:5px 12px;cursor:pointer}
+.viewseg button.on{background:var(--ai);color:#fff}
+/* ===== 표(테이블) 보기 ===== */
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow);background:var(--card)}
+.ptable{border-collapse:collapse;width:100%;min-width:640px}
+.ptable thead th{background:var(--ai);color:#fff;font-family:'Shippori Mincho',serif;font-weight:700;font-size:11.5px;padding:8px 10px;text-align:left;white-space:nowrap}
+.ptable tbody td{padding:9px 10px;border-top:1px solid var(--line);font-size:12px;vertical-align:top;color:var(--ink)}
+.ptable td.ptime{font-family:'Shippori Mincho',serif;color:var(--ai);white-space:nowrap;font-size:11.5px;border-left:6px solid var(--etc);padding-left:10px}
+.ptable tr.r-fes td.ptime{border-left-color:var(--shu)}
+.ptable tr.r-sig td.ptime{border-left-color:var(--kin)}
+.ptable tr.r-eat td.ptime{border-left-color:var(--eat)}
+.ptable tr.r-shop td.ptime{border-left-color:var(--shop)}
+.ptable tr.r-move td.ptime{border-left-color:var(--move)}
+.ptable tr.r-stay td.ptime{border-left-color:var(--stay)}
+.ptable .ptags{margin-bottom:3px;display:flex;flex-wrap:wrap;gap:4px}
+.ptable .ptags .badge{font-size:9px;padding:1px 6px}
+.ptable .pttl{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;display:block}
+.ptable .ploc{margin-top:4px}
+.ptable .ploc .place{font-size:11px;padding:3px 8px}
+.ptable td.pmove{color:var(--ai);font-size:11px;white-space:nowrap}
+.ptable td.pmove small{color:var(--ink-soft)}
+.ptable td.pcost{white-space:nowrap;color:var(--eat);font-family:'Shippori Mincho',serif;font-size:11.5px}
+.ptable td.pdet{color:var(--ink-soft);min-width:160px}
+.ptable td.pdet small.warn{color:var(--shu);font-weight:700}
 /* ===== Type filter ===== */
 .tfilter{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 10px}
 .tchip{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-weight:700;font-size:11.5px;padding:5px 10px;border-radius:999px;cursor:pointer;transition:.12s}
@@ -367,6 +395,10 @@ footer .src{font-size:10px;opacity:.8}
       <div class="wgrid" id="weather"></div>
     </section>
 
+    <div class="planbar">
+      <span class="pbl">보기</span>
+      <div class="viewseg" id="view-seg"><button data-pv="card">🗂 카드</button><button data-pv="table">▦ 표</button></div>
+    </div>
     <div class="tfilter" id="type-filter"></div>
 
     <main id="timeline">
@@ -854,6 +886,7 @@ function renderTabs(days){
   });
 }
 let TYPE_FILTER=new Set();   // 비어있으면 전체 표시
+let PLAN_VIEW="card"; const LS_PLANVIEW="kansai_planview_v1";   // 'card' | 'table'
 function typeVisible(it){return TYPE_FILTER.size===0 || (it.types||[it.type]).some(tp=>TYPE_FILTER.has(tp));}
 function renderTypeFilter(){
   const host=$("#type-filter");if(!host)return;
@@ -864,8 +897,26 @@ function renderTypeFilter(){
   host.innerHTML = chip("",`전체`,TYPE_FILTER.size===0)
     + present.map(tp=>chip(tp,`${TYPE_ICON[tp]} ${TYPE_LABEL[tp]}`,TYPE_FILTER.has(tp))).join("");
 }
+// 표(테이블) 보기 — 한 항목 = 한 행
+function rowHTML(it){
+  const t=it.type, types=it.types||[t];
+  const tags=types.map(tp=>`<span class="badge t-${tp}">${TYPE_ICON[tp]} ${TYPE_LABEL[tp]}</span>`).join("");
+  const q=esc(mapQuery(it)), label=esc(it.place||it.title);
+  const time=`${esc(it.start)}${it.end?'~'+esc(it.end):''}`;
+  const moveTxt=(it.transport&&it.transport!=="-")?esc(it.transport)+(it.move_note?` <small>${esc(it.move_note)}</small>`:""):"–";
+  let cost="–";
+  if(hasCost(it)){const f=partyFactor(); cost = it.cost_krw>0?fmtKRW(it.cost_krw*f):fmtJPY(it.cost_jpy*f);}
+  const det=[it.desc?esc(it.desc):"", it.note?`<small class="warn">⚠ ${esc(it.note)}</small>`:""].filter(Boolean).join("<br>");
+  const place=it.place?`<button class="place" data-q="${q}" data-label="${label}"><span class="pin">📍</span>${esc(it.place)}</button>`:"";
+  return `<tr class="r-${t}"><td class="ptime">${time}</td>
+    <td class="pmain">${tags?`<div class="ptags">${tags}</div>`:""}<span class="pttl">${esc(it.title)}${it.tbd?'<span class="tbd">미정</span>':''}</span>${place?`<div class="ploc">${place}</div>`:""}</td>
+    <td class="pmove">${moveTxt}</td>
+    <td class="pcost">${cost}</td>
+    <td class="pdet">${det}</td></tr>`;
+}
 function renderTimeline(days){
   const root=$("#timeline");root.innerHTML="";const todayIdx=dayIndexToday()+1;
+  document.querySelectorAll("#view-seg button").forEach(b=>b.classList.toggle("on",b.dataset.pv===PLAN_VIEW));
   let shown=0;
   days.forEach(g=>{
     const items=g.items.filter(typeVisible);
@@ -873,12 +924,15 @@ function renderTimeline(days){
     shown+=items.length;
     const sec=document.createElement("section");sec.className="day";sec.id="day-"+g.day;
     const m=DAYS[g.day]||{},summary=(m.am||m.pm)?`<div class="day-summary"><span class="ln"><b>🌅 오전</b> ${esc(m.am||"-")}</span><span class="ln"><b>🌆 오후</b> ${esc(m.pm||"-")}</span></div>`:"";
-    sec.innerHTML=`<div class="day-head">
+    const head=`<div class="day-head">
         <span class="n">${g.day}일차</span>
         <span class="dt">${g.date||""} · ${esc(g.items[0]?.city||"")}</span>
         ${g.day===todayIdx?'<span class="now">오늘</span>':''}
-      </div>${TYPE_FILTER.size?"":summary}
-      <div class="tl">${items.map(itemHTML).join("")}</div>`;
+      </div>${TYPE_FILTER.size?"":summary}`;
+    const body = (PLAN_VIEW==="table")
+      ? `<div class="tblwrap"><table class="ptable"><thead><tr><th>시간</th><th>일정 / 장소</th><th>이동</th><th>비용</th><th>세부내용 · 비고</th></tr></thead><tbody>${items.map(rowHTML).join("")}</tbody></table></div>`
+      : `<div class="tl">${items.map(itemHTML).join("")}</div>`;
+    sec.innerHTML=head+body;
     root.appendChild(sec);
   });
   if(!shown)root.innerHTML='<p class="sec-sub" style="text-align:center;margin:20px 0">선택한 분류의 일정이 없습니다.</p>';
@@ -1278,6 +1332,8 @@ async function init(){
   const fxEl=$("#fx");fxEl.value=FX;
   const updCalc=()=>{const cj=$("#calc-jpy");if(cj)$("#calc-krw").textContent=fmtKRW(toNum(cj.value)*FX/100);const cr=$("#calc-rate");if(cr)cr.textContent=`(100엔=${FX}원)`;};
   fxEl.addEventListener("input",()=>{FX=toNum(fxEl.value)||CONFIG.DEFAULT_FX;renderCost();updCalc();});
+  // 일정 보기(카드/표)
+  try{const pv=localStorage.getItem(LS_PLANVIEW);if(pv==="table"||pv==="card")PLAN_VIEW=pv;}catch(_){}
   // 비용: 1인/2인 토글
   PARTY=lsGet(LS_PARTY).p===1?1:2;
   $("#party-toggle").addEventListener("click",e=>{const b=e.target.closest("button[data-party]");if(!b)return;
@@ -1301,6 +1357,9 @@ async function init(){
     if(tc){const tp=tc.dataset.tp;
       if(tp===""){TYPE_FILTER.clear();}else{TYPE_FILTER.has(tp)?TYPE_FILTER.delete(tp):TYPE_FILTER.add(tp);}
       renderTypeFilter();renderTimeline(groupByDay(ITEMS));return;}
+    const vs=e.target.closest("#view-seg button");
+    if(vs){PLAN_VIEW=vs.dataset.pv;try{localStorage.setItem(LS_PLANVIEW,PLAN_VIEW);}catch(_){}
+      renderTimeline(groupByDay(ITEMS));return;}
     const th=e.target.closest(".thumb");
     if(th){openImg(th.dataset.full||th.src, th.alt);return;}
     const p=e.target.closest(".place");
