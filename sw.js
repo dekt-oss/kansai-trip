@@ -1,9 +1,10 @@
 /* 간사이 여행 일정표 — 서비스워커 (오프라인 지원) */
-const CACHE = "kansai-v2";
+const CACHE = "kansai-v3";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./icons/icon.svg",
   "./data/schedule.csv", "./data/spots.csv", "./data/days.csv",
   "./data/todo.csv", "./data/decisions.csv", "./data/shopping.csv",
+  "./data/info.csv", "./data/geo.csv",
 ];
 
 self.addEventListener("install", e => {

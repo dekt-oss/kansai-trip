@@ -252,6 +252,17 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .info-n{font-size:11px;color:var(--ink-soft);margin-top:2px}
 .mapwrap{border-radius:13px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:var(--washi-2)}
 .mapwrap iframe{width:100%;height:62vh;min-height:380px;border:0;display:block}
+.leafmap{height:64vh;min-height:400px;border-radius:13px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:var(--washi-2);z-index:0}
+.leafpin span{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;color:#fff;font-size:11px;font-weight:800;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45)}
+.map-daykey{display:flex;flex-wrap:wrap;align-items:center;gap:7px 12px;font-size:11px;color:var(--ink-soft);margin:0 2px 8px}
+.map-daykey span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.map-daykey i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.map-daykey .mk-imp{color:var(--ink-soft)}
+.map-daykey .mk-imp code{background:var(--washi-2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:10.5px}
+.map-daykey .mk-imp a{color:var(--ai)}
+.leaflet-popup-content{font-size:12.5px;line-height:1.5}
+.leaflet-popup-content b{font-family:'Shippori Mincho',serif}
+.leaflet-popup-content a{color:var(--ai);font-weight:700;text-decoration:none}
 .map-open-link{display:inline-block;margin:9px 2px 2px;font-size:12.5px;font-weight:700;color:var(--ai);text-decoration:none;border-bottom:1px solid var(--ai-soft)}
 .map-howto{background:var(--card);border:1px dashed var(--kin-soft);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;box-shadow:var(--shadow)}
 .map-howto b{color:var(--ink)}
@@ -414,9 +425,11 @@ footer .src{font-size:10px;opacity:.8}
   <!-- ===== 지도 VIEW ===== -->
   <section id="view-map" class="view hidden">
     <div class="sec-h">여행 지도</div>
-    <p class="sec-sub">핀을 누르면 장소 정보·길찾기가 열립니다. 새 창으로 크게 보기도 가능해요.</p>
-    <div class="mapwrap"><iframe id="mymaps" title="여행 지도" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>
-    <a id="map-bigger" class="map-open-link" target="_blank" rel="noopener">↗ 지도 새 창으로 크게 보기</a>
+    <p class="sec-sub">일정의 모든 장소가 자동으로 핀 표시됩니다. 핀을 누르면 정보·길찾기가 열려요.</p>
+    <div id="map-daykey" class="map-daykey"></div>
+    <div id="leafmap" class="leafmap"></div>
+    <div class="mapwrap hidden" id="mymaps-wrap"><iframe id="mymaps" title="여행 지도" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+    <a id="map-bigger" class="map-open-link hidden" target="_blank" rel="noopener">↗ 지도 새 창으로 크게 보기</a>
     <div id="map-howto" class="map-howto hidden"></div>
   </section>
 
@@ -559,6 +572,7 @@ const CONFIG = {
   LOCAL_DECISIONS_CSV: "data/decisions.csv",
   LOCAL_SHOPPING_CSV: "data/shopping.csv",
   LOCAL_INFO_CSV: "data/info.csv",
+  LOCAL_GEO_CSV: "data/geo.csv",      // 지도 핀 좌표(앱 자동지도 + My Maps 가져오기 겸용)
   // 메모/쇼핑 웹 저장(Apps Script). 비우면 이 기기(localStorage)에만 저장.
   WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwWGGvhoTJqxPYY9640p5SjCwXRm56y5murfIvecazKyXaZe7kgtkq1Y44iwzhiD-Wl/exec",                   // Apps Script 배포 URL(.../exec) — 입력을 구글 시트에 저장
   WEBAPP_TOKEN: "",                 // (선택) code.gs의 TOKEN과 동일하게
@@ -1090,29 +1104,88 @@ async function loadInfo(){
   }).join("");
 }
 
-/* ===================== 지도(My Maps 임베드) ===================== */
+/* ===================== 지도 ===================== */
+const DAYCOLOR={1:"#1f4068",2:"#c0432b",3:"#5c7d4f",4:"#9a7b34"};
+const GEO_FALLBACK=[
+  {name:"간사이공항(KIX)",lat:"34.4347",lng:"135.2440",day:"1",note:"도착·출국"},
+  {name:"난바(숙소 거점)",lat:"34.6631",lng:"135.5022",day:"1",note:"3연박 거점"},
+  {name:"신사이바시 PARCO(도토리공화국)",lat:"34.6745",lng:"135.5012",day:"1",note:"전국 최대 도토리"},
+  {name:"야마나카 사케 에키마루셰(JR오사카역)",lat:"34.7024",lng:"135.4959",day:"1",note:"셀프 사케 시음"},
+  {name:"우메다 공중정원(스카이빌딩)",lat:"34.7053",lng:"135.4901",day:"1",note:"360° 전망·야경"},
+  {name:"도톤보리",lat:"34.6687",lng:"135.5012",day:"1",note:"글리코·야간쇼핑"},
+  {name:"교토카와라마치",lat:"35.0036",lng:"135.7686",day:"2",note:"한큐 종착"},
+  {name:"기온마츠리 야마보코 순행",lat:"35.0089",lng:"135.7596",day:"2",note:"카라스마오이케~시조"},
+  {name:"니시키 시장",lat:"35.0050",lng:"135.7649",day:"2",note:"교토의 부엌"},
+  {name:"기요미즈데라(청수사)",lat:"34.9948",lng:"135.7847",day:"2",note:"청수의 무대"},
+  {name:"기온·야사카 신사",lat:"35.0036",lng:"135.7785",day:"2",note:"환행제 환행지"},
+  {name:"가모강·폰토초",lat:"35.0048",lng:"135.7707",day:"2",note:"카와도코 저녁"},
+  {name:"오사카성 천수각",lat:"34.6873",lng:"135.5262",day:"3",note:"천수각·정원"},
+  {name:"오사카텐만구",lat:"34.6962",lng:"135.5128",day:"3",note:"텐진마츠리 본궁"},
+  {name:"텐진바시스지 상점가",lat:"34.7010",lng:"135.5110",day:"3",note:"야타이·자리선점"},
+  {name:"오카와(사쿠라노미야)",lat:"34.7035",lng:"135.5170",day:"3",note:"후나토교·봉납 불꽃"},
+  {name:"쿠로몬 시장",lat:"34.6656",lng:"135.5058",day:"4",note:"해산물 아침"},
+];
+let LEAFMAP=null, MAP_BUILT=false;
+function ensureLeaflet(){
+  return new Promise((res,rej)=>{
+    if(window.L)return res();
+    const css=document.createElement("link");css.rel="stylesheet";css.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";document.head.appendChild(css);
+    const s=document.createElement("script");s.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    s.onload=()=>res();s.onerror=()=>rej(new Error("leaflet load fail"));document.head.appendChild(s);
+  });
+}
+// My Maps 임베드(사용자가 CONFIG.MAP_EMBED_URL 지정 시) — 자동 지도 대신 표시
+function useMyMapsEmbed(url){
+  $("#leafmap").classList.add("hidden");
+  $("#map-daykey").classList.add("hidden");
+  $("#mymaps-wrap").classList.remove("hidden");
+  $("#map-bigger").classList.remove("hidden");
+  $("#mymaps").src=url;
+  $("#map-bigger").href=url.replace("/embed","/viewer");
+  $("#map-howto").classList.add("hidden");
+}
+// Leaflet 로드 실패(오프라인) 시 — 구글맵 기본 + 안내
+function mapFallback(){
+  $("#leafmap").classList.add("hidden");
+  $("#mymaps-wrap").classList.remove("hidden");
+  $("#map-bigger").classList.remove("hidden");
+  $("#mymaps").src="https://maps.google.com/maps?q=%EC%98%A4%EC%82%AC%EC%B9%B4&z=10&output=embed";
+  $("#map-bigger").href="https://www.google.com/maps/search/%EC%98%A4%EC%82%AC%EC%B9%B4+%EA%B5%90%ED%86%A0";
+  $("#map-howto").innerHTML=`<b>오프라인이라 자동 지도를 불러오지 못했어요.</b><br>온라인에서 다시 열면 일정 장소가 핀으로 표시됩니다. 그 전까진 위 구글맵으로 대략 위치만 확인하세요.`;
+  $("#map-howto").classList.remove("hidden");
+}
+async function buildAutoMap(){
+  if(MAP_BUILT){ if(LEAFMAP)setTimeout(()=>LEAFMAP.invalidateSize(),60); return; }
+  MAP_BUILT=true;
+  let rows=GEO_FALLBACK;
+  if(CONFIG.LOCAL_GEO_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_GEO_CSV);if(r&&r.length)rows=r;}catch(e){}}
+  try{ await ensureLeaflet(); }catch(e){ MAP_BUILT=false; mapFallback(); return; }
+  const map=L.map("leafmap",{scrollWheelZoom:false,attributionControl:true});
+  LEAFMAP=map;
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
+  const pts=[];
+  rows.forEach(r=>{
+    const lat=parseFloat(r.lat), lng=parseFloat(r.lng); if(!isFinite(lat)||!isFinite(lng))return;
+    const day=parseInt(r.day,10)||0, color=DAYCOLOR[day]||"#6b7280";
+    const icon=L.divIcon({className:"leafpin",html:`<span style="background:${color}">${day||"·"}</span>`,iconSize:[24,24],iconAnchor:[12,12],popupAnchor:[0,-12]});
+    const dir=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(r.name)}`;
+    const search=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name)}`;
+    L.marker([lat,lng],{icon}).addTo(map)
+      .bindPopup(`<b>${esc(r.name)}</b><br><small>${day?day+"일차 · ":""}${esc(r.note||"")}</small><br>`
+        +`<a href="${search}" target="_blank" rel="noopener">지도 ↗</a> &nbsp; <a href="${dir}" target="_blank" rel="noopener">길찾기 ↗</a>`);
+    pts.push([lat,lng]);
+  });
+  if(pts.length)map.fitBounds(pts,{padding:[34,34]});
+  else map.setView([34.7,135.5],10);
+  // 일자 색상 범례
+  $("#map-daykey").innerHTML=[1,2,3,4].map(d=>`<span><i style="background:${DAYCOLOR[d]}"></i>${d}일차</span>`).join("")
+    +`<span class="mk-imp">📥 직접 편집·공유는 <code>data/geo.csv</code>를 <a href="https://www.google.com/maps/d/" target="_blank" rel="noopener">My Maps 가져오기</a></span>`;
+  setTimeout(()=>map.invalidateSize(),60);
+}
 function loadMap(){
-  const ifr=$("#mymaps"), big=$("#map-bigger"), howto=$("#map-howto");
-  if(!ifr)return;
   const url=(CONFIG.MAP_EMBED_URL||"").trim();
-  if(url){
-    ifr.src=url;
-    big.href=url.replace("/embed","/viewer");
-    howto.classList.add("hidden");
-  }else{
-    // 기본: 오사카·교토 일대 지도 + 내 지도 만드는 법 안내
-    ifr.src="https://maps.google.com/maps?q=%EC%98%A4%EC%82%AC%EC%B9%B4&z=10&output=embed";
-    big.href="https://www.google.com/maps/search/%EC%98%A4%EC%82%AC%EC%B9%B4+%EA%B5%90%ED%86%A0";
-    howto.innerHTML=`<b>📌 내 핀 지도 만들기 (무료 · 키 불필요)</b>
-      <ol>
-        <li><a href="https://www.google.com/maps/d/" target="_blank" rel="noopener">Google My Maps</a>에서 <b>새 지도</b> 만들기 → 장소 검색해 <b>핀 추가</b></li>
-        <li>오른쪽 위 <b>공유</b>에서 “링크가 있는 모든 사용자”로 공개</li>
-        <li><b>⋮ 메뉴 → 내 사이트에 지도 퍼가기</b>의 <code>&lt;iframe src="…"&gt;</code>에서 <b>src 주소만</b> 복사</li>
-        <li><code>index.html</code>의 <code>CONFIG.MAP_EMBED_URL</code>에 붙여넣고 저장 → 이 탭에 표시됩니다</li>
-      </ol>
-      <span class="map-howto-tip">이후 My Maps에서 핀을 추가/삭제하면 이 지도에 자동 반영돼요.</span>`;
-    howto.classList.remove("hidden");
-  }
+  if(url){ useMyMapsEmbed(url); return; }   // 사용자가 My Maps 지정 시 우선
+  // 그 외: 일정 장소로 자동 지도(지도 탭 첫 진입 시 빌드)
 }
 
 /* ===================== 웹 저장(Apps Script) ===================== */
@@ -1322,6 +1395,7 @@ function setupMenu(){
     VIEWS.forEach(v=>$("#view-"+v).classList.toggle("hidden",v!==b.dataset.view));
     b.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});
     window.scrollTo({top:0,behavior:"smooth"});
+    if(b.dataset.view==="map" && !(CONFIG.MAP_EMBED_URL||"").trim()) buildAutoMap();  // 지도 탭 첫 진입 시 자동 지도 빌드
   }));
 }
 

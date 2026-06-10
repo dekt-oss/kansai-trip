@@ -44,8 +44,10 @@
 - **쇼핑리스트** — 시드 항목(`data/shopping.csv`) + **웹에서 직접 추가**, 품목별 구매완료 체크, 예상 총액(¥/₩)
 
 **🗺 지도**
-- **여행 지도** — Google **My Maps**에 직접 찍은 핀 지도를 iframe으로 임베드(무료·API 키 불필요). My Maps에서 핀을 추가/삭제하면 자동 반영
-- `CONFIG.MAP_EMBED_URL`에 My Maps **퍼가기(iframe) src**를 넣으면 표시(비우면 오사카·교토 기본 지도 + 만드는 법 안내)
+- **자동 지도** — `data/geo.csv`의 장소 좌표를 읽어 앱이 **모든 핀을 자동 표시**(Leaflet + OpenStreetMap, **무료·API 키 불필요**). 일자별 색상 핀, 핀 클릭 시 지도/길찾기 링크. 핀 직접 찍을 필요 없음
+- **My Maps 가져오기** — 같은 `data/geo.csv`를 [Google My Maps](https://www.google.com/maps/d/)에서 *가져오기(Import)* 하면 핀이 한 번에 자동 생성(직접 편집·공유용)
+- **My Maps 임베드(선택)** — `CONFIG.MAP_EMBED_URL`에 My Maps 퍼가기 src를 넣으면 자동 지도 대신 그 지도를 표시
+- 오프라인이면 자동 지도(온라인 타일 필요) 대신 구글맵 기본 + 안내로 폴백
 
 **📝 메모**
 - **메모·추천 입력** — 웹에서 메모/추천스폿을 입력해 저장. day 태그, **이미지 URL**(썸네일) 지원
@@ -136,6 +138,7 @@ Claude에 "수정 요청"  →  data/schedule.csv 편집·커밋·푸시  →  G
 | `data/spots.csv` | `category, title, note, image_url` | 추천 스폿(사진 선택) |
 | `data/shopping.csv` | `item, store, price_jpy, category, note` | 쇼핑리스트 시드 항목 |
 | `data/info.csv` | `label, value, note, type` | 핵심·비상 정보(`type`=`tel`/`map`이면 링크) |
+| `data/geo.csv` | `name, lat, lng, day, type, note` | 지도 핀 좌표(앱 자동지도 + My Maps 가져오기 겸용) |
 | `apps-script/code.gs` | — | 메모·쇼핑 웹 저장용 Apps Script(시트에 붙여넣기) |
 | `data/days.csv` | `day, date, am, pm` | 일자별 오전/오후 요약 |
 | `data/todo.csv` | `id, category, task, note, done` | 예약 체크리스트 (`done`=`1`이면 기본 체크) |
