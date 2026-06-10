@@ -150,26 +150,27 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .tlegend .ldot{width:9px;height:13px;border-radius:2px;display:inline-block}
 .tlegend .lm{color:var(--kin);font-weight:700}
 .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid var(--line);box-shadow:var(--shadow);background:var(--card)}
-.ptable{border-collapse:collapse;width:100%;min-width:640px}
+.ptable{border-collapse:collapse;width:100%;min-width:720px}
 .ptable thead th{background:var(--ai);color:#fff;font-family:'Shippori Mincho',serif;font-weight:700;font-size:11.5px;padding:8px 10px;text-align:left;white-space:nowrap}
 .ptable tbody td{padding:9px 10px;border-top:1px solid var(--line);font-size:12px;vertical-align:top;color:var(--ink)}
-.ptable td.ptime{font-family:'Shippori Mincho',serif;color:var(--ai);white-space:nowrap;font-size:11.5px;border-left:6px solid var(--etc);padding-left:10px}
-.ptable tr.r-fes td.ptime{border-left-color:var(--shu)}
-.ptable tr.r-sig td.ptime{border-left-color:var(--kin)}
-.ptable tr.r-eat td.ptime{border-left-color:var(--eat)}
-.ptable tr.r-shop td.ptime{border-left-color:var(--shop)}
-.ptable tr.r-move td.ptime{border-left-color:var(--move)}
-.ptable tr.r-stay td.ptime{border-left-color:var(--stay)}
-.ptable .ptags{margin-bottom:3px;display:flex;flex-wrap:wrap;gap:4px}
-.ptable .ptags .badge{font-size:9px;padding:1px 6px}
-.ptable .pttl{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;display:block}
-.ptable .ploc{margin-top:4px}
-.ptable .ploc .place{font-size:11px;padding:3px 8px}
+.ptable td.ptime{font-family:'Shippori Mincho',serif;color:var(--ai);white-space:nowrap;font-size:11.5px}
+/* 일정 제목 앞 색상 막대(카테고리 구분) */
+.ptable .cbar{display:inline-block;width:4px;height:13px;border-radius:2px;margin-right:7px;vertical-align:-2px;background:var(--etc)}
+.ptable .cbar.t-fes{background:var(--shu)}
+.ptable .cbar.t-sig{background:var(--kin)}
+.ptable .cbar.t-eat{background:var(--eat)}
+.ptable .cbar.t-shop{background:var(--shop)}
+.ptable .cbar.t-move{background:var(--move)}
+.ptable .cbar.t-stay{background:var(--stay)}
+.ptable td.pmain{min-width:190px}
+.ptable .pttl{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;display:block;line-height:1.5}
 .ptable td.pmove{color:var(--ai);font-size:11px;white-space:nowrap}
 .ptable td.pmove small{color:var(--ink-soft)}
 .ptable td.pcost{white-space:nowrap;color:var(--eat);font-family:'Shippori Mincho',serif;font-size:11.5px}
-.ptable td.pdet{color:var(--ink-soft);min-width:160px}
+.ptable td.pdet{color:var(--ink-soft);min-width:180px}
 .ptable td.pdet small.warn{color:var(--shu);font-weight:700}
+.ptable td.pplace{white-space:nowrap}
+.ptable td.pplace .place{font-size:11px;padding:4px 9px}
 /* ===== Type filter ===== */
 .tfilter{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 10px}
 .tchip{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-weight:700;font-size:11.5px;padding:5px 10px;border-radius:999px;cursor:pointer;transition:.12s}
@@ -910,20 +911,21 @@ const TABLE_LEGEND=`<div class="tlegend">`
   +`<span><i class="ldot" style="background:var(--ai)"></i>이동</span>`
   +`<span class="lm">🎯 옵션</span><span class="lm">📷 포토</span><span class="lm">🛍️ 특산</span></div>`;
 function rowHTML(it){
-  const t=it.type, types=it.types||[t];
-  const tags=types.map(tp=>`<span class="badge t-${tp}">${TYPE_ICON[tp]} ${TYPE_LABEL[tp]}</span>`).join("");
+  const t=it.type;
   const q=esc(mapQuery(it)), label=esc(it.place||it.title);
   const time=`${esc(it.start)}${it.end?'~'+esc(it.end):''}`;
   const moveTxt=(it.transport&&it.transport!=="-")?esc(it.transport)+(it.move_note?` <small>${esc(it.move_note)}</small>`:""):"–";
   let cost="–";
   if(hasCost(it)){const f=partyFactor(); cost = it.cost_krw>0?fmtKRW(it.cost_krw*f):fmtJPY(it.cost_jpy*f);}
   const det=[it.desc?esc(it.desc):"", it.note?`<small class="warn">⚠ ${esc(it.note)}</small>`:""].filter(Boolean).join("<br>");
-  const place=it.place?`<button class="place" data-q="${q}" data-label="${label}"><span class="pin">📍</span>${esc(it.place)}</button>`:"";
+  const place=it.place?`<button class="place" data-q="${q}" data-label="${label}"><span class="pin">📍</span>${esc(it.place)}</button>`:"–";
+  const cbar=`<span class="cbar t-${t}"></span>`;
   return `<tr class="r-${t}"><td class="ptime">${time}</td>
-    <td class="pmain">${tags?`<div class="ptags">${tags}</div>`:""}<span class="pttl">${esc(it.title)}${it.tbd?'<span class="tbd">미정</span>':''}</span>${place?`<div class="ploc">${place}</div>`:""}</td>
+    <td class="pmain"><span class="pttl">${cbar}${esc(it.title)}${it.tbd?'<span class="tbd">미정</span>':''}</span></td>
     <td class="pmove">${moveTxt}</td>
     <td class="pcost">${cost}</td>
-    <td class="pdet">${det}</td></tr>`;
+    <td class="pdet">${det}</td>
+    <td class="pplace">${place}</td></tr>`;
 }
 function renderTimeline(days){
   const root=$("#timeline");root.innerHTML="";const todayIdx=dayIndexToday()+1;
@@ -941,7 +943,7 @@ function renderTimeline(days){
         ${g.day===todayIdx?'<span class="now">오늘</span>':''}
       </div>${TYPE_FILTER.size?"":summary}`;
     const body = (PLAN_VIEW==="table")
-      ? `${TABLE_LEGEND}<div class="tblwrap"><table class="ptable"><thead><tr><th>시간</th><th>일정 / 장소</th><th>이동</th><th>비용</th><th>세부내용 · 비고</th></tr></thead><tbody>${items.map(rowHTML).join("")}</tbody></table></div>`
+      ? `${TABLE_LEGEND}<div class="tblwrap"><table class="ptable"><thead><tr><th>시간</th><th>일정</th><th>이동</th><th>비용</th><th>세부내용 · 비고</th><th>장소</th></tr></thead><tbody>${items.map(rowHTML).join("")}</tbody></table></div>`
       : `<div class="tl">${items.map(itemHTML).join("")}</div>`;
     sec.innerHTML=head+body;
     root.appendChild(sec);
