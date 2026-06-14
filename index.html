@@ -197,6 +197,7 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .item.t-move{border-left-color:var(--move)} .item.t-move::before{border-color:var(--move)}
 .item.t-shop{border-left-color:var(--shop)} .item.t-shop::before{border-color:var(--shop)}
 .item.t-stay{border-left-color:var(--stay)} .item.t-stay::before{border-color:var(--stay)}
+.item.t-etc{border-left-color:var(--etc)} .item.t-etc::before{border-color:var(--etc)}
 .item-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .time{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;color:var(--ai);white-space:nowrap}
 .badge{font-size:10px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:999px;color:#fff;background:var(--move)}
@@ -598,18 +599,21 @@ const FALLBACK = [
   {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:""},
   {day:1,date:"7/23(목)",start:"20:00",end:"21:30",city:"오사카",place:"난바/도톤보리",transport:"도보",type:"eat",title:"이자카야 + 사케 첫 만찬",desc:"니혼슈 워밍업(2인)",cost_jpy:5000,note:"",cost_cat:"식비",tbd:true},
   {day:2,date:"7/24(금)",start:"07:30",end:"08:40",city:"오사카→교토",place:"난바→교토카와라마치",transport:"지하철+한큐",type:"move",title:"한큐 교토선 특급",desc:"카와라마치=순행 종착 인근",cost_jpy:650,note:"",cost_cat:"교통",move_note:"약 47km · 43분"},
-  {day:2,date:"7/24(금)",start:"09:30",end:"11:20",city:"교토",place:"오이케도리~시조",transport:"도보",type:"fes",title:"★기온마츠리 야마보코 후기 순행",desc:"'츠지마와시' 백미. 유료석 8000엔~ 옵션",cost_jpy:0,note:"양산·물 필수"},
-  {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"7·8월 18:30 폐문·현금만",cost_cat:"입장",move_note:"버스 약 4km · 15분"},
-  {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장",cost_cat:"입장"},
-  {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(사쿠라노미야)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경 시작",cost_jpy:0,note:""},
-  {day:3,date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"사쿠라노미야 공원",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"강물 반사 '이중 불꽃'",cost_jpy:0,note:"우천시 중단"},
+  {day:2,date:"7/24(금)",start:"09:30",end:"11:20",city:"교토",place:"가와라마치오이케~시조",transport:"도보",type:"fes",title:"★기온마츠리 야마보코 후기 순행",desc:"11기 巡行·츠지마와시(辻回し)·쿠지아라타메 · 명당=가와라마치오이케(한산·추천) 또는 시조가와라마치 · 유료석 ¥8000~",cost_jpy:0,note:"양산·물·모자 필수"},
+  {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"⚠7·8월 18:30 폐문 → 전 하산·현금만",cost_cat:"입장",move_note:"버스 약 4km · 15분"},
+  {day:2,date:"7/24(금)",start:"17:00",end:"21:00",city:"교토",place:"시조~기온·폰토초",transport:"도보",type:"fes",title:"★환행제(미코시 도교) + 기온 저녁",desc:"17:00 御旅所 출발 · 3기 미코시(中·東·西御座) · 差し上げ(사시아게) · 가모강 카와도코 저녁",cost_jpy:6000,note:"야간 행사·막차 시간 확인",cost_cat:"식비"},
+  {day:3,date:"7/25(토)",start:"10:00",end:"13:00",city:"오사카",place:"도톤보리·신사이바시",transport:"도보",type:"eat/shop",title:"도톤보리·신사이바시 쇼핑 + 점심",desc:"돈키 면세·551·코나몬 점심·글리코 포토 · 실내/아케이드 폭염 회피 · 짐 호텔 보관 후 출발",cost_jpy:4000,note:"",cost_cat:"식비"},
+  {day:3,date:"7/25(토)",start:"15:00",end:"16:00",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각(절충·내부 짧게)",desc:"해자·천수각 정면·니시노마루 정원 · 내부 짧게 후 16시 출발 · 역서 곧장 천수각 직행",cost_jpy:1200,note:"⚠입장 마감 ~16:30이나 명당 위해 16시 출발·물·모자",cost_cat:"입장"},
+  {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(텐만바시側)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경~21:00경",cost_jpy:0,note:""},
+  {day:3,date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"오카와(텐만바시側 남안)",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"약 3,000발 · 불꽃+선단 동시(남안 텐만바시側)=사진 명당",cost_jpy:0,note:"荒天 시 중지·당일 확인"},
+  {day:3,date:"7/25(토)",start:"21:00",end:"",city:"오사카",place:"오카와→남쪽 도보",transport:"도보",type:"move",title:"인파 회피 귀가",desc:"강변 남쪽 도보 15~20분(요도야바시·혼마치 방향) → 덜 붐비는 역 승차",cost_jpy:0,note:"21시 종료 후 지옥철 회피",cost_cat:"교통"},
   {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"shop/sig",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:3000,note:"일요일=야마나카 본점 휴무",cost_cat:"쇼핑"},
   {day:4,date:"7/26(일)",start:"15:30",end:"",city:"오사카→부산",place:"KIX→김해",transport:"비행기",type:"move",title:"귀국 비행편 탑승",desc:"15:30 KIX 출발",cost_jpy:0,note:"수고하셨습니다!"},
 ];
 const FALLBACK_DAYS = [
   {day:1,date:"7/23(목)",am:"오사카 도착·난바 짐풀기·점심",pm:"신사이바시 지브리·도톤보리 야경"},
   {day:2,date:"7/24(금)",am:"교토 이동·기온마츠리 순행",pm:"청수사·기온·가모강 사케"},
-  {day:3,date:"7/25(토)",am:"오사카성·우메다 지브리·사케 시음",pm:"텐진마츠리 후나토교·불꽃"},
+  {day:3,date:"7/25(토)",am:"도톤보리·신사이바시 쇼핑+점심",pm:"오사카성 천수각·텐진마츠리 후나토교·불꽃"},
   {day:4,date:"7/26(일)",am:"난바 갈무리 쇼핑",pm:"공항 이동·귀국"},
 ];
 const FALLBACK_SPOTS = [
@@ -1121,8 +1125,7 @@ const GEO_FALLBACK=[
   {name:"가모강·폰토초",lat:"35.0048",lng:"135.7707",day:"2",note:"카와도코 저녁"},
   {name:"오사카성 천수각",lat:"34.6873",lng:"135.5262",day:"3",note:"천수각·정원"},
   {name:"오사카텐만구",lat:"34.6962",lng:"135.5128",day:"3",note:"텐진마츠리 본궁"},
-  {name:"텐진바시스지 상점가",lat:"34.7010",lng:"135.5110",day:"3",note:"야타이·자리선점"},
-  {name:"오카와(사쿠라노미야)",lat:"34.7035",lng:"135.5170",day:"3",note:"후나토교·봉납 불꽃"},
+  {name:"오카와(텐만바시側 남안)",lat:"34.6960",lng:"135.5145",day:"3",note:"후나토교·봉납 불꽃 명당(남안)"},
   {name:"쿠로몬 시장",lat:"34.6656",lng:"135.5058",day:"4",note:"해산물 아침"},
 ];
 let LEAFMAP=null, MAP_BUILT=false;
