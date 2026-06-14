@@ -381,7 +381,7 @@ footer .src{font-size:10px;opacity:.8}
     <button id="theme-toggle" class="theme-btn" aria-label="다크모드 전환" title="다크모드">🌙</button>
     <p class="kicker">KANSAI · OSAKA · KYOTO</p>
     <h1>간사이 여행 일정표</h1>
-    <p class="sub" id="trip-range">2026.07.23 ~ 07.26 · 부산(김해)↔오사카 · 3박 4일 · 2인</p>
+    <p class="sub" id="trip-range">2026.07.23 ~ 07.26 · 부산(김해)↔오사카 · Chuan House 도톤보리(시마노우치) 3연박 · 2인</p>
   </header>
 
   <nav class="mainmenu" id="mainmenu">
@@ -444,7 +444,7 @@ footer .src{font-size:10px;opacity:.8}
         <div class="party" id="party-toggle"><span class="plab">인원</span><button data-party="1">1인</button><button data-party="2" class="on">2인</button></div>
         <label class="fx">100엔 = <input id="fx" type="number" inputmode="decimal" step="1" value="960" /> 원</label>
       </div>
-      <div class="legend"><span class="paid">🔴 확정 지출</span> = 실제 결제 완료 · <span>⚫ 예상 지출</span> = 미결제 추정 · 항목의 <b>✓</b>로 결제 처리 &nbsp;|&nbsp; 숙소비 미정</div>
+      <div class="legend"><span class="paid">🔴 확정 지출</span> = 실제 결제 완료 · <span>⚫ 예상 지출</span> = 미결제 추정 · 항목의 <b>✓</b>로 결제 처리 &nbsp;|&nbsp; 숙소 ₩378,585(별도)</div>
     </div>
 
     <div class="sec-h">카테고리별 비용</div>
@@ -593,7 +593,7 @@ const CONFIG = {
 /* ===== 내장 폴백(파일 직접 열람용) — CSV와 동일 스키마 ===== */
 const FALLBACK = [
   {day:1,date:"7/23(목)",start:"09:20",end:"10:50",city:"부산→오사카",place:"김해공항→KIX",transport:"비행기",type:"move",title:"왕복 항공편 탑승",desc:"09:20 김해 출발, 약 10:50 KIX 도착",cost_jpy:0,cost_krw:566080,note:"예약·결제 완료(왕복·2인)",cost_cat:"교통",paid:true,move_note:"약 1시간 30분 비행"},
-  {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바",transport:"라피트",type:"move",title:"난카이 특급 라피트",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔)",cost_jpy:1560,note:"",cost_cat:"교통",move_note:"약 42km · 38분"},
+  {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바→Chuan House",transport:"라피트",type:"move",title:"라피트 + 호텔 체크인·짐 보관",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔) · 난바→Chuan House 도보 11분",cost_jpy:1560,note:"",cost_cat:"교통",move_note:"라피트 38분+호텔 도보 11분"},
   {day:1,date:"7/23(목)",start:"13:30",end:"14:30",city:"오사카",place:"난바 일대",transport:"도보",type:"eat",title:"첫 끼 · 오코노미야키/우동",desc:"난바 일대 첫 점심",cost_jpy:1500,note:"",cost_cat:"식비",tbd:true},
   {day:1,date:"7/23(목)",start:"14:30",end:"17:30",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig/shop",title:"도토리공화국 신사이바시점 + 다이마루",desc:"전국 최대 도토리공화국·가오나시 포토존. 도보 10~15분",cost_jpy:0,note:"한낮 실내(폭염대비)"},
   {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:""},
@@ -611,7 +611,7 @@ const FALLBACK = [
   {day:4,date:"7/26(일)",start:"15:30",end:"",city:"오사카→부산",place:"KIX→김해",transport:"비행기",type:"move",title:"귀국 비행편 탑승",desc:"15:30 KIX 출발",cost_jpy:0,note:"수고하셨습니다!"},
 ];
 const FALLBACK_DAYS = [
-  {day:1,date:"7/23(목)",am:"오사카 도착·난바 짐풀기·점심",pm:"신사이바시 지브리·도톤보리 야경"},
+  {day:1,date:"7/23(목)",am:"오사카 도착·Chuan House 체크인·점심",pm:"신사이바시 지브리·도톤보리 야경"},
   {day:2,date:"7/24(금)",am:"교토 이동·기온마츠리 순행",pm:"청수사·기온·가모강 사케"},
   {day:3,date:"7/25(토)",am:"도톤보리·신사이바시 쇼핑+점심",pm:"오사카성 천수각·텐진마츠리 후나토교·불꽃"},
   {day:4,date:"7/26(일)",am:"난바 갈무리 쇼핑",pm:"공항 이동·귀국"},
@@ -626,12 +626,12 @@ const FALLBACK_TODO = [
   {id:"hotel",category:"숙소",task:"난바/신사이바시 호텔 3박",note:"위치 결정 후 예약",done:""},
 ];
 const FALLBACK_DECISIONS = [
-  {id:"hotel",title:"숙소 위치",option_a:"난바 — 라피트 직결·교통 허브",option_b:"신사이바시 — 쇼핑·도톤보리 도보",note:"공항 접근은 난바가 유리"},
+  {id:"hotel",title:"숙소 위치",option_a:"난바 — 라피트 직결·교통 허브",option_b:"신사이바시 — 쇼핑·도톤보리 도보",note:"✅확정: Chuan House 도톤보리(시마노우치 2-5-6)"},
 ];
 const FALLBACK_INFO = [
   {label:"항공편 (가는편)",value:"7/23(목) 김해 09:20 → KIX 10:50",note:"",type:""},
   {label:"항공편 (오는편)",value:"7/26(일) KIX 15:30 → 김해",note:"국제선 2~3시간 전 도착",type:""},
-  {label:"숙소",value:"난바/신사이바시 (미정)",note:"결정 후 주소 입력",type:"map"},
+  {label:"숙소",value:"CHUAN HOUSE 도톤보리 (시마노우치 2-5-6)",note:"3박 · ₩378,585 · 도톤보리 도보3분·닛폰바시역5분",type:"map"},
   {label:"주오사카 총영사관",value:"+81-6-4256-2345",note:"분실·사건 시",type:"tel"},
   {label:"일본 긴급",value:"110 (경찰) · 119 (구급)",note:"",type:""},
 ];
@@ -1112,7 +1112,7 @@ async function loadInfo(){
 const DAYCOLOR={1:"#1f4068",2:"#c0432b",3:"#5c7d4f",4:"#9a7b34"};
 const GEO_FALLBACK=[
   {name:"간사이공항(KIX)",lat:"34.4347",lng:"135.2440",day:"1",note:"도착·출국"},
-  {name:"난바(숙소 거점)",lat:"34.6631",lng:"135.5022",day:"1",note:"3연박 거점"},
+  {name:"Chuan House 도톤보리(숙소)",lat:"34.6690",lng:"135.5052",day:"1",note:"도톤보리 도보3분·닛폰바시역5분·3연박 거점"},
   {name:"신사이바시 PARCO(도토리공화국)",lat:"34.6745",lng:"135.5012",day:"1",note:"전국 최대 도토리"},
   {name:"야마나카 사케 에키마루셰(JR오사카역)",lat:"34.7024",lng:"135.4959",day:"1",note:"셀프 사케 시음"},
   {name:"우메다 공중정원(스카이빌딩)",lat:"34.7053",lng:"135.4901",day:"1",note:"360° 전망·야경"},
