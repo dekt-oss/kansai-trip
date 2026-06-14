@@ -631,7 +631,7 @@ const FALLBACK_DECISIONS = [
 const FALLBACK_INFO = [
   {label:"항공편 (가는편)",value:"7/23(목) 김해 09:20 → KIX 10:50",note:"",type:""},
   {label:"항공편 (오는편)",value:"7/26(일) KIX 15:30 → 김해",note:"국제선 2~3시간 전 도착",type:""},
-  {label:"숙소",value:"CHUAN HOUSE 도톤보리 大阪市中央区島之内2-5-6",note:"3박 · ₩378,585 · 도톤보리 도보3분·닛폰바시역5분",type:"map"},
+  {label:"숙소",value:"大阪市中央区島之内2-5-6",note:"CHUAN HOUSE 도톤보리 · 3박 · ₩378,585 · 도톤보리 도보3분·닛폰바시역5분",type:"map"},
   {label:"주오사카 총영사관",value:"+81-6-4256-2345",note:"분실·사건 시",type:"tel"},
   {label:"일본 긴급",value:"110 (경찰) · 119 (구급)",note:"",type:""},
 ];
@@ -1171,8 +1171,9 @@ async function buildAutoMap(){
     const lat=parseFloat(r.lat), lng=parseFloat(r.lng); if(!isFinite(lat)||!isFinite(lng))return;
     const day=parseInt(r.day,10)||0, color=DAYCOLOR[day]||"#6b7280";
     const icon=L.divIcon({className:"leafpin",html:`<span style="background:${color}">${day||"·"}</span>`,iconSize:[24,24],iconAnchor:[12,12],popupAnchor:[0,-12]});
-    const dir=`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(r.name)}`;
-    const search=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.name)}`;
+    const dest=`${lat},${lng}`;
+    const dir=`https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+    const search=`https://www.google.com/maps/search/?api=1&query=${dest}`;
     L.marker([lat,lng],{icon}).addTo(map)
       .bindPopup(`<b>${esc(r.name)}</b><br><small>${day?day+"일차 · ":""}${esc(r.note||"")}</small><br>`
         +`<a href="${search}" target="_blank" rel="noopener">지도 ↗</a> &nbsp; <a href="${dir}" target="_blank" rel="noopener">길찾기 ↗</a>`);
