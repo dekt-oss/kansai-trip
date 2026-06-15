@@ -444,7 +444,7 @@ footer .src{font-size:10px;opacity:.8}
         <div class="party" id="party-toggle"><span class="plab">인원</span><button data-party="1">1인</button><button data-party="2" class="on">2인</button></div>
         <label class="fx">100엔 = <input id="fx" type="number" inputmode="decimal" step="1" value="960" /> 원</label>
       </div>
-      <div class="legend"><span class="paid">🔴 확정 지출</span> = 실제 결제 완료 · <span>⚫ 예상 지출</span> = 미결제 추정 · 항목의 <b>✓</b>로 결제 처리 &nbsp;|&nbsp; 숙소 ₩378,585(별도)</div>
+      <div class="legend"><span class="paid">🔴 확정 지출</span> = 실제 결제 완료 · <span>⚫ 예상 지출</span> = 미결제 추정 · 항목의 <b>✓</b>로 결제 처리 &nbsp;|&nbsp; 숙박 3박 ₩378,585 포함</div>
     </div>
 
     <div class="sec-h">카테고리별 비용</div>
@@ -594,6 +594,7 @@ const CONFIG = {
 const FALLBACK = [
   {day:1,date:"7/23(목)",start:"09:20",end:"10:50",city:"부산→오사카",place:"김해공항→KIX",transport:"비행기",type:"move",title:"왕복 항공편 탑승",desc:"09:20 김해 출발, 약 10:50 KIX 도착",cost_jpy:0,cost_krw:566080,note:"예약·결제 완료(왕복·2인)",cost_cat:"교통",paid:true,move_note:"약 1시간 30분 비행"},
   {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바→Chuan House",transport:"라피트",type:"move",title:"라피트 + 호텔 체크인·짐 보관",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔) · 난바→Chuan House 도보 11분",cost_jpy:1560,note:"",cost_cat:"교통",move_note:"라피트 38분+호텔 도보 11분"},
+  {day:1,date:"7/23(목)",start:"13:00",end:"",city:"오사카",place:"숙소(中央区島之内2-5-6)",transport:"-",type:"stay",title:"★숙박 3박 · Chuan House 도톤보리",desc:"아파트형 셀프 체크인 16:00~ · 3박 7/23~7/26 · 도톤보리 도보3분",cost_jpy:0,note:"예약·결제 완료(2인·3박)",cost_krw:378585,cost_cat:"숙박",paid:true},
   {day:1,date:"7/23(목)",start:"13:30",end:"14:30",city:"오사카",place:"난바 일대",transport:"도보",type:"eat",title:"첫 끼 · 오코노미야키/우동",desc:"난바 일대 첫 점심",cost_jpy:1500,note:"",cost_cat:"식비",tbd:true},
   {day:1,date:"7/23(목)",start:"14:30",end:"17:30",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig/shop",title:"도토리공화국 신사이바시점 + 다이마루",desc:"전국 최대 도토리공화국·가오나시 포토존. 도보 10~15분",cost_jpy:0,note:"한낮 실내(폭염대비)"},
   {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:""},
