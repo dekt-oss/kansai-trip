@@ -229,8 +229,9 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .item.collapsed .caret{transform:rotate(-90deg)}
 /* 동선 타임라인(지도식) + 여행 세부 디테일 */
 .rtl{position:relative;margin-top:4px}
-.rtl::before{content:"";position:absolute;left:7px;top:9px;bottom:11px;width:3px;border-radius:3px;background:var(--move);opacity:.65}
-.rtl.t-fes::before{background:var(--shu)} .rtl.t-sig::before{background:var(--kin)} .rtl.t-eat::before{background:var(--eat)} .rtl.t-move::before{background:var(--move)} .rtl.t-shop::before{background:var(--shop)} .rtl.t-stay::before{background:var(--stay)} .rtl.t-etc::before{background:var(--etc)}
+.rtl-route{position:relative}
+.rtl-route::before{content:"";position:absolute;left:7px;top:9px;bottom:11px;width:3px;border-radius:3px;background:var(--move);opacity:.65}
+.rtl.t-fes .rtl-route::before{background:var(--shu)} .rtl.t-sig .rtl-route::before{background:var(--kin)} .rtl.t-eat .rtl-route::before{background:var(--eat)} .rtl.t-move .rtl-route::before{background:var(--move)} .rtl.t-shop .rtl-route::before{background:var(--shop)} .rtl.t-stay .rtl-route::before{background:var(--stay)} .rtl.t-etc .rtl-route::before{background:var(--etc)}
 .rtl-node{position:relative;padding-left:26px;min-height:18px;margin:1px 0}
 .rtl-dot{position:absolute;left:1px;top:1px;width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--move);box-sizing:border-box}
 .rtl-dot.start{background:var(--eat);border-color:var(--eat)}
@@ -242,7 +243,9 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .rtl-place{font-size:12.5px;font-weight:600;color:var(--ink);margin-top:1px}
 .rtl-leg{padding-left:26px;margin:2px 0 4px;font-size:11.5px;color:var(--ink-soft)}
 .rtl-leg b{color:var(--ink);font-weight:700}
+.rtl-leg.implied b{font-weight:600;color:var(--ink-soft)}
 .rtl-lnote{color:var(--ink-soft)}
+.rtl-auto{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--ink-soft);background:var(--washi-2);border:1px dashed var(--line);padding:0 5px;border-radius:999px;margin-left:4px;vertical-align:1px}
 .rtl-detail{list-style:none;margin:9px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
 .rtl-ditem{display:flex;gap:7px;align-items:flex-start;font-size:12px;line-height:1.5;color:var(--ink-soft)}
 .rtl-chip{flex:0 0 auto;font-size:9.5px;font-weight:700;color:#fff;padding:1px 7px;border-radius:999px;white-space:nowrap;margin-top:1px}
@@ -873,26 +876,42 @@ function hasRouteDetail(it){
   return !!it.desc || parseStops(it.place).length>1 || (it.transport && it.transport!=="-");
 }
 // 펼침 영역: 동선 스파인 + 카테고리별 여행 세부 + 메타
-function routeDetailHTML(it){
+// prevPlace: 같은 날 직전 일정의 장소(이동수단 없을 때 "이전 장소→현재 장소" 동선 자동 생성)
+function lastStop(place){return String(place||"").split(/[→~]/).pop().trim();}
+function routeDetailHTML(it, prevPlace){
   const stops=parseStops(it.place);
-  const moving=(it.transport && it.transport!=="-") || stops.length>1;
+  const hasTransport=!!(it.transport && it.transport!=="-");
+  let routeStops, legNotes, tIcon, tName, implied=false;
+  if(stops.length>1){                       // 장소 자체가 다구간 이동
+    routeStops=stops;
+    legNotes=splitLegNotes(it.move_note, stops.length-1);
+    tIcon=transportIcon(it.transport); tName=esc(hasTransport?it.transport:"이동");
+  }else{                                     // 단일 장소
+    const prev=lastStop(prevPlace), cur=stops[0]||"";
+    if(prev && cur && prev!==cur){           // 이전 장소→현재 장소로 동선 생성
+      routeStops=[prev,cur]; legNotes=[String(it.move_note||"").trim()];
+      if(hasTransport){tIcon=transportIcon(it.transport); tName=esc(it.transport);}
+      else{tIcon="🚶"; tName="이동"; implied=true;}
+    }else{routeStops=stops;}                  // 시작점·동일장소 → 단일 노드
+  }
+  const journeyTimed = hasTransport && stops.length>1;  // 이동 그 자체가 일정(출발/도착 시각=이동시간)
   let nodes="";
-  if(moving && stops.length>1){
-    const legNotes=splitLegNotes(it.move_note, stops.length-1);
-    const tIcon=transportIcon(it.transport);
-    const tName=esc(it.transport && it.transport!=="-" ? it.transport : "이동");
-    stops.forEach((stop,i)=>{
-      const isFirst=i===0, isLast=i===stops.length-1;
+  if(routeStops && routeStops.length>1){
+    routeStops.forEach((stop,i)=>{
+      const isFirst=i===0, isLast=i===routeStops.length-1;
       const dotCls=isFirst?"start":isLast?"end":"mid";
       const tag=isFirst?"출발":isLast?"도착":"환승";
-      const tm=isFirst&&it.start?esc(it.start):isLast&&it.end?esc(it.end):"";
+      let tm="";
+      if(journeyTimed){ if(isFirst&&it.start)tm=esc(it.start); else if(isLast&&it.end)tm=esc(it.end); }
+      else if(isLast&&it.start){ tm=`${esc(it.start)}${it.end?'–'+esc(it.end):''}`; }
       const timeChip=tm?`<span class="rtl-time">${tm}</span>`:"";
       nodes+=`<div class="rtl-node"><span class="rtl-dot ${dotCls}">${isLast?"📍":""}</span>
         <div class="rtl-head"><span class="rtl-tag">${tag}</span>${timeChip}</div>
         <div class="rtl-place">${esc(stop)}</div></div>`;
       if(!isLast){
         const ln=legNotes[i]?` <span class="rtl-lnote">· ${esc(legNotes[i])}</span>`:"";
-        nodes+=`<div class="rtl-leg">${tIcon} <b>${tName}</b>${ln}</div>`;
+        const auto=implied?' <span class="rtl-auto">자동</span>':'';
+        nodes+=`<div class="rtl-leg${implied?' implied':''}">${tIcon} <b>${tName}</b>${ln}${auto}</div>`;
       }
     });
   }else{
@@ -917,9 +936,9 @@ function routeDetailHTML(it){
     meta.push(`<span class="rtl-mi">💴 <b>${amt}</b>${cat}</span>`);
   }
   const metaHTML=meta.length?`<div class="rtl-meta">${meta.join("")}</div>`:"";
-  return `<div class="rtl t-${it.type}">${nodes}${detailHTML}${metaHTML}</div>`;
+  return `<div class="rtl t-${it.type}"><div class="rtl-route">${nodes}</div>${detailHTML}${metaHTML}</div>`;
 }
-function itemHTML(it){
+function itemHTML(it, prevItem){
   const t=it.type,meta=[];
   if(it.transport&&it.transport!=="-"){
     const mn = it.move_note?` <span class="mnote">(${esc(it.move_note)})</span>`:'';
@@ -954,7 +973,7 @@ function itemHTML(it){
     ${meta.length?`<div class="meta">${meta.join("")}</div>`:''}
     ${it.note?`<div class="note">⚠ ${esc(it.note)}</div>`:''}
     ${thumbHTML(it.image_url, it.title)}
-    ${hasDetail?`<div class="item-detail">${routeDetailHTML(it)}</div>`:''}
+    ${hasDetail?`<div class="item-detail">${routeDetailHTML(it, prevItem&&prevItem.place)}</div>`:''}
   </article>`;
 }
 /* ===== 현지 실시간(지금/다음·진행률·완료) ===== */
@@ -1066,7 +1085,7 @@ function renderTimeline(days){
       </div>${TYPE_FILTER.size?"":summary}`;
     const body = (PLAN_VIEW==="table")
       ? `${TABLE_LEGEND}<div class="tblwrap"><table class="ptable"><thead><tr><th>시간</th><th>일정</th><th>이동</th><th>비용</th><th>세부내용 · 비고</th><th>장소</th></tr></thead><tbody>${items.map(rowHTML).join("")}</tbody></table></div>`
-      : `<div class="tl">${items.map(itemHTML).join("")}</div>`;
+      : `<div class="tl">${items.map((it,i)=>itemHTML(it, items[i-1])).join("")}</div>`;
     sec.innerHTML=head+body;
     root.appendChild(sec);
   });
