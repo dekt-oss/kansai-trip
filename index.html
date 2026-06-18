@@ -224,9 +224,32 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .imgbox img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 14px 40px rgba(0,0,0,.5)}
 /* 접기/펼치기 */
 .caret{margin-left:6px;color:var(--kin-soft);font-size:13px;transition:transform .2s;flex:0 0 auto}
-.item-detail{overflow:hidden;transition:max-height .25s ease;max-height:400px;margin-top:6px}
+.item-detail{overflow:hidden;transition:max-height .3s ease;max-height:2000px;margin-top:6px}
 .item.collapsed .item-detail{max-height:0;margin-top:0}
 .item.collapsed .caret{transform:rotate(-90deg)}
+/* 동선 타임라인(지도식) + 여행 세부 디테일 */
+.rtl{position:relative;margin-top:4px}
+.rtl::before{content:"";position:absolute;left:7px;top:9px;bottom:11px;width:3px;border-radius:3px;background:var(--move);opacity:.65}
+.rtl.t-fes::before{background:var(--shu)} .rtl.t-sig::before{background:var(--kin)} .rtl.t-eat::before{background:var(--eat)} .rtl.t-move::before{background:var(--move)} .rtl.t-shop::before{background:var(--shop)} .rtl.t-stay::before{background:var(--stay)} .rtl.t-etc::before{background:var(--etc)}
+.rtl-node{position:relative;padding-left:26px;min-height:18px;margin:1px 0}
+.rtl-dot{position:absolute;left:1px;top:1px;width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--move);box-sizing:border-box}
+.rtl-dot.start{background:var(--eat);border-color:var(--eat)}
+.rtl-dot.mid{background:var(--card)}
+.rtl-dot.end{border:none;background:transparent;width:18px;height:18px;left:-1px;top:-1px;font-size:15px;line-height:18px;text-align:center}
+.rtl-head{display:flex;align-items:center;gap:6px}
+.rtl-tag{font-size:9.5px;font-weight:700;letter-spacing:.5px;color:#fff;background:var(--kin-soft);padding:1px 6px;border-radius:999px}
+.rtl-time{font-family:'Shippori Mincho',serif;font-weight:700;font-size:11.5px;color:var(--ai)}
+.rtl-place{font-size:12.5px;font-weight:600;color:var(--ink);margin-top:1px}
+.rtl-leg{padding-left:26px;margin:2px 0 4px;font-size:11.5px;color:var(--ink-soft)}
+.rtl-leg b{color:var(--ink);font-weight:700}
+.rtl-lnote{color:var(--ink-soft)}
+.rtl-detail{list-style:none;margin:9px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rtl-ditem{display:flex;gap:7px;align-items:flex-start;font-size:12px;line-height:1.5;color:var(--ink-soft)}
+.rtl-chip{flex:0 0 auto;font-size:9.5px;font-weight:700;color:#fff;padding:1px 7px;border-radius:999px;white-space:nowrap;margin-top:1px}
+.cat-photo{background:var(--kin)} .cat-eat{background:var(--eat)} .cat-shop{background:var(--shop)} .cat-opt{background:var(--etc)}
+.rtl-dtext{flex:1}
+.rtl-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:9px;font-size:11px;color:var(--ink-soft)}
+.rtl-meta .rtl-mi b{color:var(--kin)}
 /* place → map trigger */
 .place{margin-left:auto;display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--ai-soft);background:rgba(31,64,104,.07);border:1px solid rgba(31,64,104,.15);padding:3px 8px;border-radius:999px;cursor:pointer;font-weight:600}
 .place:active{transform:scale(.97)}
@@ -817,6 +840,85 @@ function mapQuery(it){
 function thumbHTML(url,alt){
   return url?`<img class="thumb" loading="lazy" src="${esc(url)}" alt="${esc(alt)}" data-full="${esc(url)}" onerror="this.style.display='none'">`:'';
 }
+/* ===== 동선 타임라인(지도식) + 여행 세부 디테일 ===== */
+// place "A→B→C" / "A~B" → 정류장 배열 (괄호 보조설명 유지)
+function parseStops(place){
+  return String(place||"").split(/[→~]/).map(s=>s.trim()).filter(Boolean);
+}
+// move_note를 leg(구간) 수에 맞춰 분배. "+"로 구분되고 개수가 맞으면 1:1, 아니면 첫 구간에 통째로
+function splitLegNotes(moveNote, legCount){
+  const mn=String(moveNote||"").trim(), out=Array(Math.max(legCount,0)).fill("");
+  if(!mn||legCount<=0) return out;
+  const toks=mn.split(/\s*\+\s*/).map(s=>s.trim()).filter(Boolean);
+  if(legCount>1 && toks.length===legCount) return toks;
+  out[0]=mn; return out;
+}
+// 카테고리 마커: 📷포토·🍴미식·🛍️쇼핑·🎯옵션
+const DETAIL_CATS=[
+  {key:"photo",icon:"📷",label:"포토",m:/📷/},
+  {key:"eat",  icon:"🍴",label:"미식",m:/🍴/},
+  {key:"shop", icon:"🛍️",label:"쇼핑",m:/🛍/},
+  {key:"opt",  icon:"🎯",label:"옵션",m:/🎯/},
+];
+// desc를 " · "(공백 포함) 기준으로만 분해 → 공백 없는 내부 "·"(해자·천수각)는 보존. 마커로 카테고리 부여
+function parseDetails(desc){
+  return String(desc||"").split(/\s+·\s+/).map(s=>s.trim()).filter(Boolean).map(seg=>{
+    let cat=null;
+    for(const c of DETAIL_CATS){ if(c.m.test(seg)){cat=c;break;} }
+    const text=seg.replace(/📷|🍴|🎯|🛍️|🛍/g,"").replace(/\s{2,}/g," ").trim();
+    return {cat,text};
+  }).filter(d=>d.text);
+}
+function hasRouteDetail(it){
+  return !!it.desc || parseStops(it.place).length>1 || (it.transport && it.transport!=="-");
+}
+// 펼침 영역: 동선 스파인 + 카테고리별 여행 세부 + 메타
+function routeDetailHTML(it){
+  const stops=parseStops(it.place);
+  const moving=(it.transport && it.transport!=="-") || stops.length>1;
+  let nodes="";
+  if(moving && stops.length>1){
+    const legNotes=splitLegNotes(it.move_note, stops.length-1);
+    const tIcon=transportIcon(it.transport);
+    const tName=esc(it.transport && it.transport!=="-" ? it.transport : "이동");
+    stops.forEach((stop,i)=>{
+      const isFirst=i===0, isLast=i===stops.length-1;
+      const dotCls=isFirst?"start":isLast?"end":"mid";
+      const tag=isFirst?"출발":isLast?"도착":"환승";
+      const tm=isFirst&&it.start?esc(it.start):isLast&&it.end?esc(it.end):"";
+      const timeChip=tm?`<span class="rtl-time">${tm}</span>`:"";
+      nodes+=`<div class="rtl-node"><span class="rtl-dot ${dotCls}">${isLast?"📍":""}</span>
+        <div class="rtl-head"><span class="rtl-tag">${tag}</span>${timeChip}</div>
+        <div class="rtl-place">${esc(stop)}</div></div>`;
+      if(!isLast){
+        const ln=legNotes[i]?` <span class="rtl-lnote">· ${esc(legNotes[i])}</span>`:"";
+        nodes+=`<div class="rtl-leg">${tIcon} <b>${tName}</b>${ln}</div>`;
+      }
+    });
+  }else{
+    const tm=it.start?`${esc(it.start)}${it.end?'–'+esc(it.end):''}`:"";
+    nodes+=`<div class="rtl-node"><span class="rtl-dot end">📍</span>
+      <div class="rtl-head"><span class="rtl-tag">현장</span>${tm?`<span class="rtl-time">${tm}</span>`:""}</div>
+      ${it.place?`<div class="rtl-place">${esc(it.place)}</div>`:""}</div>`;
+  }
+  const details=parseDetails(it.desc);
+  let detailHTML="";
+  if(details.length){
+    detailHTML=`<ul class="rtl-detail">`+details.map(d=>{
+      const chip=d.cat?`<span class="rtl-chip cat-${d.cat.key}">${d.cat.icon} ${d.cat.label}</span>`:"";
+      return `<li class="rtl-ditem">${chip}<span class="rtl-dtext">${esc(d.text)}</span></li>`;
+    }).join("")+`</ul>`;
+  }
+  const meta=[];
+  if(it.city) meta.push(`<span class="rtl-mi">🗺️ ${esc(it.city)}</span>`);
+  if(hasCost(it)){
+    const amt=it.cost_krw>0?fmtKRW(it.cost_krw):fmtJPY(it.cost_jpy);
+    const cat=it.cost_cat?` ${esc(it.cost_cat)}`:"";
+    meta.push(`<span class="rtl-mi">💴 <b>${amt}</b>${cat}</span>`);
+  }
+  const metaHTML=meta.length?`<div class="rtl-meta">${meta.join("")}</div>`:"";
+  return `<div class="rtl t-${it.type}">${nodes}${detailHTML}${metaHTML}</div>`;
+}
 function itemHTML(it){
   const t=it.type,meta=[];
   if(it.transport&&it.transport!=="-"){
@@ -829,7 +931,7 @@ function itemHTML(it){
     meta.push(`<span>💴 <b class="${it.paid?'paid':''}">${amt}</b>${cat}</span>`);
   }
   const q=esc(mapQuery(it)), label=esc(it.place||it.title);
-  const hasDetail = !!it.desc;   // 설명만 접힘. 경고(note)는 항상 노출
+  const hasDetail = hasRouteDetail(it);   // 동선/세부 펼침. 경고(note)는 항상 노출
   const tbd = it.tbd?'<span class="tbd">미정</span>':'';
   const badges = (it.types||[t]).map(tp=>`<span class="badge t-${tp}">${TYPE_ICON[tp]} ${TYPE_LABEL[tp]}</span>`).join("");
   // 완료 상태 + 오늘 기준 진행 상태(과거/현재) + 현재 위치 앵커
@@ -852,7 +954,7 @@ function itemHTML(it){
     ${meta.length?`<div class="meta">${meta.join("")}</div>`:''}
     ${it.note?`<div class="note">⚠ ${esc(it.note)}</div>`:''}
     ${thumbHTML(it.image_url, it.title)}
-    ${hasDetail?`<div class="item-detail"><p class="desc">${esc(it.desc)}</p></div>`:''}
+    ${hasDetail?`<div class="item-detail">${routeDetailHTML(it)}</div>`:''}
   </article>`;
 }
 /* ===== 현지 실시간(지금/다음·진행률·완료) ===== */
