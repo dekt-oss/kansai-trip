@@ -1621,7 +1621,12 @@ init();
 
 /* ===================== PWA(오프라인) 서비스워커 ===================== */
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(e=>console.warn("sw fail",e)));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(reg=>reg&&reg.update()).catch(e=>console.warn("sw fail",e)));
+  // 새 버전 배포 시: 새 SW가 제어권을 잡으면 1회만 새로고침 → 즉시 반영(루프 방지)
+  let swRefreshing=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(swRefreshing)return; swRefreshing=true; location.reload();
+  });
 }
 </script>
 </body>
