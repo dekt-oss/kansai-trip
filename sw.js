@@ -1,5 +1,5 @@
 /* 간사이 여행 일정표 — 서비스워커 (오프라인 지원) */
-const CACHE = "kansai-v3";
+const CACHE = "kansai-v4";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./icons/icon.svg",
   "./data/schedule.csv", "./data/spots.csv", "./data/days.csv",
@@ -34,8 +34,9 @@ self.addEventListener("fetch", e => {
   const isHTML = req.mode === "navigate" || (sameOrigin && url.pathname.endsWith(".html"));
   const isData = sameOrigin && url.pathname.includes("/data/");
   if (isHTML || isData) {
+    // cache:"reload" → 브라우저 HTTP 캐시(=GitHub Pages max-age)를 우회해 항상 최신 받기
     e.respondWith(
-      fetch(req).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return r; })
+      fetch(req, { cache: "reload" }).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); return r; })
         .catch(() => caches.match(req, { ignoreSearch: true }).then(r => r || (isHTML ? caches.match("./index.html") : undefined)))
     );
     return;
