@@ -232,6 +232,7 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .rtl-route{position:relative}
 .rtl-route::before{content:"";position:absolute;left:7px;top:9px;bottom:11px;width:3px;border-radius:3px;background:var(--move);opacity:.65}
 .rtl.t-fes .rtl-route::before{background:var(--shu)} .rtl.t-sig .rtl-route::before{background:var(--kin)} .rtl.t-eat .rtl-route::before{background:var(--eat)} .rtl.t-move .rtl-route::before{background:var(--move)} .rtl.t-shop .rtl-route::before{background:var(--shop)} .rtl.t-stay .rtl-route::before{background:var(--stay)} .rtl.t-etc .rtl-route::before{background:var(--etc)}
+html[data-theme="dark"] .rtl-route::before{opacity:1;filter:brightness(1.12)}
 .rtl-node{position:relative;padding-left:26px;min-height:18px;margin:1px 0}
 .rtl-dot{position:absolute;left:1px;top:1px;width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--move);box-sizing:border-box}
 .rtl-dot.start{background:var(--eat);border-color:var(--eat)}
@@ -683,7 +684,7 @@ function normTypes(t){
 }
 // 이동수단 → 종류별 이모지 (조합 지원: "지하철+한큐" → 🚇🚆)
 function transportIcon(t){
-  const rules=[[/비행기|항공/,"✈️"],[/지하철/,"🚇"],[/버스/,"🚌"],[/택시/,"🚕"],
+  const rules=[[/비행기|항공/,"✈️"],[/지하철|메트로|미도스지|사카이스지|나가호리|쓰루미|주오선|중앙선|순환|요쓰바시|타니마치|센니치마에|이마자토|호선/,"🚇"],[/버스/,"🚌"],[/택시/,"🚕"],
     [/도보|걷기/,"🚶"],[/기차|열차|전철|전차|특급|급행|라피트|난카이|한큐|JR/i,"🚆"]];
   const ics=[];
   for(const [re,ic] of rules){ if(re.test(String(t||""))&&!ics.includes(ic)) ics.push(ic); }
@@ -881,10 +882,12 @@ function lastStop(place){return String(place||"").split(/[→~]/).pop().trim();}
 function routeDetailHTML(it, prevPlace){
   const stops=parseStops(it.place);
   const hasTransport=!!(it.transport && it.transport!=="-");
-  let routeStops, legNotes, tIcon, tName, implied=false;
+  let routeStops, legNotes, tIcon, tName, implied=false, perLeg=false;
   if(stops.length>1){                       // 장소 자체가 다구간 이동
     routeStops=stops;
     legNotes=splitLegNotes(it.move_note, stops.length-1);
+    // 구간이 2개 이상이고 각 구간 노트가 1:1 분배되면 구간별 노선·소요시간 표시
+    perLeg=(stops.length-1)>1 && legNotes.filter(Boolean).length===(stops.length-1);
     tIcon=transportIcon(it.transport); tName=esc(hasTransport?it.transport:"이동");
   }else{                                     // 단일 장소
     const prev=lastStop(prevPlace), cur=stops[0]||"";
@@ -909,9 +912,16 @@ function routeDetailHTML(it, prevPlace){
         <div class="rtl-head"><span class="rtl-tag">${tag}</span>${timeChip}</div>
         <div class="rtl-place">${esc(stop)}</div></div>`;
       if(!isLast){
-        const ln=legNotes[i]?` <span class="rtl-lnote">· ${esc(legNotes[i])}</span>`:"";
-        const auto=implied?' <span class="rtl-auto">자동</span>':'';
-        nodes+=`<div class="rtl-leg${implied?' implied':''}">${tIcon} <b>${tName}</b>${ln}${auto}</div>`;
+        const note=legNotes[i]||"";
+        if(perLeg && note){                   // 구간별: 노트 자체가 노선·구간·소요시간(첫 토큰 노선명 굵게)
+          const parts=note.split(/\s+·\s+/);
+          const label=parts.length>1?`<b>${esc(parts[0])}</b> · ${parts.slice(1).map(esc).join(" · ")}`:esc(note);
+          nodes+=`<div class="rtl-leg">${transportIcon(parts[0])} <span class="rtl-lnote">${label}</span></div>`;
+        }else{
+          const ln=note?` <span class="rtl-lnote">· ${esc(note)}</span>`:"";
+          const auto=implied?' <span class="rtl-auto">자동</span>':'';
+          nodes+=`<div class="rtl-leg${implied?' implied':''}">${tIcon} <b>${tName}</b>${ln}${auto}</div>`;
+        }
       }
     });
   }else{
