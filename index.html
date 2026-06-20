@@ -847,10 +847,10 @@ function mapQuery(it){
   let c=(it.city||"").split("→").pop().trim();
   return (p+" "+c+" 일본").replace(/\s+/g," ").trim();
 }
-// 특정 장소는 검색어 대신 정확 좌표로 바로 연결(geo.csv 좌표 사용)
+// 특정 장소는 정식 등록명으로 검색해 구글맵 장소 카드로 바로 연결
 function mapTarget(it){
   const last=(it.place||"").split(/[→~]/).pop().trim();
-  if(last.startsWith("숙소")) return "34.6699,135.5058";  // Chuan House(도톤보리)
+  if(last.startsWith("숙소")) return "CHUAN HOUSE Dotonbori Osaka";  // Chuan House(도톤보리) 정식명
   return null;
 }
 function thumbHTML(url,alt){
@@ -1320,7 +1320,8 @@ function renderMapLayer(sel){
   MAP_SEL=sel; MAP_LAYER.clearLayers();
   [...document.querySelectorAll("#map-days button")].forEach(b=>b.classList.toggle("active",b.dataset.day===String(sel)));
   const valid=MAP_ROWS.filter(r=>isFinite(parseFloat(r.lat))&&isFinite(parseFloat(r.lng)));
-  const list = sel==="all" ? valid : valid.filter(r=>String(parseInt(r.day,10)||0)===String(sel));
+  // 전체=주요 스팟(major)만, 일자 선택=그 날 세부 동선 전부(major+detail)
+  const list = sel==="all" ? valid.filter(r=>(r.tier||"major")!=="detail") : valid.filter(r=>String(parseInt(r.day,10)||0)===String(sel));
   const pts=[];
   if(sel==="all"){
     list.forEach(r=>{
