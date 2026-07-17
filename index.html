@@ -340,8 +340,9 @@ html[data-theme="dark"] .rtl-route::before{opacity:1;filter:brightness(1.12)}
 .shopsum{margin-bottom:8px}
 .shopitem .nt .cat{font-size:9.5px;font-weight:700;color:#fff;background:var(--shop);padding:1px 6px;border-radius:999px;margin-right:5px}
 /* ===== 대안 추천 ===== */
-.alt-tabs{display:flex;gap:6px;margin:2px 0 14px}
-.alt-tab{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:10px;padding:9px 4px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
+.alt-tabs{display:flex;gap:5px;margin:2px 0 14px}
+.alt-tab{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:10px;padding:8px 2px;font-family:inherit;font-size:11.5px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap;letter-spacing:-.3px}
+.more-pane{margin-top:2px}
 .alt-tab.active{background:var(--ai);color:#fff;border-color:var(--ai);box-shadow:var(--shadow)}
 .alt-tab:active{transform:scale(.97)}
 .alt-block{margin:4px 0 12px}
@@ -422,9 +423,7 @@ footer .src{font-size:10px;opacity:.8}
     <button data-view="map">🗺 지도<span class="c">핀·동선</span></button>
     <button data-view="cost">💴 비용<span class="c">합계·내역</span></button>
     <button data-view="prep">✅ 준비<span class="c">예약·준비물</span></button>
-    <button data-view="alt">🔀 대안<span class="c">추천·대안</span></button>
-    <button data-view="spot">⭐ 추천<span class="c">스폿·맛집</span></button>
-    <button data-view="shop">🛍 쇼핑<span class="c">리스트·구매</span></button>
+    <button data-view="more">⭐ 추천<span class="c">추천·대안·쇼핑</span></button>
   </nav>
 
   <!-- ===== 일정 VIEW ===== -->
@@ -500,67 +499,70 @@ footer .src{font-size:10px;opacity:.8}
     <div class="checks" id="prep"></div>
   </section>
 
-  <!-- ===== 대안 추천 VIEW ===== -->
-  <section id="view-alt" class="view hidden">
-    <div class="sec-h">대안 추천</div>
-    <p class="sec-sub">현지에서 막혔을 때 빠르게 갈아탈 대안을 한곳에. 🏠 = 실내(우천·폭염 피난).</p>
+  <!-- ===== 추천(통합: 추천·대안·쇼핑) VIEW ===== -->
+  <section id="view-more" class="view hidden">
+    <div class="sec-h">추천 · 대안</div>
+    <p class="sec-sub">추천 스폿·맛집, 막혔을 때 갈아탈 대안, 쇼핑까지 한곳에. 아래 탭으로 전환하세요.</p>
 
-    <div class="alt-tabs" id="alt-tabs">
-      <button class="alt-tab active" data-alt="plan">🗓 일정</button>
-      <button class="alt-tab" data-alt="food">🍽 맛집</button>
-      <button class="alt-tab" data-alt="genres">🍶 종류</button>
+    <div class="alt-tabs" id="more-tabs">
+      <button class="alt-tab active" data-more="spot">⭐추천</button>
+      <button class="alt-tab" data-more="plan">🗓일정</button>
+      <button class="alt-tab" data-more="food">🍽맛집</button>
+      <button class="alt-tab" data-more="genres">🍶종류</button>
+      <button class="alt-tab" data-more="shop">🛍쇼핑</button>
     </div>
 
-    <div class="alt-block" data-altblock="plan">
-      <div class="alt-h">🗓 일정 대안 <span class="alt-sub">막혔을 때 빠른 갈아타기</span></div>
+    <!-- ⭐ 추천 스폿·맛집 -->
+    <div class="more-pane" data-morepane="spot">
+      <div class="alt-h">⭐ 추천 스폿 · 맛집 <span class="alt-sub">명소·맛집·메모 · 직접 추가 가능</span></div>
+      <form id="spot-form" class="addform">
+        <input id="spot-title" placeholder="이름 (예: 이치란 도톤보리)" required />
+        <div class="row2">
+          <input id="spot-cat" placeholder="분류 (맛집/지브리/명소…)" />
+          <input id="spot-img" placeholder="이미지 URL (선택)" />
+        </div>
+        <input id="spot-note" placeholder="메모 (위치·영업시간·팁)" />
+        <button type="submit">+ 추가</button>
+      </form>
+      <div class="savehint" id="spot-hint"></div>
+      <div id="spots"></div>
+    </div>
+
+    <!-- 🗓 일정 대안 -->
+    <div class="more-pane hidden" data-morepane="plan">
+      <div class="alt-h">🗓 일정 대안 <span class="alt-sub">막혔을 때 빠른 갈아타기 · 🏠=실내</span></div>
       <div id="alt-plan" class="alt-cards"></div>
     </div>
 
-    <div class="alt-block hidden" data-altblock="food">
+    <!-- 🍽 맛집 대안 -->
+    <div class="more-pane hidden" data-morepane="food">
       <div class="alt-h">🍽 맛집 대안 <span class="alt-sub">식당 문제 생겼을 때 대체</span></div>
       <div id="alt-food" class="alt-cards"></div>
     </div>
 
-    <div class="alt-block hidden" data-altblock="genres">
+    <!-- 🍶 일본식 종류 리스트 -->
+    <div class="more-pane hidden" data-morepane="genres">
       <div class="alt-h">🍶 일본식 종류 리스트 <span class="alt-sub">"뭐 먹을래?" 고르기 · 선호 기록</span></div>
       <div class="alt-key"><span><i class="lk-o"></i>선호</span><span><i class="lk-t"></i>옵션·궁금</span><span><i class="lk-x"></i>제외</span></div>
       <div id="alt-genres" class="alt-genres"></div>
     </div>
-  </section>
 
-  <!-- ===== 추천 VIEW ===== -->
-  <section id="view-spot" class="view hidden">
-    <div class="sec-h">추천 스폿 · 맛집</div>
-    <p class="sec-sub">명소·맛집·메모. 아래에서 직접 추가할 수 있어요.</p>
-    <form id="spot-form" class="addform">
-      <input id="spot-title" placeholder="이름 (예: 이치란 도톤보리)" required />
-      <div class="row2">
-        <input id="spot-cat" placeholder="분류 (맛집/지브리/명소…)" />
-        <input id="spot-img" placeholder="이미지 URL (선택)" />
-      </div>
-      <input id="spot-note" placeholder="메모 (위치·영업시간·팁)" />
-      <button type="submit">+ 추가</button>
-    </form>
-    <div class="savehint" id="spot-hint"></div>
-    <div id="spots"></div>
-  </section>
-
-  <!-- ===== 쇼핑 VIEW ===== -->
-  <section id="view-shop" class="view hidden">
-    <div class="sec-h">쇼핑리스트</div>
-    <p class="sec-sub">살 것 체크 + 예상 금액. 아래에서 직접 추가할 수 있어요.</p>
-    <div class="calc">🧮 ¥<input id="calc-jpy" type="number" inputmode="numeric" placeholder="엔 입력" /> = <b id="calc-krw">₩0</b> <span id="calc-rate"></span></div>
-    <div class="shopsum" id="shop-summary"></div>
-    <div id="shop-list"></div>
-    <form id="shop-form" class="addform">
-      <input id="shop-item" placeholder="품목 (예: 닷사이 준마이다이긴조)" required />
-      <div class="row2">
-        <input id="shop-price" type="number" inputmode="numeric" placeholder="가격 ¥(선택)" />
-        <input id="shop-cat" placeholder="분류 (사케/지브리…)" />
-      </div>
-      <button type="submit">+ 추가</button>
-    </form>
-    <div class="savehint" id="shop-hint"></div>
+    <!-- 🛍 쇼핑 -->
+    <div class="more-pane hidden" data-morepane="shop">
+      <div class="alt-h">🛍 쇼핑리스트 <span class="alt-sub">살 것 체크 + 예상 금액</span></div>
+      <div class="calc">🧮 ¥<input id="calc-jpy" type="number" inputmode="numeric" placeholder="엔 입력" /> = <b id="calc-krw">₩0</b> <span id="calc-rate"></span></div>
+      <div class="shopsum" id="shop-summary"></div>
+      <div id="shop-list"></div>
+      <form id="shop-form" class="addform">
+        <input id="shop-item" placeholder="품목 (예: 닷사이 준마이다이긴조)" required />
+        <div class="row2">
+          <input id="shop-price" type="number" inputmode="numeric" placeholder="가격 ¥(선택)" />
+          <input id="shop-cat" placeholder="분류 (사케/지브리…)" />
+        </div>
+        <button type="submit">+ 추가</button>
+      </form>
+      <div class="savehint" id="shop-hint"></div>
+    </div>
   </section>
 
   <footer>
@@ -1563,7 +1565,7 @@ async function loadWeather(){
 }
 
 /* ===================== 상위 메뉴 ===================== */
-const VIEWS=["plan","map","cost","prep","alt","spot","shop"];
+const VIEWS=["plan","map","cost","prep","more"];
 function setupMenu(){
   const btns=[...document.querySelectorAll("#mainmenu button")];
   btns.forEach(b=>b.addEventListener("click",()=>{
@@ -1607,10 +1609,10 @@ async function init(){
   document.addEventListener("click",e=>{
     const del=e.target.closest(".del");
     if(del){deleteEntry(del.dataset.list, del.dataset.key);return;}
-    const at=e.target.closest(".alt-tab");
-    if(at){const k=at.dataset.alt;
-      document.querySelectorAll("#alt-tabs .alt-tab").forEach(x=>x.classList.toggle("active",x===at));
-      document.querySelectorAll("#view-alt .alt-block").forEach(x=>x.classList.toggle("hidden",x.dataset.altblock!==k));
+    const mt=e.target.closest("#more-tabs .alt-tab");
+    if(mt){const k=mt.dataset.more;
+      document.querySelectorAll("#more-tabs .alt-tab").forEach(x=>x.classList.toggle("active",x===mt));
+      document.querySelectorAll("#view-more .more-pane").forEach(x=>x.classList.toggle("hidden",x.dataset.morepane!==k));
       return;}
     const pb=e.target.closest(".paidbox");
     if(pb){const ov=lsGet(LS_PAID),key=pb.dataset.paid; if(ov[key])delete ov[key];else ov[key]=1; lsSet(LS_PAID,ov); renderCost(); return;}
