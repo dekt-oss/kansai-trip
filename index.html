@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#1f4068" />
 <title>간사이 여행 일정표</title>
-<meta name="description" content="부산↔오사카 간사이 여행 일정표 — 타임라인·예약 준비·결정 리스트·지도" />
+<meta name="description" content="부산↔오사카 간사이 여행 일정표 — 타임라인·예약 준비·대안 추천·지도" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Shippori+Mincho:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -323,20 +323,6 @@ html[data-theme="dark"] .rtl-route::before{opacity:1;filter:brightness(1.12)}
 .chk .tx .nt{display:block;font-size:11px;color:var(--ink-soft);margin-top:1px}
 .chk input:checked ~ .tx .nm{color:var(--ink-soft);text-decoration:line-through;opacity:.6}
 
-/* ===== Decisions (A/B) ===== */
-.decide{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:12px 13px;margin-bottom:9px;box-shadow:var(--shadow)}
-.decide .q{font-family:'Shippori Mincho',serif;font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:8px;margin-bottom:9px}
-.decide .q .tag{margin-left:auto;font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--washi-2);color:var(--ink-soft);border:1px solid var(--line)}
-.decide.done .q .tag{background:var(--ai);color:#fff;border-color:var(--ai)}
-.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.opt{border:1.5px solid var(--line);background:var(--washi-2);border-radius:11px;padding:10px;cursor:pointer;text-align:left;font-family:inherit;transition:.15s;position:relative}
-.opt .ab{font-family:'Shippori Mincho',serif;font-weight:800;font-size:12px;color:var(--kin);display:block;margin-bottom:3px}
-.opt .ot{font-size:12.5px;color:var(--ink);line-height:1.45}
-.opt.sel{border-color:var(--shu);background:var(--card);box-shadow:0 0 0 2px rgba(192,67,43,.28)}
-.opt.sel .ab{color:var(--shu)}
-.opt.sel::after{content:"✓ 선택";position:absolute;top:7px;right:8px;font-size:10px;font-weight:700;color:var(--shu)}
-.decide .note{font-size:11px;color:var(--ink-soft);margin-top:8px}
-
 /* ===== Spots ===== */
 .spot{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 12px;margin-bottom:7px;box-shadow:var(--shadow)}
 .spot h3{font-family:'Shippori Mincho',serif;font-weight:700;font-size:14px;margin:0 0 2px;color:var(--ink);display:flex;align-items:center;gap:7px}
@@ -353,20 +339,42 @@ html[data-theme="dark"] .rtl-route::before{opacity:1;filter:brightness(1.12)}
 .savehint{font-size:11px;color:var(--ink-soft);text-align:center;margin:2px 0 10px}
 .shopsum{margin-bottom:8px}
 .shopitem .nt .cat{font-size:9.5px;font-weight:700;color:#fff;background:var(--shop);padding:1px 6px;border-radius:999px;margin-right:5px}
-.memo{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;box-shadow:var(--shadow)}
-.memo-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.mtag{font-size:10px;font-weight:700;color:#fff;background:var(--ai);padding:2px 8px;border-radius:999px}
-.mwhen{font-size:10.5px;color:var(--ink-soft);margin-left:auto}
-.memo-text{font-size:13.5px;color:var(--ink);white-space:pre-wrap;line-height:1.6}
-.memo{position:relative}
+/* ===== 대안 추천 ===== */
+.alt-block{margin:18px 0 22px}
+.alt-h{font-family:'Shippori Mincho',serif;font-weight:700;font-size:14.5px;color:var(--ink);margin:0 0 9px;display:flex;align-items:baseline;flex-wrap:wrap;gap:7px}
+.alt-h .alt-sub{font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:11px;color:var(--ink-soft)}
+.alt-cards{display:flex;flex-direction:column;gap:8px}
+.alt-card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:11px;padding:10px 12px;box-shadow:var(--shadow)}
+.alt-card.fes{border-left-color:#c0432b}
+.ac-top{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.ac-trigger{font-weight:700;font-size:13px;color:var(--ink)}
+.ac-indoor{font-size:10px;font-weight:700;color:#5c7d4f;background:var(--washi-2);border:1px solid var(--line);border-radius:999px;padding:1px 7px;white-space:nowrap}
+.ac-area{margin-left:auto;font-size:10.5px;color:var(--ink-soft);white-space:nowrap}
+.ac-body{font-size:13px;color:var(--ink);line-height:1.55}
+.ac-body .ac-lead{font-size:10px;font-weight:700;color:var(--ink-soft);margin-right:5px}
+.ac-note{font-size:11px;color:var(--ink-soft);margin-top:5px}
+.alt-key{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--ink-soft);margin:0 2px 9px}
+.alt-key span{display:inline-flex;align-items:center;gap:5px}
+.alt-key i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.alt-key .lk-o{background:#5c7d4f}.alt-key .lk-t{background:#9a7b34}.alt-key .lk-x{background:#b8b0a0}
+.gcat{margin-top:12px}
+.gcat-h{font-size:11.5px;font-weight:700;color:var(--ai);margin:0 0 4px 2px}
+.grow{display:flex;align-items:baseline;gap:9px;padding:6px 10px;background:var(--card);border:1px solid var(--line);border-radius:9px;margin-bottom:5px;font-size:12.5px}
+.grow .g-name{font-weight:700;min-width:82px;flex:0 0 auto}
+.grow .g-where{color:var(--ink-soft);font-size:11.5px;flex:1;min-width:0}
+.grow .g-note{color:var(--ink-soft);font-size:10.5px;white-space:nowrap}
+.grow.lk-o .g-name{color:#5c7d4f}
+.grow.lk-t .g-name{color:#9a7b34}
+.grow.lk-x{opacity:.72}
+.grow.lk-x .g-name{color:#8a8378;text-decoration:line-through}
 .spot{position:relative}
 .lrow{display:flex;align-items:stretch;gap:6px;margin-bottom:7px}
 .lrow .chk{flex:1;margin-bottom:0}
 .del{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
   width:30px;border-radius:9px;cursor:pointer;font-size:13px;line-height:1;align-self:center;padding:7px 0}
 .del:active{transform:scale(.95)}
-.memo .del,.spot .del{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;padding:0}
-.memo-head{padding-right:28px} .spot h3{padding-right:28px}
+.spot .del{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;padding:0}
+.spot h3{padding-right:28px}
 .del:hover{color:var(--shu);border-color:var(--shu)}
 
 /* ===== Map modal ===== */
@@ -409,10 +417,9 @@ footer .src{font-size:10px;opacity:.8}
     <button data-view="map">🗺 지도<span class="c">핀·동선</span></button>
     <button data-view="cost">💴 비용<span class="c">합계·내역</span></button>
     <button data-view="prep">✅ 준비<span class="c">예약·준비물</span></button>
-    <button data-view="decide">⚖️ 결정<span class="c">A · B</span></button>
+    <button data-view="alt">🔀 대안<span class="c">추천·대안</span></button>
     <button data-view="spot">⭐ 추천<span class="c">스폿·맛집</span></button>
     <button data-view="shop">🛍 쇼핑<span class="c">리스트·구매</span></button>
-    <button data-view="memo">📝 메모<span class="c">기록·추천</span></button>
   </nav>
 
   <!-- ===== 일정 VIEW ===== -->
@@ -488,11 +495,26 @@ footer .src{font-size:10px;opacity:.8}
     <div class="checks" id="prep"></div>
   </section>
 
-  <!-- ===== 결정 VIEW ===== -->
-  <section id="view-decide" class="view hidden">
-    <div class="sec-h">결정 리스트</div>
-    <p class="sec-sub">옵션 A · B 중 골라 누르면 선택이 저장됩니다. 다시 누르면 미정으로.</p>
-    <div id="decisions"></div>
+  <!-- ===== 대안 추천 VIEW ===== -->
+  <section id="view-alt" class="view hidden">
+    <div class="sec-h">대안 추천</div>
+    <p class="sec-sub">현지에서 막혔을 때 빠르게 갈아탈 대안을 한곳에. 🏠 = 실내(우천·폭염 피난).</p>
+
+    <div class="alt-block">
+      <div class="alt-h">🗓 일정 대안 <span class="alt-sub">막혔을 때 빠른 갈아타기</span></div>
+      <div id="alt-plan" class="alt-cards"></div>
+    </div>
+
+    <div class="alt-block">
+      <div class="alt-h">🍽 맛집 대안 <span class="alt-sub">식당 문제 생겼을 때 대체</span></div>
+      <div id="alt-food" class="alt-cards"></div>
+    </div>
+
+    <div class="alt-block">
+      <div class="alt-h">🍶 일본식 종류 리스트 <span class="alt-sub">"뭐 먹을래?" 고르기 · 선호 기록</span></div>
+      <div class="alt-key"><span><i class="lk-o"></i>선호</span><span><i class="lk-t"></i>옵션·궁금</span><span><i class="lk-x"></i>제외</span></div>
+      <div id="alt-genres" class="alt-genres"></div>
+    </div>
   </section>
 
   <!-- ===== 추천 VIEW ===== -->
@@ -528,22 +550,6 @@ footer .src{font-size:10px;opacity:.8}
       <button type="submit">+ 추가</button>
     </form>
     <div class="savehint" id="shop-hint"></div>
-  </section>
-
-  <!-- ===== 메모 VIEW ===== -->
-  <section id="view-memo" class="view hidden">
-    <div class="sec-h">메모 · 추천</div>
-    <p class="sec-sub">여행 메모·추천스폿을 기록하세요. 이미지 URL을 넣으면 사진도 표시됩니다.</p>
-    <form id="memo-form" class="addform">
-      <textarea id="memo-text" rows="2" placeholder="메모 입력 (예: 청수사 현금만! / 이치란 도톤보리 새벽 추천)" required></textarea>
-      <div class="row2">
-        <select id="memo-day"><option value="">태그 없음</option><option>준비</option><option>1일차</option><option>2일차</option><option>3일차</option><option>4일차</option></select>
-        <input id="memo-img" placeholder="이미지 URL (선택)" />
-      </div>
-      <button type="submit">+ 저장</button>
-    </form>
-    <div class="savehint" id="memo-hint"></div>
-    <div id="memo-list"></div>
   </section>
 
   <footer>
@@ -587,14 +593,15 @@ const CONFIG = {
   LOCAL_SPOTS_CSV: "data/spots.csv",
   LOCAL_DAYS_CSV: "data/days.csv",
   LOCAL_TODO_CSV: "data/todo.csv",
-  LOCAL_DECISIONS_CSV: "data/decisions.csv",
   LOCAL_SHOPPING_CSV: "data/shopping.csv",
   LOCAL_INFO_CSV: "data/info.csv",
   LOCAL_GEO_CSV: "data/geo.csv",      // 지도 핀 좌표(앱 자동지도 + My Maps 가져오기 겸용)
-  // 메모/쇼핑 웹 저장(Apps Script). 비우면 이 기기(localStorage)에만 저장.
+  LOCAL_ALT_PLAN_CSV: "data/alt_plan.csv",   // 대안 추천 — 일정 대안
+  LOCAL_ALT_FOOD_CSV: "data/alt_food.csv",   // 대안 추천 — 맛집 대안
+  LOCAL_GENRES_CSV: "data/food_genres.csv",  // 대안 추천 — 일본식 종류 리스트
+  // 쇼핑/추천 웹 저장(Apps Script). 비우면 이 기기(localStorage)에만 저장.
   WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwWGGvhoTJqxPYY9640p5SjCwXRm56y5murfIvecazKyXaZe7kgtkq1Y44iwzhiD-Wl/exec",                   // Apps Script 배포 URL(.../exec) — 입력을 구글 시트에 저장
   WEBAPP_TOKEN: "",                 // (선택) code.gs의 TOKEN과 동일하게
-  MEMOS_CSV: "",                    // (선택) memos 탭 published CSV — 동행 공유 메모 표시용
   SHOPPING_CSV: "",                 // (선택) shopping 탭 published CSV — 공유 쇼핑 표시용
   SPOTS_SHARED_CSV: "",             // (선택) spots 탭 published CSV — 공유 추천 표시용
   TRIP_START: "2026-07-23",
@@ -643,8 +650,55 @@ const FALLBACK_TODO = [
   {id:"flight",category:"항공",task:"부산-오사카 왕복 항공권",note:"예약·결제 완료 · ₩566080(2인)",done:"1"},
   {id:"hotel",category:"숙소",task:"난바/신사이바시 호텔 3박",note:"위치 결정 후 예약",done:""},
 ];
-const FALLBACK_DECISIONS = [
-  {id:"hotel",title:"숙소 위치",option_a:"난바 — 라피트 직결·교통 허브",option_b:"신사이바시 — 쇼핑·도톤보리 도보",note:"✅확정: Chuan House 도톤보리(시마노우치 2-5-6)"},
+const FALLBACK_ALT_PLAN = [
+  {trigger:"텐진 불꽃 우천취소",plan_b:"도톤보리 복귀 → 글리코 네온 야경(우산) + 돈키호테 24시 + 아케이드 야간쇼핑",area:"도톤보리",indoor:"N",note:"18시경 tenjinsan.com 확인 후 즉시 남하"},
+  {trigger:"텐진 취소·실내 원함",plan_b:"라운드원 센니치마에(볼링·게임·인형뽑기, 심야) / 타이토 스테이션 프리쿠라",area:"난바 센니치마에",indoor:"Y",note:"숙소 도보권"},
+  {trigger:"텐진 취소·밤술",plan_b:"우라난바 스탠딩 이자카야 / 호젠지요코초 골목(지붕)",area:"우라난바·호젠지",indoor:"N",note:"현금 준비"},
+  {trigger:"한낮 폭염 대피(공통)",plan_b:"신사이바시스지·에비스바시스지 아케이드 / 다이마루 / 난바파크스 / 난바워크 지하상가",area:"미나미",indoor:"Y",note:"12~16시는 실내로"},
+  {trigger:"소나기 급습",plan_b:"난바워크 지하상가 / 백화점 데파치카로 지하 이동",area:"난바",indoor:"Y",note:"—"},
+  {trigger:"스카이빌딩 흐림·비(야경 반감)",plan_b:"HEP FIVE 관람차(캡슐 실내) / 우메다 실내쇼핑·이자카야",area:"우메다",indoor:"Y",note:"—"},
+  {trigger:"청수사 폐문(18:30) 임박",plan_b:"기온 시라카와·하나미코지 야경 산책으로 전환",area:"기온",indoor:"N",note:"—"},
+  {trigger:"리버크루즈 비/매진",plan_b:"날 갠 다른 오전으로 이동 or 스킵(오픈보트라 우천 비추)",area:"도톤보리",indoor:"N",note:"2,000엔 자비항목"},
+  {trigger:"교토 막차 위기",plan_b:"한큐 대신 케이한(기온시조)·JR 대안, 최악 택시",area:"교토",indoor:"—",note:"23시대 막차 재확인"},
+];
+const FALLBACK_ALT_FOOD = [
+  {slot:"Day1 저녁 야키니쿠",primary:"리키마루 우메다",backup:"만노야 벳테이 / 인근 야키니쿠",area:"우메다",reserve:"워크인",note:"만석 시"},
+  {slot:"Day2 저녁 교토",primary:"폰토초 로빈(온라인예약·카와도코)",backup:"쿄야키니쿠 신 / 폰토초 골목 이자카야 워크인",area:"폰토초",reserve:"예약/워크인",note:"예약실패·축제혼잡 시"},
+  {slot:"Day1 점심",primary:"돈카츠 / 스시(난바)",backup:"라멘 이치란·킨류",area:"난바",reserve:"워크인",note:"웨이팅 길면 라멘"},
+  {slot:"Day3 점심 쿠시카츠",primary:"쿠시노보 호젠지",backup:"다루마 도톤보리 / 1파운드 타케루(스테이크)",area:"도톤보리",reserve:"워크인",note:"—"},
+  {slot:"Day4 아침 해산물",primary:"쿠로몬 성게·카이센동",backup:"쿠로몬 내 다른 점포",area:"쿠로몬",reserve:"워크인",note:"일찍"},
+  {slot:"웨이팅 60분+ (공통)",primary:"—",backup:"아케이드 간식(타코야키 와나카·아치치)으로 전환",area:"미나미",reserve:"워크인",note:"대기 대신 간식"},
+  {slot:"타코야키",primary:"아치치혼포",backup:"와나카 / 코가류(아메무라)",area:"도톤보리",reserve:"워크인",note:"—"},
+  {slot:"라멘 야식",primary:"킨류",backup:"이치란(24시) / 카무쿠라",area:"도톤보리",reserve:"워크인",note:"—"},
+];
+const FALLBACK_GENRES = [
+  {category:"면류",genre:"라멘",like:"O",where:"킨류·이치란(도톤보리)",note:"야식"},
+  {category:"면류",genre:"소바",like:"O",where:"니시키·기온(교토)",note:"—"},
+  {category:"면류",genre:"우동",like:"X",where:"—",note:"제외"},
+  {category:"밥·덮밥",genre:"스시",like:"O",where:"쿠로몬·폰토초",note:"—"},
+  {category:"밥·덮밥",genre:"카이센동",like:"O",where:"쿠로몬 시장",note:"Day4 아침"},
+  {category:"밥·덮밥",genre:"텐동",like:"O",where:"(미배치)",note:"Day1점심/Day3 스왑"},
+  {category:"밥·덮밥",genre:"카레라이스",like:"O",where:"야키니쿠집 마무리",note:"후식식사"},
+  {category:"구이",genre:"야키니쿠",like:"O",where:"리키마루 우메다",note:"필수"},
+  {category:"구이",genre:"야키토리",like:"△",where:"(옵션)",note:"—"},
+  {category:"구이",genre:"로바타야키",like:"△",where:"(핀 미정)",note:"가보고 싶음"},
+  {category:"구이",genre:"텟판·와규스테이크",like:"X",where:"—",note:"가성비 이유 제외"},
+  {category:"구이",genre:"우나기",like:"X",where:"—",note:"제외"},
+  {category:"구이",genre:"스테이크(돈테키/타케루)",like:"△",where:"1파운드 타케루(오사카)",note:"리베라=도쿄·돈테키=후쿠오카라 이번 X"},
+  {category:"나베",genre:"스키야키·샤부·모츠나베",like:"X",where:"—",note:"제외"},
+  {category:"나베",genre:"미즈타키",like:"X",where:"—",note:"닭 물전골(규슈식)·간사이엔 드묾"},
+  {category:"튀김",genre:"텐푸라",like:"O",where:"(미배치)",note:"스왑 가능"},
+  {category:"튀김",genre:"돈카츠",like:"O",where:"난바",note:"—"},
+  {category:"튀김",genre:"쿠시카츠",like:"O",where:"쿠시노보·다루마",note:"오사카 명물"},
+  {category:"튀김",genre:"가라아게",like:"△",where:"—",note:"사이드"},
+  {category:"해산물",genre:"카니·후구·우니",like:"△",where:"쿠로몬",note:"단품집은 X, 쿠로몬서 맛보기"},
+  {category:"코나몬",genre:"타코야키",like:"O",where:"아치치·와나카",note:"1~2회"},
+  {category:"코나몬",genre:"오코노미야키",like:"X",where:"—",note:"제외"},
+  {category:"교토·정식",genre:"오반자이",like:"△",where:"폰토초 워크인",note:"온라인 예약 불가집 다수"},
+  {category:"교토·정식",genre:"유도후",like:"△",where:"난젠지(동선 밖)",note:"이번 제외"},
+  {category:"교토·정식",genre:"카이세키",like:"△",where:"폰토초 로빈",note:"비싸면 패스"},
+  {category:"교토·정식",genre:"테이쇼쿠",like:"△",where:"—",note:"궁금"},
+  {category:"이자카야",genre:"사케 안주 페어링",like:"O",where:"우라난바·폰토초",note:"사케 최적"},
 ];
 const FALLBACK_INFO = [
   {label:"항공편 (가는편)",value:"7/23(목) 김해 09:20 → KIX 10:50",note:"",type:""},
@@ -1112,7 +1166,6 @@ function renderSpots(){
 function deleteEntry(list,key){
   if(!confirm("이 항목을 삭제할까요?\n(이 기기에서 사라집니다. 공유 시트에서도 지우려면 구글 시트에서 해당 행을 삭제하세요.)"))return;
   const cfg={
-    memo:[LS_MEMO_HIDE,LS_MEMO,m=>(m.day||"")+"|"+m.text,()=>renderMemos()],
     shop:[LS_SHOP_HIDE,LS_SHOP_ADD,x=>x.item+"|"+x.price_jpy,()=>renderShopping()],
     spot:[LS_SPOT_HIDE,LS_SPOT_ADD,x=>x.category+"|"+x.title,()=>renderSpots()],
   }[list];
@@ -1165,30 +1218,45 @@ function renderPrep(){
   });
 }
 
-/* ===================== 결정 A/B ===================== */
-const LS_DEC="kansai_decisions_v1";
-async function loadDecisions(){
-  let rows=FALLBACK_DECISIONS;
-  if(CONFIG.LOCAL_DECISIONS_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_DECISIONS_CSV);if(r.length)rows=r;}catch(e){}}
-  const saved=lsGet(LS_DEC),root=$("#decisions");root.innerHTML="";
-  rows.forEach((r,i)=>{
-    const id=(r.id||("d"+i)),sel=saved[id]||"";
-    const card=document.createElement("div");card.className="decide"+(sel?" done":"");
-    card.innerHTML=`<div class="q">${esc(r.title||"")}<span class="tag">${sel?("선택 "+sel.toUpperCase()):"미정"}</span></div>
-      <div class="opts">
-        <button class="opt${sel==='a'?' sel':''}" data-v="a"><span class="ab">A</span><span class="ot">${esc(r.option_a||"")}</span></button>
-        <button class="opt${sel==='b'?' sel':''}" data-v="b"><span class="ab">B</span><span class="ot">${esc(r.option_b||"")}</span></button>
-      </div>${r.note?`<div class="note">💬 ${esc(r.note)}</div>`:''}`;
-    card.querySelectorAll(".opt").forEach(btn=>btn.addEventListener("click",()=>{
-      const s=lsGet(LS_DEC),v=btn.dataset.v;
-      s[id]=(s[id]===v)?"":v; lsSet(LS_DEC,s);
-      const cur=s[id];
-      card.classList.toggle("done",!!cur);
-      card.querySelector(".tag").textContent=cur?("선택 "+cur.toUpperCase()):"미정";
-      card.querySelectorAll(".opt").forEach(b=>b.classList.toggle("sel",b.dataset.v===cur));
-    }));
-    root.appendChild(card);
-  });
+/* ===================== 대안 추천 ===================== */
+const ALT_FES_RE=/불꽃|텐진|축제|마츠리|봉납|미코시|환행|순행/;
+function altCard(title,area,bodyHTML,note,indoor){
+  const fes=ALT_FES_RE.test(String(title)+" "+String(bodyHTML)+" "+String(note||""));
+  const inHome=String(indoor||"").trim().toUpperCase()==="Y";
+  return `<div class="alt-card${fes?" fes":""}">
+    <div class="ac-top"><span class="ac-trigger">${esc(title)}</span>${inHome?'<span class="ac-indoor">🏠 실내</span>':''}${area?`<span class="ac-area">📍 ${esc(area)}</span>`:''}</div>
+    <div class="ac-body">${bodyHTML}</div>
+    ${note&&note!=="—"?`<div class="ac-note">💬 ${esc(note)}</div>`:''}
+  </div>`;
+}
+async function loadAlt(){
+  // 2-A 일정 대안
+  let plan=FALLBACK_ALT_PLAN;
+  if(CONFIG.LOCAL_ALT_PLAN_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_ALT_PLAN_CSV);if(r.length)plan=r;}catch(e){}}
+  $("#alt-plan").innerHTML=plan.map(r=>altCard(r.trigger,r.area,esc(r.plan_b),r.note,r.indoor)).join("");
+  // 2-B 맛집 대안
+  let food=FALLBACK_ALT_FOOD;
+  if(CONFIG.LOCAL_ALT_FOOD_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_ALT_FOOD_CSV);if(r.length)food=r;}catch(e){}}
+  $("#alt-food").innerHTML=food.map(r=>{
+    const body=`<span class="ac-lead">1순위</span>${esc(r.primary)}<br><span class="ac-lead">대안</span>${esc(r.backup)}`;
+    const note=[r.reserve,r.note].map(x=>String(x||"").trim()).filter(x=>x&&x!=="—").join(" · ");
+    return altCard(r.slot,r.area,body,note,"N");
+  }).join("");
+  // 2-C 일본식 종류 리스트
+  let gen=FALLBACK_GENRES;
+  if(CONFIG.LOCAL_GENRES_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_GENRES_CSV);if(r.length)gen=r;}catch(e){}}
+  const cats=[],byCat={};
+  gen.forEach(g=>{const c=String(g.category||"기타").trim();if(!byCat[c]){byCat[c]=[];cats.push(c);}byCat[c].push(g);});
+  $("#alt-genres").innerHTML=cats.map(c=>{
+    const rows=byCat[c].map(g=>{
+      const lk=String(g.like||"").trim();
+      const cls=lk==="O"?"lk-o":(lk==="△"?"lk-t":(lk==="X"?"lk-x":""));
+      const where=String(g.where||"").replace(/^—$/,"");
+      const note=String(g.note||"").replace(/^—$/,"");
+      return `<div class="grow ${cls}"><span class="g-name">${esc(g.genre)}</span><span class="g-where">${esc(where)}</span>${note?`<span class="g-note">${esc(note)}</span>`:''}</div>`;
+    }).join("");
+    return `<div class="gcat"><div class="gcat-h">${esc(c)}</div>${rows}</div>`;
+  }).join("");
 }
 
 /* ===================== 핵심·비상 정보 ===================== */
@@ -1418,45 +1486,6 @@ function setupShopping(){
   });
 }
 
-/* ===================== 메모 · 추천 ===================== */
-const LS_MEMO="kansai_memo_v1", LS_MEMO_HIDE="kansai_memo_hide_v1";
-function normMemo(x){return {ts:(x.timestamp||x.ts||"").toString().trim(),day:(x.day||"").trim(),
-  text:(x.text||"").trim(),image_url:(x.image_url||"").trim()};}
-let MEMO_SHARED=[];
-async function loadMemos(){
-  MEMO_SHARED=(await loadShared("memos",CONFIG.MEMOS_CSV)).map(normMemo).filter(x=>x.text);
-  saveHint($("#memo-hint"));
-  renderMemos();
-}
-function memoItems(){
-  const hide=new Set(lsGetA(LS_MEMO_HIDE));
-  const all=[...lsGetA(LS_MEMO),...MEMO_SHARED];
-  const seen=new Set(),out=[];
-  all.forEach(x=>{const k=(x.day||"")+"|"+x.text;if(!seen.has(k)&&!hide.has(k)){seen.add(k);out.push(x);}});
-  return out.sort((a,b)=>String(b.ts).localeCompare(String(a.ts)));
-}
-function renderMemos(){
-  const items=memoItems(),list=$("#memo-list");
-  list.innerHTML=items.map(m=>{
-    const when=m.ts?new Date(m.ts).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}):"",
-      key=(m.day||"")+"|"+m.text;
-    return `<div class="memo"><div class="memo-head">${m.day?`<span class="mtag">${esc(m.day)}</span>`:''}<span class="mwhen">${esc(when)}</span>
-      <button class="del" data-list="memo" data-key="${esc(key)}" aria-label="삭제">✕</button></div>
-      <div class="memo-text">${esc(m.text)}</div>${thumbHTML(m.image_url,m.text)}</div>`;
-  }).join("")||'<p class="sec-sub">아직 메모가 없습니다. 위에서 입력하세요.</p>';
-}
-function setupMemos(){
-  $("#memo-form").addEventListener("submit",e=>{
-    e.preventDefault();
-    const text=$("#memo-text").value.trim();if(!text)return;
-    const obj={ts:new Date().toISOString(),day:$("#memo-day").value,text,image_url:$("#memo-img").value.trim()};
-    const arr=lsGetA(LS_MEMO);arr.push(obj);lsSetA(LS_MEMO,arr);
-    webappPost({sheet:"memos",day:obj.day,text:obj.text,image_url:obj.image_url});
-    $("#memo-text").value="";$("#memo-img").value="";
-    renderMemos();
-  });
-}
-
 /* ===================== 지도 모달 ===================== */
 function openMap(query,label){
   const q=encodeURIComponent(query);
@@ -1523,7 +1552,7 @@ async function loadWeather(){
 }
 
 /* ===================== 상위 메뉴 ===================== */
-const VIEWS=["plan","map","cost","prep","decide","spot","shop","memo"];
+const VIEWS=["plan","map","cost","prep","alt","spot","shop"];
 function setupMenu(){
   const btns=[...document.querySelectorAll("#mainmenu button")];
   btns.forEach(b=>b.addEventListener("click",()=>{
@@ -1598,11 +1627,11 @@ async function init(){
   document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeMap();closeImg();}});
 
   renderPrep();
-  setupSpots();setupShopping();setupMemos();
+  setupSpots();setupShopping();
   await loadData();
   await loadDays();   // DAYS 준비 후 타임라인 렌더
   renderPlan();
-  loadSpots();loadTodo();loadDecisions();loadShopping();loadMemos();loadInfo();loadMap();
+  loadSpots();loadTodo();loadAlt();loadShopping();loadInfo();loadMap();
   loadWeather().then(renderNowNext);   // 날씨 로드 후 지금/다음 카드에 날씨칩 반영
 
   const ti=dayIndexToday();
