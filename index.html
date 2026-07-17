@@ -340,7 +340,11 @@ html[data-theme="dark"] .rtl-route::before{opacity:1;filter:brightness(1.12)}
 .shopsum{margin-bottom:8px}
 .shopitem .nt .cat{font-size:9.5px;font-weight:700;color:#fff;background:var(--shop);padding:1px 6px;border-radius:999px;margin-right:5px}
 /* ===== 대안 추천 ===== */
-.alt-block{margin:18px 0 22px}
+.alt-tabs{display:flex;gap:6px;margin:2px 0 14px}
+.alt-tab{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:10px;padding:9px 4px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
+.alt-tab.active{background:var(--ai);color:#fff;border-color:var(--ai);box-shadow:var(--shadow)}
+.alt-tab:active{transform:scale(.97)}
+.alt-block{margin:4px 0 12px}
 .alt-h{font-family:'Shippori Mincho',serif;font-weight:700;font-size:14.5px;color:var(--ink);margin:0 0 9px;display:flex;align-items:baseline;flex-wrap:wrap;gap:7px}
 .alt-h .alt-sub{font-family:'Noto Sans KR',sans-serif;font-weight:400;font-size:11px;color:var(--ink-soft)}
 .alt-cards{display:flex;flex-direction:column;gap:8px}
@@ -359,10 +363,11 @@ html[data-theme="dark"] .rtl-route::before{opacity:1;filter:brightness(1.12)}
 .alt-key .lk-o{background:#5c7d4f}.alt-key .lk-t{background:#9a7b34}.alt-key .lk-x{background:#b8b0a0}
 .gcat{margin-top:12px}
 .gcat-h{font-size:11.5px;font-weight:700;color:var(--ai);margin:0 0 4px 2px}
-.grow{display:flex;align-items:baseline;gap:9px;padding:6px 10px;background:var(--card);border:1px solid var(--line);border-radius:9px;margin-bottom:5px;font-size:12.5px}
-.grow .g-name{font-weight:700;min-width:82px;flex:0 0 auto}
-.grow .g-where{color:var(--ink-soft);font-size:11.5px;flex:1;min-width:0}
-.grow .g-note{color:var(--ink-soft);font-size:10.5px;white-space:nowrap}
+.grow{display:flex;align-items:flex-start;gap:10px;padding:7px 10px;background:var(--card);border:1px solid var(--line);border-radius:9px;margin-bottom:5px;font-size:12.5px}
+.grow .g-name{font-weight:700;min-width:78px;flex:0 0 auto;line-height:1.4}
+.grow .g-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;margin-left:auto;text-align:right}
+.grow .g-where{color:var(--ink-soft);font-size:11.5px;line-height:1.4;word-break:keep-all}
+.grow .g-note{color:var(--ink-soft);font-size:10.5px;line-height:1.4;word-break:keep-all}
 .grow.lk-o .g-name{color:#5c7d4f}
 .grow.lk-t .g-name{color:#9a7b34}
 .grow.lk-x{opacity:.72}
@@ -500,17 +505,23 @@ footer .src{font-size:10px;opacity:.8}
     <div class="sec-h">대안 추천</div>
     <p class="sec-sub">현지에서 막혔을 때 빠르게 갈아탈 대안을 한곳에. 🏠 = 실내(우천·폭염 피난).</p>
 
-    <div class="alt-block">
+    <div class="alt-tabs" id="alt-tabs">
+      <button class="alt-tab active" data-alt="plan">🗓 일정</button>
+      <button class="alt-tab" data-alt="food">🍽 맛집</button>
+      <button class="alt-tab" data-alt="genres">🍶 종류</button>
+    </div>
+
+    <div class="alt-block" data-altblock="plan">
       <div class="alt-h">🗓 일정 대안 <span class="alt-sub">막혔을 때 빠른 갈아타기</span></div>
       <div id="alt-plan" class="alt-cards"></div>
     </div>
 
-    <div class="alt-block">
+    <div class="alt-block hidden" data-altblock="food">
       <div class="alt-h">🍽 맛집 대안 <span class="alt-sub">식당 문제 생겼을 때 대체</span></div>
       <div id="alt-food" class="alt-cards"></div>
     </div>
 
-    <div class="alt-block">
+    <div class="alt-block hidden" data-altblock="genres">
       <div class="alt-h">🍶 일본식 종류 리스트 <span class="alt-sub">"뭐 먹을래?" 고르기 · 선호 기록</span></div>
       <div class="alt-key"><span><i class="lk-o"></i>선호</span><span><i class="lk-t"></i>옵션·궁금</span><span><i class="lk-x"></i>제외</span></div>
       <div id="alt-genres" class="alt-genres"></div>
@@ -1253,7 +1264,7 @@ async function loadAlt(){
       const cls=lk==="O"?"lk-o":(lk==="△"?"lk-t":(lk==="X"?"lk-x":""));
       const where=String(g.where||"").replace(/^—$/,"");
       const note=String(g.note||"").replace(/^—$/,"");
-      return `<div class="grow ${cls}"><span class="g-name">${esc(g.genre)}</span><span class="g-where">${esc(where)}</span>${note?`<span class="g-note">${esc(note)}</span>`:''}</div>`;
+      return `<div class="grow ${cls}"><span class="g-name">${esc(g.genre)}</span><span class="g-meta">${where?`<span class="g-where">${esc(where)}</span>`:''}${note?`<span class="g-note">${esc(note)}</span>`:''}</span></div>`;
     }).join("");
     return `<div class="gcat"><div class="gcat-h">${esc(c)}</div>${rows}</div>`;
   }).join("");
@@ -1596,6 +1607,11 @@ async function init(){
   document.addEventListener("click",e=>{
     const del=e.target.closest(".del");
     if(del){deleteEntry(del.dataset.list, del.dataset.key);return;}
+    const at=e.target.closest(".alt-tab");
+    if(at){const k=at.dataset.alt;
+      document.querySelectorAll("#alt-tabs .alt-tab").forEach(x=>x.classList.toggle("active",x===at));
+      document.querySelectorAll("#view-alt .alt-block").forEach(x=>x.classList.toggle("hidden",x.dataset.altblock!==k));
+      return;}
     const pb=e.target.closest(".paidbox");
     if(pb){const ov=lsGet(LS_PAID),key=pb.dataset.paid; if(ov[key])delete ov[key];else ov[key]=1; lsSet(LS_PAID,ov); renderCost(); return;}
     const db=e.target.closest(".donebox");
