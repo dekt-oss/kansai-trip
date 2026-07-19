@@ -61,14 +61,12 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 
 /* ===== Main menu (상위 메뉴) ===== */
 .mainmenu{
-  position:sticky;top:0;z-index:30;display:flex;gap:6px;padding:8px 0 7px;margin-bottom:2px;
+  position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:6px;padding:8px 0 7px;margin-bottom:2px;
   background:var(--washi);box-shadow:0 6px 8px -6px rgba(42,38,32,.18);
-  overflow-x:auto;scrollbar-width:none;
 }
-.mainmenu::-webkit-scrollbar{display:none}
 .mainmenu button{
-  flex:0 0 auto;min-width:62px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
-  padding:8px 10px;border-radius:11px;font-family:'Shippori Mincho',serif;font-weight:700;
+  flex:1 1 auto;min-width:60px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
+  padding:8px 8px;border-radius:11px;font-family:'Shippori Mincho',serif;font-weight:700;
   font-size:12.5px;cursor:pointer;transition:.15s;text-align:center;
 }
 .mainmenu button .c{display:block;font-size:9.5px;font-weight:400;color:var(--ink-soft);margin-top:1px;white-space:nowrap}
@@ -349,8 +347,7 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .del:hover{color:var(--shu);border-color:var(--shu)}
 
 /* ===== 대안 추천(맛집 후보/플랜B/종류) ===== */
-.mealchips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 9px;margin-bottom:2px;scrollbar-width:none}
-.mealchips::-webkit-scrollbar{display:none}
+.mealchips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 9px;margin-bottom:2px}
 .mealchip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;padding:7px 12px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:.15s;display:inline-flex;align-items:center;gap:6px}
 .mealchip.on{background:var(--ai);color:#fff;border-color:var(--ai)}
 .mealchip .mc{font-size:10px;font-weight:700;background:var(--washi-2);color:var(--ink-soft);border-radius:999px;padding:1px 6px;min-width:15px;text-align:center}
@@ -378,14 +375,15 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .altcard .atrig{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;color:var(--ink)}
 .altcard .aplan{font-size:12px;color:var(--ink);margin-top:4px}
 .altcard .ameta{font-size:11px;color:var(--ink-soft);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
-.gcat{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12px;color:var(--ai);margin:12px 0 5px}
-.grow{display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:5px;background:var(--card);font-size:12.5px}
+.gcat{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12px;color:var(--ai);margin:16px 0 6px;padding-top:13px;border-top:1px solid var(--line)}
+#food-genres .gcat:first-child{border-top:0;padding-top:2px;margin-top:2px}
+.grow{display:flex;align-items:center;flex-wrap:wrap;gap:4px 9px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:5px;background:var(--card);font-size:12.5px}
 .glike{flex:0 0 auto;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
 .glike.o{background:rgba(46,125,50,.14);color:#2e7d32}
 .glike.t{background:rgba(154,123,52,.16);color:var(--kin)}
 .glike.x{background:rgba(192,67,43,.12);color:var(--shu)}
 .grow .gname{font-weight:700;color:var(--ink)}
-.grow .gwhere{color:var(--ink-soft);font-size:11px;margin-left:auto;text-align:right}
+.grow .gwhere{color:var(--ink-soft);font-size:11px;margin-left:auto;text-align:right;min-width:0}
 
 /* ===== Map modal ===== */
 .modal{position:fixed;inset:0;z-index:100;background:rgba(20,18,14,.6);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
@@ -429,7 +427,8 @@ footer .src{font-size:10px;opacity:.8}
     <button data-view="prep">✅ 준비<span class="c">예약·준비물</span></button>
     <button data-view="spot">⭐ 추천<span class="c">스폿·맛집</span></button>
     <button data-view="shop">🛍 쇼핑<span class="c">리스트·구매</span></button>
-    <button data-view="alt">🔀 대안<span class="c">맛집·플랜B</span></button>
+    <button data-view="alt">🍴 맛집<span class="c">Day별 후보</span></button>
+    <button data-view="planb">☔ 플랜B<span class="c">우천·혼잡</span></button>
     <button data-view="genre">🍱 종류<span class="c">취향 O·△·X</span></button>
   </nav>
 
@@ -544,17 +543,17 @@ footer .src{font-size:10px;opacity:.8}
     <div class="savehint" id="shop-hint"></div>
   </section>
 
-  <!-- ===== 대안 추천 VIEW ===== -->
+  <!-- ===== 맛집 후보 VIEW ===== -->
   <section id="view-alt" class="view hidden">
-    <div class="sec-h">대안 추천</div>
-    <p class="sec-sub">Day별 맛집 후보 + 일정 플랜B. 후보는 타베로그 인터넷 예약 가능(명시 예외 제외).</p>
-
-    <div class="sec-h" style="margin-top:6px">맛집 후보 <small class="cityhint" id="meal-hint"></small></div>
-    <p class="sec-sub">날을 고르면 끼니별 후보가 떠요 · 🥇 1순위 먼저 · <span class="kbadge">킵</span> 백업 · 🏬 니시키 시장 안</p>
+    <div class="sec-h">맛집 후보 <small class="cityhint" id="meal-hint"></small></div>
+    <p class="sec-sub">날을 고르면 끼니별 후보가 떠요 · 🥇 1순위 먼저 · <span class="kbadge">킵</span> 백업 · 🏬 니시키 시장 안. 후보는 타베로그 인터넷 예약 가능(명시 예외 제외).</p>
     <div class="mealchips" id="meal-toggle"></div>
     <div id="food-candidates"></div>
+  </section>
 
-    <div class="sec-h" style="margin-top:20px">일정 대안 (플랜B · 공통)</div>
+  <!-- ===== 일정 대안(플랜B) VIEW ===== -->
+  <section id="view-planb" class="view hidden">
+    <div class="sec-h">일정 대안 (플랜B · 공통)</div>
     <p class="sec-sub">우천·혼잡 시 빠른 갈아타기. 도시 무관 공통.</p>
     <div id="alt-plans"></div>
   </section>
@@ -1565,7 +1564,7 @@ async function loadWeather(){
 }
 
 /* ===================== 상위 메뉴 ===================== */
-const VIEWS=["plan","map","cost","prep","spot","shop","alt","genre"];
+const VIEWS=["plan","map","cost","prep","spot","shop","alt","planb","genre"];
 function setupMenu(){
   const btns=[...document.querySelectorAll("#mainmenu button")];
   btns.forEach(b=>b.addEventListener("click",()=>{
