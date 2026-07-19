@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#1f4068" />
 <title>간사이 여행 일정표</title>
-<meta name="description" content="부산↔오사카 간사이 여행 일정표 — 타임라인·예약 준비·결정 리스트·지도" />
+<meta name="description" content="부산↔오사카 간사이 여행 일정표 — 타임라인·예약 준비·맛집 대안·지도" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Shippori+Mincho:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -348,6 +348,42 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .memo-head{padding-right:28px} .spot h3{padding-right:28px}
 .del:hover{color:var(--shu);border-color:var(--shu)}
 
+/* ===== 대안 추천(맛집 후보/플랜B/종류) ===== */
+.citytoggle{display:flex;gap:8px;margin:4px 0 10px}
+.citytoggle button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-weight:700;font-size:14px;padding:9px 0;border-radius:11px;cursor:pointer;transition:.15s}
+.citytoggle button.on{background:var(--ai);color:#fff;border-color:var(--ai)}
+.cityhint{font-size:11px;font-weight:400;color:var(--ink-soft)}
+.slotgroup{margin-bottom:12px}
+.slothd{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;color:var(--ai);margin:10px 0 6px;display:flex;align-items:center;gap:7px}
+.slothd .sday{font-size:10px;font-weight:700;color:#fff;background:var(--kin);border-radius:999px;padding:2px 8px}
+.fcard{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 12px;margin-bottom:7px;box-shadow:var(--shadow)}
+.fcard.pick{border-color:var(--kin-soft);box-shadow:0 0 0 1.5px var(--kin-soft) inset,var(--shadow)}
+.fcard .fhd{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.fcard .fname{font-family:'Shippori Mincho',serif;font-weight:700;font-size:13.5px;color:var(--ink)}
+.fcard .fgenre{font-size:11px;color:var(--ink-soft)}
+.fcard .fmeta{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--ink-soft);margin-top:5px}
+.fcard .fmeta b{color:var(--eat);font-family:'Shippori Mincho',serif}
+.fcard .fnote{font-size:11.5px;color:var(--ink-soft);margin-top:5px;line-height:1.5}
+.badge{font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.badge.gold{background:rgba(154,123,52,.14);color:var(--kin);border:1px solid var(--kin-soft)}
+.badge.keep{background:var(--washi-2);color:var(--ink-soft);border:1px solid var(--line)}
+.badge.nishiki{background:rgba(31,64,104,.1);color:var(--ai);border:1px solid var(--ai-soft)}
+.kbadge{display:inline-block;font-size:10px;font-weight:700;background:var(--washi-2);color:var(--ink-soft);border:1px solid var(--line);border-radius:999px;padding:1px 7px}
+.rsv{font-size:10.5px;border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--ink-soft)}
+.altcard{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 12px;margin-bottom:7px;box-shadow:var(--shadow);border-left:4px solid var(--shu)}
+.altcard.indoor{border-left-color:var(--stay)}
+.altcard .atrig{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;color:var(--ink)}
+.altcard .aplan{font-size:12px;color:var(--ink);margin-top:4px}
+.altcard .ameta{font-size:11px;color:var(--ink-soft);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.gcat{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12px;color:var(--ai);margin:12px 0 5px}
+.grow{display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:5px;background:var(--card);font-size:12.5px}
+.glike{flex:0 0 auto;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+.glike.o{background:rgba(46,125,50,.14);color:#2e7d32}
+.glike.t{background:rgba(154,123,52,.16);color:var(--kin)}
+.glike.x{background:rgba(192,67,43,.12);color:var(--shu)}
+.grow .gname{font-weight:700;color:var(--ink)}
+.grow .gwhere{color:var(--ink-soft);font-size:11px;margin-left:auto;text-align:right}
+
 /* ===== Map modal ===== */
 .modal{position:fixed;inset:0;z-index:100;background:rgba(20,18,14,.6);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
 .modal.hidden{display:none}
@@ -388,10 +424,9 @@ footer .src{font-size:10px;opacity:.8}
     <button data-view="map">🗺 지도<span class="c">핀·동선</span></button>
     <button data-view="cost">💴 비용<span class="c">합계·내역</span></button>
     <button data-view="prep">✅ 준비<span class="c">예약·준비물</span></button>
-    <button data-view="decide">⚖️ 결정<span class="c">A · B</span></button>
     <button data-view="spot">⭐ 추천<span class="c">스폿·맛집</span></button>
     <button data-view="shop">🛍 쇼핑<span class="c">리스트·구매</span></button>
-    <button data-view="memo">📝 메모<span class="c">기록·추천</span></button>
+    <button data-view="alt">🔀 대안<span class="c">맛집·플랜B</span></button>
   </nav>
 
   <!-- ===== 일정 VIEW ===== -->
@@ -470,13 +505,6 @@ footer .src{font-size:10px;opacity:.8}
     <div class="checks" id="prep"></div>
   </section>
 
-  <!-- ===== 결정 VIEW ===== -->
-  <section id="view-decide" class="view hidden">
-    <div class="sec-h">결정 리스트</div>
-    <p class="sec-sub">옵션 A · B 중 골라 누르면 선택이 저장됩니다. 다시 누르면 미정으로.</p>
-    <div id="decisions"></div>
-  </section>
-
   <!-- ===== 추천 VIEW ===== -->
   <section id="view-spot" class="view hidden">
     <div class="sec-h">추천 스폿 · 맛집</div>
@@ -512,20 +540,27 @@ footer .src{font-size:10px;opacity:.8}
     <div class="savehint" id="shop-hint"></div>
   </section>
 
-  <!-- ===== 메모 VIEW ===== -->
-  <section id="view-memo" class="view hidden">
-    <div class="sec-h">메모 · 추천</div>
-    <p class="sec-sub">여행 메모·추천스폿을 기록하세요. 이미지 URL을 넣으면 사진도 표시됩니다.</p>
-    <form id="memo-form" class="addform">
-      <textarea id="memo-text" rows="2" placeholder="메모 입력 (예: 청수사 현금만! / 이치란 도톤보리 새벽 추천)" required></textarea>
-      <div class="row2">
-        <select id="memo-day"><option value="">태그 없음</option><option>준비</option><option>1일차</option><option>2일차</option><option>3일차</option><option>4일차</option></select>
-        <input id="memo-img" placeholder="이미지 URL (선택)" />
-      </div>
-      <button type="submit">+ 저장</button>
-    </form>
-    <div class="savehint" id="memo-hint"></div>
-    <div id="memo-list"></div>
+  <!-- ===== 대안 추천 VIEW ===== -->
+  <section id="view-alt" class="view hidden">
+    <div class="sec-h">대안 추천</div>
+    <p class="sec-sub">맛집 후보(오사카·교토)·일정 플랜B·일본식 종류. 후보는 타베로그 인터넷 예약 가능(명시 예외 제외).</p>
+
+    <div class="citytoggle" id="city-toggle">
+      <button data-city="osaka" class="on">🏯 오사카</button>
+      <button data-city="kyoto">⛩ 교토</button>
+    </div>
+
+    <div class="sec-h" style="margin-top:6px">맛집 후보 <small class="cityhint" id="city-hint">오사카</small></div>
+    <p class="sec-sub">🥇 1순위 · <span class="kbadge">킵</span> 백업 · 🏬 니시키 시장 안</p>
+    <div id="food-candidates"></div>
+
+    <div class="sec-h" style="margin-top:20px">일정 대안 (플랜B · 공통)</div>
+    <p class="sec-sub">우천·혼잡 시 빠른 갈아타기. 도시 무관 공통.</p>
+    <div id="alt-plans"></div>
+
+    <div class="sec-h" style="margin-top:20px">일본식 종류 리스트</div>
+    <p class="sec-sub">"뭐 먹을래?" 고르기 · 선호 O / △ / X</p>
+    <div id="food-genres"></div>
   </section>
 
   <footer>
@@ -569,7 +604,9 @@ const CONFIG = {
   LOCAL_SPOTS_CSV: "data/spots.csv",
   LOCAL_DAYS_CSV: "data/days.csv",
   LOCAL_TODO_CSV: "data/todo.csv",
-  LOCAL_DECISIONS_CSV: "data/decisions.csv",
+  LOCAL_FOOD_CSV: "data/food_candidates.csv",
+  LOCAL_ALT_CSV: "data/alt_plan.csv",
+  LOCAL_GENRES_CSV: "data/food_genres.csv",
   LOCAL_SHOPPING_CSV: "data/shopping.csv",
   LOCAL_INFO_CSV: "data/info.csv",
   LOCAL_GEO_CSV: "data/geo.csv",      // 지도 핀 좌표(앱 자동지도 + My Maps 가져오기 겸용)
@@ -591,38 +628,58 @@ const CONFIG = {
 
 /* ===== 내장 폴백(파일 직접 열람용) — CSV와 동일 스키마 ===== */
 const FALLBACK = [
-  {day:1,date:"7/23(목)",start:"09:20",end:"10:50",city:"부산→오사카",place:"김해공항→KIX",transport:"비행기",type:"move",title:"왕복 항공편 탑승",desc:"09:20 김해 출발, 약 10:50 KIX 도착",cost_jpy:0,cost_krw:566080,note:"예약·결제 완료(왕복·2인)",cost_cat:"교통",paid:true,move_note:"약 1시간 30분 비행"},
-  {day:1,date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바",transport:"라피트",type:"move",title:"난카이 특급 라피트",desc:"관광토쿠와리 편도 1560엔(모바일 -150엔)",cost_jpy:1560,note:"",cost_cat:"교통",move_note:"약 42km · 38분"},
-  {day:1,date:"7/23(목)",start:"13:30",end:"14:30",city:"오사카",place:"난바 일대",transport:"도보",type:"eat",title:"첫 끼 · 오코노미야키/우동",desc:"난바 일대 첫 점심",cost_jpy:1500,note:"",cost_cat:"식비",tbd:true},
-  {day:1,date:"7/23(목)",start:"14:30",end:"17:30",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig/shop",title:"도토리공화국 신사이바시점 + 다이마루",desc:"전국 최대 도토리공화국·가오나시 포토존. 도보 10~15분",cost_jpy:0,note:"한낮 실내(폭염대비)"},
-  {day:1,date:"7/23(목)",start:"18:30",end:"20:00",city:"오사카",place:"도톤보리",transport:"도보",type:"sig",title:"글리코사인·에비스바시 야경 산책",desc:"오사카 대표 풍경",cost_jpy:0,note:""},
-  {day:1,date:"7/23(목)",start:"20:00",end:"21:30",city:"오사카",place:"난바/도톤보리",transport:"도보",type:"eat",title:"이자카야 + 사케 첫 만찬",desc:"니혼슈 워밍업(2인)",cost_jpy:5000,note:"",cost_cat:"식비",tbd:true},
-  {day:2,date:"7/24(금)",start:"07:30",end:"08:40",city:"오사카→교토",place:"난바→교토카와라마치",transport:"지하철+한큐",type:"move",title:"한큐 교토선 특급",desc:"카와라마치=순행 종착 인근",cost_jpy:650,note:"",cost_cat:"교통",move_note:"약 47km · 43분"},
-  {day:2,date:"7/24(금)",start:"09:30",end:"11:20",city:"교토",place:"오이케도리~시조",transport:"도보",type:"fes",title:"★기온마츠리 야마보코 후기 순행",desc:"'츠지마와시' 백미. 유료석 8000엔~ 옵션",cost_jpy:0,note:"양산·물 필수"},
-  {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"7·8월 18:30 폐문·현금만",cost_cat:"입장",move_note:"버스 약 4km · 15분"},
-  {day:3,date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각·전망대",desc:"8층 전망대·공원 산책. 더위 전 오전 공략",cost_jpy:1200,note:"물·모자 권장",cost_cat:"입장"},
-  {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(사쿠라노미야)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경 시작",cost_jpy:0,note:""},
-  {day:3,date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"사쿠라노미야 공원",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"강물 반사 '이중 불꽃'",cost_jpy:0,note:"우천시 중단"},
-  {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"shop/sig",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:3000,note:"일요일=야마나카 본점 휴무",cost_cat:"쇼핑"},
-  {day:4,date:"7/26(일)",start:"15:30",end:"",city:"오사카→부산",place:"KIX→김해",transport:"비행기",type:"move",title:"귀국 비행편 탑승",desc:"15:30 KIX 출발",cost_jpy:0,note:"수고하셨습니다!"},
+  {day:"1",date:"7/23(목)",start:"09:20",end:"10:50",city:"부산→오사카",place:"김해공항→KIX",transport:"비행기",type:"move",title:"왕복 항공편 탑승",desc:"왕복 항공편 · 시차 없음. 09:20 김해 출발, 약 10:50 KIX 도착",cost_jpy:0,note:"예약·결제 완료(왕복·2인)",cost_krw:566080,cost_cat:"교통",paid:true,move_note:"약 1시간 30분 비행"},
+  {day:"1",date:"7/23(목)",start:"12:00",end:"13:00",city:"오사카",place:"KIX→난바·짐 보관",transport:"라피트",type:"move",title:"난카이 라피트 + 셀프체크인·짐 보관",desc:"관광토쿠와리 편도(모바일 -150엔) · 난바→호텔 도보 11분·프런트 짐 보관",cost_jpy:1560,cost_cat:"교통",move_note:"라피트 약 38분"},
+  {day:"1",date:"7/23(목)",start:"13:00",end:"13:40",city:"오사카",place:"톰보리 리버크루즈(태좌에몬바시 선착장)",transport:"도보",type:"sig",title:"톰보리 리버크루즈",desc:"도톤보리 20분 유람 · 숙소 도보 3분 · 당일 현장 시간지정·승선권 교환",cost_jpy:2000,note:"7/23 기상 운휴만 확인 · 대안: 점심 먼저 후 승선 / 밤 네온은 도보",cost_cat:"입장",move_note:"도보 약 3분"},
+  {day:"1",date:"7/23(목)",start:"13:40",end:"14:30",city:"오사카",place:"도톤보리",transport:"도보",type:"eat",title:"점심 · 쿠시카츠 다루마(도톤보리)",desc:"원조 쿠시카츠 다루마 · 한국어 메뉴 · 글리코 앞 · 니도즈케 금지",cost_jpy:3000,note:"대안: 코나몬(타코야키·오코노미야키) 그레이징 / 쿠시노보 호젠지",cost_cat:"식비"},
+  {day:"1",date:"7/23(목)",start:"14:30",end:"17:00",city:"오사카",place:"신사이바시 PARCO 6F",transport:"도보",type:"sig/shop",title:"도토리공화국 신사이바시 + 신사이바시스지 쇼핑",desc:"전국 최대 도토리·가오나시 📷 · 🛍️신사이바시스지 아케이드(드럭·면세) · 폭염 대비 실내",cost_jpy:0,note:"한낮 실내",move_note:"도보 약 12분"},
+  {day:"1",date:"7/23(목)",start:"17:00",end:"17:30",city:"오사카",place:"신사이바시→우메다",transport:"미도스지선",type:"move",title:"신사이바시 → 우메다(미도스지선)",cost_jpy:290,note:"짐은 우메다 코인로커 또는 지참",cost_cat:"교통",move_note:"지하철 약 9분"},
+  {day:"1",date:"7/23(목)",start:"17:30",end:"18:45",city:"오사카",place:"아사노 사케샵(浅野日本酒店 UMEDA)",transport:"도보",type:"shop",title:"아사노 사케샵 시음·구매",desc:"준마이슈 약 150종·거의 전상품 무료 시음·스탠딩바 구매 · 키키자케 세트 평일 18시 전 840엔(이후 1,050엔)",cost_jpy:840,note:"太融寺町(우메다) · 대안: 시간 무관 무료시음만",cost_cat:"쇼핑"},
+  {day:"1",date:"7/23(목)",start:"18:45",end:"19:00",city:"오사카",place:"아사노→우메다 스카이빌딩",transport:"도보",type:"move",title:"→ 우메다 스카이빌딩",desc:"다이마루 13F 캐릭터층·데파치카 경유 옵션",cost_jpy:0,move_note:"오사카역 경유 도보"},
+  {day:"1",date:"7/23(목)",start:"19:00",end:"20:00",city:"오사카",place:"우메다 스카이빌딩 공중정원",transport:"도보",type:"sig",title:"★우메다 공중정원 전망대 야경",desc:"📷도넛형 360°·하트록 · 일몰 19:06·최종입장 22:00",cost_jpy:2000,cost_cat:"입장"},
+  {day:"1",date:"7/23(목)",start:"20:00",end:"21:30",city:"오사카",place:"우메다",transport:"도보",type:"eat",title:"저녁 · 우메다 야키니쿠(우치다 1순위)",desc:"야키니쿠+호르몬 회석 · 사케 페어링 · 우치다 6,000~9,900 / 야키니쿠갱 무한리필 6,500",cost_jpy:12000,note:"🔶예약확인 · 대안: 신세카이 쿠시카츠+레트로 야경",cost_cat:"식비",tbd:true},
+  {day:"1",date:"7/23(목)",start:"21:30",end:"22:00",city:"오사카",place:"난바 복귀(코인로커 짐 회수)",transport:"미도스지선",type:"move",title:"난바 복귀 · 짐 회수",cost_jpy:0,cost_cat:"교통",move_note:"지하철/도보"},
+  {day:"1",date:"7/23(목)",start:"22:00",end:"22:30",city:"오사카",place:"이온 푸드스타일 히가시신사이바시(24h)",transport:"도보",type:"shop",title:"이온 마트 장보기 → 숙소",desc:"東心斎橋 1-5-9 · 초밥·벤토·과일·주류·저녁 할인 · 짐 들고 바로 복귀",cost_jpy:0,note:"숙소 도보 6분·24시간 · 대안: 센트럴 스퀘어 라이프 난바(면세)",cost_cat:"쇼핑",move_note:"도보 약 6분"},
+  {day:"2",date:"7/24(금)",start:"07:00",end:"07:30",city:"오사카",place:"난바·이동중",transport:"-",type:"eat",title:"아침 · 간단(편의점/카페)",desc:"이른 출발",cost_jpy:0,cost_cat:"식비"},
+  {day:"2",date:"7/24(금)",start:"07:30",end:"08:40",city:"오사카→교토",place:"난바→교토카와라마치",transport:"지하철+한큐",type:"move",title:"한큐 교토선 특급",desc:"카와라마치=순행 종착 인근",cost_jpy:650,cost_cat:"교통",move_note:"전철 약 70분"},
+  {day:"2",date:"7/24(금)",start:"09:30",end:"11:20",city:"교토",place:"오이케도리~시조",transport:"도보",type:"fes",title:"★기온마츠리 야마보코 후기 순행",desc:"9:30 카라스마오이케→11:20 시조카라스마 · 📷'츠지마와시' · 🎯유료석 ¥8000~ / 후시미이나리(순행과 충돌→새벽만)·니조성(¥1300·빡빡)",cost_jpy:0,note:"양산·물 필수",move_note:"도보 관람"},
+  {day:"2",date:"7/24(금)",start:"11:30",end:"13:00",city:"교토",place:"니시키 시장",transport:"도보",type:"eat",title:"니시키 시장 + 점심",desc:"교토 명물 두유도넛·다시마키·하모 · 지붕 아케이드 · 🍣카츠즈시(스시+튀김·1순위)",cost_jpy:2000,note:"그늘·실내(폭염대비)",cost_cat:"식비"},
+  {day:"2",date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"📷청수의 무대·야사카탑·니넨자카 도토리 · 🛍️말차스위츠·요지야",cost_jpy:500,note:"7·8월 18:30 폐문·현금만",cost_cat:"입장",move_note:"버스+도보 약 15분"},
+  {day:"2",date:"7/24(금)",start:"16:30",end:"17:00",city:"교토",place:"기온 시조 오타비쇼",transport:"도보",type:"move",title:"기온 이동(환행제 출발지)",cost_jpy:0,move_note:"도보 약 15분"},
+  {day:"2",date:"7/24(금)",start:"17:00",end:"21:00",city:"교토",place:"시조~기온·폰토초",transport:"도보",type:"fes/eat",title:"★환행제(미코시 도교) + 기온 저녁",desc:"17:00 시조 미코시 3기 출발→밤 9~10시 야사카 환행 · 📷미코시 差し上げ·시라카와 돌다리 · 🍴가모강 카와도코(노床·여름한정) 오반자이·유도후·사케",cost_jpy:6000,note:"대안: 기온 시즈카(가이세키·사케 20시경) / 마메하치 오반자이(킵)",cost_cat:"식비"},
+  {day:"2",date:"7/24(금)",start:"22:00",end:"23:30",city:"교토→오사카",place:"교토카와라마치→난바",transport:"한큐+지하철",type:"move",title:"오사카 복귀",desc:"한큐+지하철",cost_jpy:650,note:"막차 시간 확인(~24시)",cost_cat:"교통",move_note:"전철 약 50분"},
+  {day:"3",date:"7/25(토)",start:"08:30",end:"09:30",city:"오사카",place:"난바 숙소",transport:"-",type:"eat",title:"아침 · 숙소 조식",cost_jpy:0,cost_cat:"식비"},
+  {day:"3",date:"7/25(토)",start:"10:00",end:"10:30",city:"오사카",place:"난바→오사카성",transport:"다니마치선",type:"move",title:"난바 → 오사카성(다니마치선)",cost_jpy:240,cost_cat:"교통",move_note:"지하철 약 8분"},
+  {day:"3",date:"7/25(토)",start:"10:30",end:"12:30",city:"오사카",place:"오사카성(외관·니시노마루)",transport:"도보",type:"sig",title:"★오사카성 (외관·니시노마루 정원 포토)",desc:"📷해자·돌담·천수각 정면·니시노마루 정원 · 더위 전 오전 · 천수각 내부 미입장",cost_jpy:0,note:"천수각 내부 미입장·해자·돌담·니시노마루 포토만",move_note:"역서 도보 15~20분"},
+  {day:"3",date:"7/25(토)",start:"12:30",end:"13:00",city:"오사카",place:"오사카성→도톤보리",transport:"지하철",type:"move",title:"오사카성 → 도톤보리",cost_jpy:240,cost_cat:"교통",move_note:"지하철 약 12분"},
+  {day:"3",date:"7/25(토)",start:"13:00",end:"14:00",city:"오사카",place:"도톤보리",transport:"도보",type:"eat",title:"도톤보리 명물 점심",desc:"타코야키(아치치혼포·와나카)·오코노미야키(미즈노)·쿠시카츠(다루마)·게(카니도라쿠)",cost_jpy:4000,note:"*오사카성 GO시 → 스프카레 JACK 모리노미야(대안 탭)",cost_cat:"식비"},
+  {day:"3",date:"7/25(토)",start:"14:00",end:"16:00",city:"오사카",place:"도톤보리·신사이바시",transport:"도보",type:"shop",title:"도톤보리·신사이바시 쇼핑",desc:"🛍️돈키호테 면세 본격·빅카메라·드럭스토어·551 · 📷글리코·움직이는 게·호젠지",cost_jpy:0,cost_cat:"쇼핑"},
+  {day:"3",date:"7/25(토)",start:"16:00",end:"16:30",city:"오사카",place:"도톤보리→미나미모리마치",transport:"지하철",type:"move",title:"→ 미나미모리마치(오사카텐만구)",cost_jpy:240,cost_cat:"교통",move_note:"지하철 약 10분"},
+  {day:"3",date:"7/25(토)",start:"16:30",end:"18:00",city:"오사카",place:"텐진바시스지 상점가",transport:"도보",type:"eat",title:"텐진바시스지 + 자리선점",desc:"🍴축제 야타이 길거리 음식 · 명당 남안(텐만바시側)",cost_jpy:2000,cost_cat:"식비",move_note:"도보 약 13분"},
+  {day:"3",date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(텐만바시側)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 화톳불, 18:00경 시작",cost_jpy:0},
+  {day:"3",date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"사쿠라노미야",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"📷오카와 배+불꽃(남안) · 토요일 인파 최대",cost_jpy:0,note:"우천시 중단"},
+  {day:"3",date:"7/25(토)",start:"21:30",end:"23:00",city:"오사카",place:"난바 복귀·도톤보리",transport:"지하철+도보",type:"eat/shop",title:"난바 복귀 + 야식 + 막판 쇼핑",desc:"라멘/타코야키 야식 + 돈키호테 24시 · 📷밤 글리코 네온",cost_jpy:3000,cost_cat:"식비",move_note:"지하철/도보"},
+  {day:"4",date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"쿠로몬 시장",transport:"도보",type:"eat/shop",title:"★쿠로몬 시장 해산물 아침",desc:"성게·참치·장어·복어 · 🛍️551 테이크아웃·리쿠로·자가리코 · 🎯도토리 난바점·돈키 막판 · 📷아케이드 노점",cost_jpy:4000,cost_cat:"식비",move_note:"도보 약 7분"},
+  {day:"4",date:"7/26(일)",start:"10:30",end:"11:00",city:"오사카",place:"난바 숙소",transport:"-",type:"stay",title:"체크아웃 · 짐 회수",cost_jpy:0},
+  {day:"4",date:"7/26(일)",start:"11:00",end:"11:45",city:"오사카",place:"난바→KIX",transport:"라피트",type:"move",title:"난카이 특급 라피트",desc:"국제선 2~3시간 전 도착",cost_jpy:1560,cost_cat:"교통",move_note:"라피트 약 38분"},
+  {day:"4",date:"7/26(일)",start:"11:45",end:"13:30",city:"오사카",place:"간사이공항(KIX)",transport:"-",type:"shop",title:"출국수속 · 공항 면세 + 점심",desc:"공항 면세 쇼핑",cost_jpy:0},
+  {day:"4",date:"7/26(일)",start:"15:30",city:"오사카→부산",place:"KIX→김해",transport:"비행기",type:"move",title:"귀국 비행편 탑승",desc:"KIX → 김해 · 15:30 출발",cost_jpy:0,note:"수고하셨습니다!",cost_cat:"교통",move_note:"약 1시간 30분 비행"},
 ];
 const FALLBACK_DAYS = [
-  {day:1,date:"7/23(목)",am:"오사카 도착·난바 짐풀기·점심",pm:"신사이바시 지브리·도톤보리 야경"},
-  {day:2,date:"7/24(금)",am:"교토 이동·기온마츠리 순행",pm:"청수사·기온·가모강 사케"},
-  {day:3,date:"7/25(토)",am:"오사카성·우메다 지브리·사케 시음",pm:"텐진마츠리 후나토교·불꽃"},
-  {day:4,date:"7/26(일)",am:"난바 갈무리 쇼핑",pm:"공항 이동·귀국"},
+  {day:1,date:"7/23(목)",am:"오사카 도착·톰보리 리버크루즈·도톤보리 점심",pm:"신사이바시 지브리·아사노 사케&우메다 공중정원·야키니쿠·이온 마트"},
+  {day:2,date:"7/24(금)",am:"교토 이동·기온마츠리 순행",pm:"청수사·기온 환행제·가모강 사케"},
+  {day:3,date:"7/25(토)",am:"오사카성(외관·니시노마루)",pm:"도톤보리 쇼핑·텐진마츠리 후나토교·불꽃"},
+  {day:4,date:"7/26(일)",am:"쿠로몬 시장 해산물 아침",pm:"공항 이동·귀국"},
 ];
 const FALLBACK_SPOTS = [
   {category:"시그니처",title:"청수사(기요미즈데라)",note:"교토 히가시야마 · 500엔 현금 · 산넨/니넨자카 함께"},
-  {category:"사케",title:"야마나카 사케 에키마루셰점",note:"JR오사카역 직결 · 셀프 시음 50~66종"},
+  {category:"사케",title:"아사노 사케샵(浅野日本酒店 UMEDA)",note:"太融寺町 · 11:00~23:00 무휴 · 준마이슈 약 150종 무료시음·스탠딩바"},
+  {category:"마트",title:"이온 푸드스타일 히가시신사이바시",note:"東心斎橋 · 24시간 · 숙소 도보 6분"},
   {category:"교통",title:"라피트",note:"난바↔KIX · 편도 1560엔 · 모바일 -150엔"},
 ];
 const FALLBACK_TODO = [
   {id:"flight",category:"항공",task:"부산-오사카 왕복 항공권",note:"예약·결제 완료 · ₩566080(2인)",done:"1"},
   {id:"hotel",category:"숙소",task:"난바/신사이바시 호텔 3박",note:"위치 결정 후 예약",done:""},
-];
-const FALLBACK_DECISIONS = [
-  {id:"hotel",title:"숙소 위치",option_a:"난바 — 라피트 직결·교통 허브",option_b:"신사이바시 — 쇼핑·도톤보리 도보",note:"공항 접근은 난바가 유리"},
 ];
 const FALLBACK_INFO = [
   {label:"항공편 (가는편)",value:"7/23(목) 김해 09:20 → KIX 10:50",note:"",type:""},
@@ -630,6 +687,73 @@ const FALLBACK_INFO = [
   {label:"숙소",value:"난바/신사이바시 (미정)",note:"결정 후 주소 입력",type:"map"},
   {label:"주오사카 총영사관",value:"+81-6-4256-2345",note:"분실·사건 시",type:"tel"},
   {label:"일본 긴급",value:"110 (경찰) · 119 (구급)",note:"",type:""},
+];
+const FALLBACK_FOOD=[
+  {city:"osaka",day:"1",slot:"저녁",name:"야키니쿠 호르몬 우치다",genre:"야키니쿠+호르몬 회석",google:"4.9",price_jpy:"6,000~9,900",area:"도야마초(우메다)",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"리뷰4825·6천엔 회석 합리적. Day1저녁 1순위"},
+  {city:"osaka",day:"1",slot:"저녁",name:"야키니쿠갱 우메다점",genre:"와규 무한리필",google:"4.8",price_jpy:"6,500",area:"히가시우메다",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"개인실 무한리필 가성비"},
+  {city:"osaka",day:"1",slot:"저녁",name:"야키니쿠 후지모토 오하츠텐진",genre:"코스·고베규",google:"4.6",price_jpy:"6,800~8,800",area:"소네자키",nishiki_in:"N",reserve:"인터넷",pick:"",note:"예약 난이도 높음"},
+  {city:"osaka",day:"1",slot:"저녁",name:"나마 호르몬 이타다키",genre:"호르몬(곱창)",google:"4.5",price_jpy:"5,800",area:"나카쓰",nishiki_in:"N",reserve:"인터넷",pick:"",note:"곱창·새벽3시까지"},
+  {city:"osaka",day:"1",slot:"점심",name:"원조 쿠시카츠 다루마 도톤보리",genre:"쿠시카츠",google:"–",price_jpy:"1,500~3,000",area:"도톤보리",nishiki_in:"N",reserve:"워크인",pick:"🥇",note:"원조·한국어메뉴·글리코앞·니도즈케금지"},
+  {city:"osaka",day:"1",slot:"점심",name:"쿠시노보 호젠지",genre:"쿠시카츠 오마카세",google:"–",price_jpy:"–",area:"호젠지",nishiki_in:"N",reserve:"예약",pick:"",note:"추성훈 단골·차분·술곁들이기"},
+  {city:"osaka",day:"3",slot:"점심",name:"삿포로 스프카레 JACK 모리노미야",genre:"스프카레",google:"–",price_jpy:"–",area:"오사카성 옆(모리노미야)",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"타베로그 백명점·야채 고로고로. *오사카성 GO시*"},
+  {city:"osaka",day:"3",slot:"점심대안",name:"Rojiura Curry SAMURAI 그랜드프론트",genre:"스프카레",google:"–",price_jpy:"1,000~1,999",area:"우메다",nishiki_in:"N",reserve:"워크인",pick:"",note:"야채 11~20품·예약불가"},
+  {city:"osaka",day:"–",slot:"스프카레대안",name:"매직 스파이스 나니와",genre:"스프카레",google:"–",price_jpy:"–",area:"나니와",nishiki_in:"N",reserve:"워크인",pick:"",note:"원조·미나미서 가장 가까운 전문점"},
+  {city:"osaka",day:"–",slot:"스프카레대안",name:"SPUSPU 혼마치",genre:"스프카레",google:"3.0",price_jpy:"1,650",area:"혼마치",nishiki_in:"N",reserve:"전화",pick:"",note:"15종야채·일휴무·토런치만(슬롯 안맞음)"},
+  {city:"osaka",day:"3",slot:"저녁",name:"텐진 마츠리 야타이",genre:"길거리음식",google:"–",price_jpy:"–",area:"오카와 강변",nishiki_in:"N",reserve:"–",pick:"✅",note:"축제 야타이 그레이징(불꽃 관람 중)"},
+  {city:"osaka",day:"4",slot:"아침",name:"쿠로몬 시장",genre:"스시·카이센동·성게",google:"–",price_jpy:"–",area:"쿠로몬",nishiki_in:"N",reserve:"워크인",pick:"✅",note:"원하신 해산물 몰아서"},
+  {city:"osaka",day:"–",slot:"야식",name:"라멘/타코야키 (킨류·이치란·아치치)",genre:"라멘·타코야키",google:"–",price_jpy:"–",area:"도톤보리",nishiki_in:"N",reserve:"워크인",pick:"",note:"Day1/3 야식"},
+  {city:"kyoto",day:"2",slot:"점심",name:"니시키 카츠즈시(錦 活鮨)",genre:"스시+튀김",google:"4.7",price_jpy:"2,100~2,600",area:"니시키 시장",nishiki_in:"Y",reserve:"인터넷",pick:"🥇",note:"스시·튀김·최고평점·합리적. 점심 1순위"},
+  {city:"kyoto",day:"2",slot:"점심",name:"스시 코마츠(寿し小松)",genre:"스시(주문식)",google:"4.2",price_jpy:"1,000~6,000",area:"니시키 근처",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"참치직영·단품·선술집형(여유형)"},
+  {city:"kyoto",day:"2",slot:"점심",name:"니시키 히라노(錦 平野)",genre:"텐푸라 정식",google:"4.2",price_jpy:"2,300~2,600",area:"니시키 시장",nishiki_in:"Y",reserve:"인터넷",pick:"",note:"텐푸라 원하면·리뷰854"},
+  {city:"kyoto",day:"2",slot:"점심",name:"이시베코우지 마메차",genre:"가이세키 런치",google:"4.2",price_jpy:"4,800",area:"기온시조",nishiki_in:"N",reserve:"인터넷",pick:"",note:"평일점심 한정·전날예약·90분"},
+  {city:"kyoto",day:"2",slot:"점심",name:"킨마타 카운터런치(近又)",genre:"가이세키",google:"4.5",price_jpy:"6,000~8,500",area:"카와라마치",nishiki_in:"N",reserve:"인터넷",pick:"",note:"등록문화재 미니가이세키"},
+  {city:"kyoto",day:"2",slot:"점심",name:"슌아이 사사키",genre:"가이세키",google:"–",price_jpy:"6,600~8,800",area:"교토",nishiki_in:"N",reserve:"인터넷",pick:"",note:"점심 가이세키"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"기온 시즈카(祇園静水香)",genre:"가이세키·사케페어링",google:"4.9",price_jpy:"16,500/런치7,500",area:"기온",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"미슐랭셰프·사케 최적. ⚠️환행제와 시간겹침→20시경"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"킨마타(近又)",genre:"가이세키(등록문화재)",google:"4.5",price_jpy:"22,000~55,000",area:"카와라마치",nishiki_in:"N",reserve:"인터넷",pick:"",note:"특별한 한 끼(고가)"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"슌아이 사사키",genre:"가이세키",google:"–",price_jpy:"13,500",area:"교토",nishiki_in:"N",reserve:"인터넷",pick:"",note:"저녁 9품(18:00)"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"스시덴푸라 기온 이와이",genre:"스시+덴푸라 오마카세",google:"3.5",price_jpy:"12,800~15,800",area:"기온",nishiki_in:"N",reserve:"인터넷",pick:"",note:"효고 미슐랭 게재점"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"마메하치(豆八)",genre:"두부·오반자이",google:"4.0",price_jpy:"2,530~4,620",area:"폰토초",nishiki_in:"N",reserve:"인터넷",pick:"KEEP",note:"오반자이 킵(백업)"},
+];
+const FALLBACK_ALT=[
+  {trigger:"텐진 불꽃 우천취소",plan_b:"도톤보리 복귀→글리코 야경(우산)+돈키호테24시+아케이드",area:"도톤보리",indoor:"N",note:"18시경 tenjinsan.com 확인 후 남하"},
+  {trigger:"텐진 취소·실내",plan_b:"라운드원 센니치마에 / 타이토 스테이션",area:"난바",indoor:"Y",note:"숙소 도보권"},
+  {trigger:"텐진 취소·밤술",plan_b:"우라난바 스탠딩 이자카야 / 호젠지요코초",area:"우라난바",indoor:"N",note:"현금"},
+  {trigger:"한낮 폭염 대피",plan_b:"신사이바시·에비스바시 아케이드/다이마루/난바파크스/난바워크",area:"미나미",indoor:"Y",note:"12~16시 실내"},
+  {trigger:"스카이빌딩 흐림·비",plan_b:"HEP FIVE 관람차(실내)/우메다 실내쇼핑",area:"우메다",indoor:"Y",note:"야경 반감 시"},
+  {trigger:"청수사 폐문(18:30) 임박",plan_b:"기온 시라카와·하나미코지 야경 산책",area:"기온",indoor:"N",note:"–"},
+  {trigger:"리버크루즈 비/매진",plan_b:"갠 날 오전으로 이동 or 스킵",area:"도톤보리",indoor:"N",note:"오픈보트·2,000엔 자비"},
+  {trigger:"교토 막차 위기",plan_b:"케이한/JR 대안, 최악 택시",area:"교토",indoor:"–",note:"23시대 막차 재확인"},
+  {trigger:"스프카레 JACK 불발",plan_b:"SAMURAI 그랜드프론트(우메다) or 매직스파이스",area:"오사카",indoor:"–",note:"워크인"},
+];
+const FALLBACK_GENRES=[
+  {category:"면류",genre:"라멘",like:"O",where:"킨류·이치란(도톤보리)",note:"야식"},
+  {category:"면류",genre:"소바",like:"O",where:"니시키·기온",note:"–"},
+  {category:"면류",genre:"우동",like:"X",where:"–",note:"제외"},
+  {category:"밥·덮밥",genre:"스시",like:"O",where:"니시키(카츠즈시)·쿠로몬",note:"–"},
+  {category:"밥·덮밥",genre:"카이센동",like:"O",where:"쿠로몬",note:"Day4"},
+  {category:"밥·덮밥",genre:"텐동",like:"O",where:"(미배치)",note:"스왑"},
+  {category:"밥·덮밥",genre:"카레라이스",like:"O",where:"야키니쿠집 마무리",note:"후식"},
+  {category:"밥·덮밥",genre:"스프카레",like:"O",where:"JACK 모리노미야",note:"Day3"},
+  {category:"구이",genre:"야키니쿠",like:"O",where:"우치다(우메다)",note:"필수·Day1저녁"},
+  {category:"구이",genre:"야키토리",like:"△",where:"(옵션)",note:"–"},
+  {category:"구이",genre:"로바타야키",like:"△",where:"(핀 미정)",note:"가보고싶음"},
+  {category:"구이",genre:"텟판·고급와규",like:"X",where:"–",note:"가성비 제외"},
+  {category:"구이",genre:"우나기",like:"X",where:"–",note:"제외"},
+  {category:"구이",genre:"스테이크(타케루)",like:"△",where:"1파운드 타케루",note:"리베라=도쿄·돈테키=후쿠오카(이번X)"},
+  {category:"나베",genre:"스키야키·샤부·모츠나베",like:"X",where:"–",note:"제외"},
+  {category:"나베",genre:"미즈타키",like:"X",where:"–",note:"닭 물전골(규슈식)·간사이 드묾"},
+  {category:"튀김",genre:"텐푸라",like:"O",where:"니시키 히라노",note:"–"},
+  {category:"튀김",genre:"돈카츠",like:"O",where:"난바",note:"–"},
+  {category:"튀김",genre:"쿠시카츠",like:"O",where:"다루마 도톤보리",note:"Day1점심"},
+  {category:"튀김",genre:"가라아게",like:"△",where:"–",note:"사이드"},
+  {category:"해산물",genre:"카니·후구·우니",like:"△",where:"쿠로몬",note:"단품집X·쿠로몬서"},
+  {category:"코나몬",genre:"타코야키",like:"O",where:"아치치·와나카",note:"1~2회"},
+  {category:"코나몬",genre:"오코노미야키",like:"X",where:"–",note:"제외"},
+  {category:"교토·정식",genre:"오반자이",like:"△",where:"마메하치(킵)",note:"–"},
+  {category:"교토·정식",genre:"유도후",like:"△",where:"난젠지(동선밖)",note:"이번 제외"},
+  {category:"교토·정식",genre:"가이세키",like:"△",where:"기온 시즈카",note:"비싸면 패스"},
+  {category:"교토·정식",genre:"테이쇼쿠",like:"△",where:"–",note:"궁금"},
+  {category:"이자카야",genre:"사케 안주",like:"O",where:"우라난바·폰토초",note:"사케 최적"},
 ];
 const PREP = [
   "여권 / 항공권","엔화 현금 + 카드","ICOCA 카드","휴대폰 eSIM/유심",
@@ -1011,7 +1135,6 @@ function renderSpots(){
 function deleteEntry(list,key){
   if(!confirm("이 항목을 삭제할까요?\n(이 기기에서 사라집니다. 공유 시트에서도 지우려면 구글 시트에서 해당 행을 삭제하세요.)"))return;
   const cfg={
-    memo:[LS_MEMO_HIDE,LS_MEMO,m=>(m.day||"")+"|"+m.text,()=>renderMemos()],
     shop:[LS_SHOP_HIDE,LS_SHOP_ADD,x=>x.item+"|"+x.price_jpy,()=>renderShopping()],
     spot:[LS_SPOT_HIDE,LS_SPOT_ADD,x=>x.category+"|"+x.title,()=>renderSpots()],
   }[list];
@@ -1064,30 +1187,87 @@ function renderPrep(){
   });
 }
 
-/* ===================== 결정 A/B ===================== */
-const LS_DEC="kansai_decisions_v1";
-async function loadDecisions(){
-  let rows=FALLBACK_DECISIONS;
-  if(CONFIG.LOCAL_DECISIONS_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_DECISIONS_CSV);if(r.length)rows=r;}catch(e){}}
-  const saved=lsGet(LS_DEC),root=$("#decisions");root.innerHTML="";
-  rows.forEach((r,i)=>{
-    const id=(r.id||("d"+i)),sel=saved[id]||"";
-    const card=document.createElement("div");card.className="decide"+(sel?" done":"");
-    card.innerHTML=`<div class="q">${esc(r.title||"")}<span class="tag">${sel?("선택 "+sel.toUpperCase()):"미정"}</span></div>
-      <div class="opts">
-        <button class="opt${sel==='a'?' sel':''}" data-v="a"><span class="ab">A</span><span class="ot">${esc(r.option_a||"")}</span></button>
-        <button class="opt${sel==='b'?' sel':''}" data-v="b"><span class="ab">B</span><span class="ot">${esc(r.option_b||"")}</span></button>
-      </div>${r.note?`<div class="note">💬 ${esc(r.note)}</div>`:''}`;
-    card.querySelectorAll(".opt").forEach(btn=>btn.addEventListener("click",()=>{
-      const s=lsGet(LS_DEC),v=btn.dataset.v;
-      s[id]=(s[id]===v)?"":v; lsSet(LS_DEC,s);
-      const cur=s[id];
-      card.classList.toggle("done",!!cur);
-      card.querySelector(".tag").textContent=cur?("선택 "+cur.toUpperCase()):"미정";
-      card.querySelectorAll(".opt").forEach(b=>b.classList.toggle("sel",b.dataset.v===cur));
-    }));
-    root.appendChild(card);
-  });
+/* ===================== 대안 추천(맛집 후보/플랜B/종류) ===================== */
+const LS_CITY="kansai_altcity_v1";
+let FOOD_ROWS=[], ALT_ROWS=[], GENRE_ROWS=[], SEL_CITY="osaka";
+const SLOT_ORDER=["점심","점심대안","저녁","아침","야식","스프카레대안"];
+function altVal(v){v=(v||"").trim();return (v==="–"||v==="-")?"":v;}
+async function loadAlt(){
+  FOOD_ROWS=FALLBACK_FOOD; ALT_ROWS=FALLBACK_ALT; GENRE_ROWS=FALLBACK_GENRES;
+  if(CONFIG.LOCAL_FOOD_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_FOOD_CSV);if(r.length)FOOD_ROWS=r;}catch(e){}}
+  if(CONFIG.LOCAL_ALT_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_ALT_CSV);if(r.length)ALT_ROWS=r;}catch(e){}}
+  if(CONFIG.LOCAL_GENRES_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_GENRES_CSV);if(r.length)GENRE_ROWS=r;}catch(e){}}
+  try{const c=localStorage.getItem(LS_CITY);if(c==="osaka"||c==="kyoto")SEL_CITY=c;}catch(_){}
+  renderFoodCandidates(); renderAltPlans(); renderGenres();
+}
+function renderFoodCandidates(){
+  const host=$("#food-candidates");if(!host)return;
+  $("#city-hint").textContent=SEL_CITY==="kyoto"?"교토":"오사카";
+  document.querySelectorAll("#city-toggle button").forEach(b=>b.classList.toggle("on",b.dataset.city===SEL_CITY));
+  const rows=FOOD_ROWS.filter(r=>(r.city||"").trim()===SEL_CITY);
+  const groups={};
+  rows.forEach(r=>{const slot=(r.slot||"기타").trim();(groups[slot]=groups[slot]||[]).push(r);});
+  const slots=Object.keys(groups).sort((a,b)=>{const ia=SLOT_ORDER.indexOf(a),ib=SLOT_ORDER.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
+  host.innerHTML=slots.map(slot=>{
+    const cards=groups[slot].map(r=>{
+      const pick=(r.pick||"").trim();
+      const isPick=pick==="🥇"||pick==="✅";
+      const g=altVal(r.google), price=altVal(r.price_jpy), area=altVal(r.area), rsv=altVal(r.reserve);
+      const badges=[];
+      if(pick==="🥇")badges.push('<span class="badge gold">🥇 1순위</span>');
+      if(pick==="✅")badges.push('<span class="badge gold">✅ 확정</span>');
+      if(pick==="KEEP")badges.push('<span class="badge keep">킵</span>');
+      if((r.nishiki_in||"").trim()==="Y")badges.push('<span class="badge nishiki">🏬 니시키</span>');
+      const meta=[];
+      if(g)meta.push(`<span>⭐ 구글 ${esc(g)}</span>`);
+      if(price)meta.push(`<b>¥${esc(price)}</b>`);
+      if(area)meta.push(`<span>📍${esc(area)}</span>`);
+      if(rsv)meta.push(`<span class="rsv">${esc(rsv)}</span>`);
+      return `<div class="fcard${isPick?" pick":""}">
+        <div class="fhd"><span class="fname">${esc(r.name||"")}</span>${badges.join("")}<span class="fgenre">${esc(altVal(r.genre))}</span></div>
+        <div class="fmeta">${meta.join("")}</div>
+        ${altVal(r.note)?`<div class="fnote">${esc(altVal(r.note))}</div>`:""}
+      </div>`;
+    }).join("");
+    return `<div class="slotgroup"><div class="slothd">${esc(slot)}</div>${cards}</div>`;
+  }).join("")||'<p class="sec-sub">후보가 없습니다.</p>';
+}
+function renderAltPlans(){
+  const host=$("#alt-plans");if(!host)return;
+  host.innerHTML=ALT_ROWS.map(r=>{
+    const indoor=(r.indoor||"").trim()==="Y";
+    const meta=[];
+    if(altVal(r.area))meta.push(`📍${esc(altVal(r.area))}`);
+    meta.push(indoor?"🏠 실내":"🌤 야외");
+    if(altVal(r.note))meta.push(esc(altVal(r.note)));
+    return `<div class="altcard${indoor?" indoor":""}">
+      <div class="atrig">⚡ ${esc(r.trigger||"")}</div>
+      <div class="aplan">→ ${esc(r.plan_b||"")}</div>
+      <div class="ameta">${meta.map(m=>`<span>${m}</span>`).join("")}</div>
+    </div>`;
+  }).join("")||'<p class="sec-sub">대안이 없습니다.</p>';
+}
+function renderGenres(){
+  const host=$("#food-genres");if(!host)return;
+  const cats=[];const byCat={};
+  GENRE_ROWS.forEach(r=>{const c=(r.category||"기타").trim();if(!byCat[c]){byCat[c]=[];cats.push(c);}byCat[c].push(r);});
+  host.innerHTML=cats.map(c=>{
+    const rows=byCat[c].map(r=>{
+      const like=(r.like||"").trim();
+      const cls=like==="O"?"o":(like==="X"?"x":"t");
+      const where=altVal(r.where), note=altVal(r.note);
+      return `<div class="grow"><span class="glike ${cls}">${esc(like||"·")}</span>
+        <span class="gname">${esc(r.genre||"")}</span>
+        ${note?`<span class="gwhere">${esc(where?where+" · ":"")}${esc(note)}</span>`:(where?`<span class="gwhere">${esc(where)}</span>`:"")}</div>`;
+    }).join("");
+    return `<div class="gcat">${esc(c)}</div>${rows}`;
+  }).join("")||'<p class="sec-sub">항목이 없습니다.</p>';
+}
+function setupCityToggle(){
+  const box=$("#city-toggle");if(!box)return;
+  box.addEventListener("click",e=>{const b=e.target.closest("button[data-city]");if(!b)return;
+    SEL_CITY=b.dataset.city;try{localStorage.setItem(LS_CITY,SEL_CITY);}catch(_){}
+    renderFoodCandidates();});
 }
 
 /* ===================== 핵심·비상 정보 ===================== */
@@ -1107,23 +1287,25 @@ async function loadInfo(){
 /* ===================== 지도 ===================== */
 const DAYCOLOR={1:"#1f4068",2:"#c0432b",3:"#5c7d4f",4:"#9a7b34"};
 const GEO_FALLBACK=[
-  {name:"간사이공항(KIX)",lat:"34.4347",lng:"135.2440",day:"1",note:"도착·출국"},
-  {name:"난바(숙소 거점)",lat:"34.6631",lng:"135.5022",day:"1",note:"3연박 거점"},
-  {name:"신사이바시 PARCO(도토리공화국)",lat:"34.6745",lng:"135.5012",day:"1",note:"전국 최대 도토리"},
-  {name:"야마나카 사케 에키마루셰(JR오사카역)",lat:"34.7024",lng:"135.4959",day:"1",note:"셀프 사케 시음"},
-  {name:"우메다 공중정원(스카이빌딩)",lat:"34.7053",lng:"135.4901",day:"1",note:"360° 전망·야경"},
-  {name:"도톤보리",lat:"34.6687",lng:"135.5012",day:"1",note:"글리코·야간쇼핑"},
-  {name:"교토카와라마치",lat:"35.0036",lng:"135.7686",day:"2",note:"한큐 종착"},
-  {name:"기온마츠리 야마보코 순행",lat:"35.0089",lng:"135.7596",day:"2",note:"카라스마오이케~시조"},
-  {name:"니시키 시장",lat:"35.0050",lng:"135.7649",day:"2",note:"교토의 부엌"},
-  {name:"기요미즈데라(청수사)",lat:"34.9948",lng:"135.7847",day:"2",note:"청수의 무대"},
-  {name:"기온·야사카 신사",lat:"35.0036",lng:"135.7785",day:"2",note:"환행제 환행지"},
-  {name:"가모강·폰토초",lat:"35.0048",lng:"135.7707",day:"2",note:"카와도코 저녁"},
-  {name:"오사카성 천수각",lat:"34.6873",lng:"135.5262",day:"3",note:"천수각·정원"},
-  {name:"오사카텐만구",lat:"34.6962",lng:"135.5128",day:"3",note:"텐진마츠리 본궁"},
-  {name:"텐진바시스지 상점가",lat:"34.7010",lng:"135.5110",day:"3",note:"야타이·자리선점"},
-  {name:"오카와(사쿠라노미야)",lat:"34.7035",lng:"135.5170",day:"3",note:"후나토교·봉납 불꽃"},
-  {name:"쿠로몬 시장",lat:"34.6656",lng:"135.5058",day:"4",note:"해산물 아침"},
+  {name:"간사이공항(KIX)",lat:"34.4347",lng:"135.2440",day:"1",type:"move",note:"도착·출국",city:"osaka"},
+  {name:"난바(숙소 거점)",lat:"34.6631",lng:"135.5022",day:"1",type:"stay",note:"3연박 거점",city:"osaka"},
+  {name:"톰보리 리버크루즈(태좌에몬바시 선착장)",lat:"34.6687",lng:"135.5012",day:"1",type:"sig",note:"도톤보리 20분 유람·숙소 도보 3분",city:"osaka"},
+  {name:"신사이바시 PARCO(도토리공화국)",lat:"34.6745",lng:"135.5012",day:"1",type:"shop",note:"전국 최대 도토리공화국",city:"osaka"},
+  {name:"아사노 사케샵(浅野日本酒店 UMEDA)",lat:"34.7021897",lng:"135.5052373",day:"1",type:"shop",note:"준마이슈 약 150종 무료시음·스탠딩바",city:"osaka"},
+  {name:"우메다 공중정원(스카이빌딩)",lat:"34.7053",lng:"135.4901",day:"1",type:"sig",note:"360° 전망·야경",city:"osaka"},
+  {name:"이온 푸드스타일 히가시신사이바시",lat:"34.6720548",lng:"135.5059359",day:"1",type:"shop",note:"24시간 마트·숙소 도보 6분",city:"osaka"},
+  {name:"도톤보리",lat:"34.6687",lng:"135.5012",day:"1",type:"shop",note:"글리코 사인·돈키 야간쇼핑",city:"osaka"},
+  {name:"교토카와라마치",lat:"35.0036",lng:"135.7686",day:"2",type:"move",note:"한큐 특급 종착",city:"kyoto"},
+  {name:"기온마츠리 야마보코 순행",lat:"35.0089",lng:"135.7596",day:"2",type:"fes",note:"카라스마오이케~시조",city:"kyoto"},
+  {name:"니시키 시장",lat:"35.0050",lng:"135.7649",day:"2",type:"eat",note:"교토의 부엌·점심",city:"kyoto"},
+  {name:"기요미즈데라(청수사)",lat:"34.9948",lng:"135.7847",day:"2",type:"sig",note:"청수의 무대·산넨자카",city:"kyoto"},
+  {name:"기온·야사카 신사",lat:"35.0036",lng:"135.7785",day:"2",type:"fes",note:"환행제 환행지",city:"kyoto"},
+  {name:"가모강·폰토초",lat:"35.0048",lng:"135.7707",day:"2",type:"eat",note:"카와도코 저녁",city:"kyoto"},
+  {name:"오사카성 천수각",lat:"34.6873",lng:"135.5262",day:"3",type:"sig",note:"외관·니시노마루 정원(천수각 미입장)",city:"osaka"},
+  {name:"오사카텐만구",lat:"34.6962",lng:"135.5128",day:"3",type:"fes",note:"텐진마츠리 본궁",city:"osaka"},
+  {name:"텐진바시스지 상점가",lat:"34.7010",lng:"135.5110",day:"3",type:"eat",note:"야타이·불꽃 명당 선점",city:"osaka"},
+  {name:"오카와(사쿠라노미야)",lat:"34.7035",lng:"135.5170",day:"3",type:"fes",note:"후나토교·봉납 불꽃",city:"osaka"},
+  {name:"쿠로몬 시장",lat:"34.6656",lng:"135.5058",day:"4",type:"eat",note:"해산물 아침(성게·참치·장어)",city:"osaka"},
 ];
 let LEAFMAP=null, MAP_BUILT=false;
 function ensureLeaflet(){
@@ -1282,45 +1464,6 @@ function setupShopping(){
   });
 }
 
-/* ===================== 메모 · 추천 ===================== */
-const LS_MEMO="kansai_memo_v1", LS_MEMO_HIDE="kansai_memo_hide_v1";
-function normMemo(x){return {ts:(x.timestamp||x.ts||"").toString().trim(),day:(x.day||"").trim(),
-  text:(x.text||"").trim(),image_url:(x.image_url||"").trim()};}
-let MEMO_SHARED=[];
-async function loadMemos(){
-  MEMO_SHARED=(await loadShared("memos",CONFIG.MEMOS_CSV)).map(normMemo).filter(x=>x.text);
-  saveHint($("#memo-hint"));
-  renderMemos();
-}
-function memoItems(){
-  const hide=new Set(lsGetA(LS_MEMO_HIDE));
-  const all=[...lsGetA(LS_MEMO),...MEMO_SHARED];
-  const seen=new Set(),out=[];
-  all.forEach(x=>{const k=(x.day||"")+"|"+x.text;if(!seen.has(k)&&!hide.has(k)){seen.add(k);out.push(x);}});
-  return out.sort((a,b)=>String(b.ts).localeCompare(String(a.ts)));
-}
-function renderMemos(){
-  const items=memoItems(),list=$("#memo-list");
-  list.innerHTML=items.map(m=>{
-    const when=m.ts?new Date(m.ts).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}):"",
-      key=(m.day||"")+"|"+m.text;
-    return `<div class="memo"><div class="memo-head">${m.day?`<span class="mtag">${esc(m.day)}</span>`:''}<span class="mwhen">${esc(when)}</span>
-      <button class="del" data-list="memo" data-key="${esc(key)}" aria-label="삭제">✕</button></div>
-      <div class="memo-text">${esc(m.text)}</div>${thumbHTML(m.image_url,m.text)}</div>`;
-  }).join("")||'<p class="sec-sub">아직 메모가 없습니다. 위에서 입력하세요.</p>';
-}
-function setupMemos(){
-  $("#memo-form").addEventListener("submit",e=>{
-    e.preventDefault();
-    const text=$("#memo-text").value.trim();if(!text)return;
-    const obj={ts:new Date().toISOString(),day:$("#memo-day").value,text,image_url:$("#memo-img").value.trim()};
-    const arr=lsGetA(LS_MEMO);arr.push(obj);lsSetA(LS_MEMO,arr);
-    webappPost({sheet:"memos",day:obj.day,text:obj.text,image_url:obj.image_url});
-    $("#memo-text").value="";$("#memo-img").value="";
-    renderMemos();
-  });
-}
-
 /* ===================== 지도 모달 ===================== */
 function openMap(query,label){
   const q=encodeURIComponent(query);
@@ -1387,7 +1530,7 @@ async function loadWeather(){
 }
 
 /* ===================== 상위 메뉴 ===================== */
-const VIEWS=["plan","map","cost","prep","decide","spot","shop","memo"];
+const VIEWS=["plan","map","cost","prep","spot","shop","alt"];
 function setupMenu(){
   const btns=[...document.querySelectorAll("#mainmenu button")];
   btns.forEach(b=>b.addEventListener("click",()=>{
@@ -1462,11 +1605,11 @@ async function init(){
   document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeMap();closeImg();}});
 
   renderPrep();
-  setupSpots();setupShopping();setupMemos();
+  setupSpots();setupShopping();setupCityToggle();
   await loadData();
   await loadDays();   // DAYS 준비 후 타임라인 렌더
   renderPlan();
-  loadSpots();loadTodo();loadDecisions();loadShopping();loadMemos();loadInfo();loadMap();
+  loadSpots();loadTodo();loadShopping();loadInfo();loadMap();loadAlt();
   loadWeather().then(renderNowNext);   // 날씨 로드 후 지금/다음 카드에 날씨칩 반영
 
   const ti=dayIndexToday();
