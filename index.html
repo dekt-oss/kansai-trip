@@ -349,9 +349,12 @@ h1{font-family:'Shippori Mincho',serif;font-weight:800;font-size:18px;margin:0 0
 .del:hover{color:var(--shu);border-color:var(--shu)}
 
 /* ===== 대안 추천(맛집 후보/플랜B/종류) ===== */
-.citytoggle{display:flex;gap:8px;margin:4px 0 10px}
-.citytoggle button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-weight:700;font-size:14px;padding:9px 0;border-radius:11px;cursor:pointer;transition:.15s}
-.citytoggle button.on{background:var(--ai);color:#fff;border-color:var(--ai)}
+.mealchips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 9px;margin-bottom:2px;scrollbar-width:none}
+.mealchips::-webkit-scrollbar{display:none}
+.mealchip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;padding:7px 12px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.mealchip.on{background:var(--ai);color:#fff;border-color:var(--ai)}
+.mealchip .mc{font-size:10px;font-weight:700;background:var(--washi-2);color:var(--ink-soft);border-radius:999px;padding:1px 6px;min-width:15px;text-align:center}
+.mealchip.on .mc{background:rgba(255,255,255,.24);color:#fff}
 .cityhint{font-size:11px;font-weight:400;color:var(--ink-soft)}
 .slotgroup{margin-bottom:12px}
 .slothd{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;color:var(--ai);margin:10px 0 6px;display:flex;align-items:center;gap:7px}
@@ -545,13 +548,9 @@ footer .src{font-size:10px;opacity:.8}
     <div class="sec-h">대안 추천</div>
     <p class="sec-sub">맛집 후보(오사카·교토)·일정 플랜B·일본식 종류. 후보는 타베로그 인터넷 예약 가능(명시 예외 제외).</p>
 
-    <div class="citytoggle" id="city-toggle">
-      <button data-city="osaka" class="on">🏯 오사카</button>
-      <button data-city="kyoto">⛩ 교토</button>
-    </div>
-
-    <div class="sec-h" style="margin-top:6px">맛집 후보 <small class="cityhint" id="city-hint">오사카</small></div>
-    <p class="sec-sub">🥇 1순위 · <span class="kbadge">킵</span> 백업 · 🏬 니시키 시장 안</p>
+    <div class="sec-h" style="margin-top:6px">맛집 후보 <small class="cityhint" id="meal-hint"></small></div>
+    <p class="sec-sub">끼니를 고르면 후보가 떠요 · 🥇 1순위 먼저 · <span class="kbadge">킵</span> 백업 · 🏬 니시키 시장 안</p>
+    <div class="mealchips" id="meal-toggle"></div>
     <div id="food-candidates"></div>
 
     <div class="sec-h" style="margin-top:20px">일정 대안 (플랜B · 공통)</div>
@@ -1188,49 +1187,72 @@ function renderPrep(){
 }
 
 /* ===================== 대안 추천(맛집 후보/플랜B/종류) ===================== */
-const LS_CITY="kansai_altcity_v1";
-let FOOD_ROWS=[], ALT_ROWS=[], GENRE_ROWS=[], SEL_CITY="osaka";
-const SLOT_ORDER=["점심","점심대안","저녁","아침","야식","스프카레대안"];
+const LS_MEAL="kansai_altmeal_v1";
+let FOOD_ROWS=[], ALT_ROWS=[], GENRE_ROWS=[], SEL_MEAL="";
+const MEAL_RANK={아침:0,점심:1,저녁:2,야식:3};
 function altVal(v){v=(v||"").trim();return (v==="–"||v==="-")?"":v;}
+// day+slot → 끼니 타임라인 슬롯. 점심대안·스프카레대안은 그 끼니(Day3 점심)로 합치고, 야식은 공통.
+function mealOf(r){
+  const slot=(r.slot||"").trim();
+  if(slot==="야식") return {key:"night",label:"야식·공통",day:99,rank:9};
+  let day=parseInt((r.day||"").trim(),10);
+  let base=slot;
+  if(slot.indexOf("점심")===0||slot==="스프카레대안") base="점심";
+  if(slot==="스프카레대안" && isNaN(day)) day=3;   // 공통 스프카레 대안 → Day3 점심
+  const rank=(base in MEAL_RANK)?MEAL_RANK[base]:1;
+  if(isNaN(day)) return {key:"etc",label:slot||"기타",day:98,rank};
+  return {key:"d"+day+"-"+rank,label:"Day"+day+" "+base,day,rank};
+}
+function pickWeight(r){const p=(r.pick||"").trim();return (p==="🥇"||p==="✅")?3:(p==="KEEP"?-1:0);}
+function cityTag(rows){
+  const cs=new Set(rows.map(r=>(r.city||"").trim()).filter(Boolean));
+  if(cs.size!==1)return "";
+  return cs.has("kyoto")?"⛩ 교토":"🏯 오사카";
+}
 async function loadAlt(){
   FOOD_ROWS=FALLBACK_FOOD; ALT_ROWS=FALLBACK_ALT; GENRE_ROWS=FALLBACK_GENRES;
   if(CONFIG.LOCAL_FOOD_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_FOOD_CSV);if(r.length)FOOD_ROWS=r;}catch(e){}}
   if(CONFIG.LOCAL_ALT_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_ALT_CSV);if(r.length)ALT_ROWS=r;}catch(e){}}
   if(CONFIG.LOCAL_GENRES_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_GENRES_CSV);if(r.length)GENRE_ROWS=r;}catch(e){}}
-  try{const c=localStorage.getItem(LS_CITY);if(c==="osaka"||c==="kyoto")SEL_CITY=c;}catch(_){}
+  try{const c=localStorage.getItem(LS_MEAL);if(c)SEL_MEAL=c;}catch(_){}
   renderFoodCandidates(); renderAltPlans(); renderGenres();
+}
+function mealGroups(){
+  const map=new Map();
+  FOOD_ROWS.forEach(r=>{const m=mealOf(r);
+    if(!map.has(m.key))map.set(m.key,{...m,rows:[]});
+    map.get(m.key).rows.push(r);});
+  return [...map.values()].sort((a,b)=> a.day-b.day || a.rank-b.rank);
 }
 function renderFoodCandidates(){
   const host=$("#food-candidates");if(!host)return;
-  $("#city-hint").textContent=SEL_CITY==="kyoto"?"교토":"오사카";
-  document.querySelectorAll("#city-toggle button").forEach(b=>b.classList.toggle("on",b.dataset.city===SEL_CITY));
-  const rows=FOOD_ROWS.filter(r=>(r.city||"").trim()===SEL_CITY);
-  const groups={};
-  rows.forEach(r=>{const slot=(r.slot||"기타").trim();(groups[slot]=groups[slot]||[]).push(r);});
-  const slots=Object.keys(groups).sort((a,b)=>{const ia=SLOT_ORDER.indexOf(a),ib=SLOT_ORDER.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
-  host.innerHTML=slots.map(slot=>{
-    const cards=groups[slot].map(r=>{
-      const pick=(r.pick||"").trim();
-      const isPick=pick==="🥇"||pick==="✅";
-      const g=altVal(r.google), price=altVal(r.price_jpy), area=altVal(r.area), rsv=altVal(r.reserve);
-      const badges=[];
-      if(pick==="🥇")badges.push('<span class="badge gold">🥇 1순위</span>');
-      if(pick==="✅")badges.push('<span class="badge gold">✅ 확정</span>');
-      if(pick==="KEEP")badges.push('<span class="badge keep">킵</span>');
-      if((r.nishiki_in||"").trim()==="Y")badges.push('<span class="badge nishiki">🏬 니시키</span>');
-      const meta=[];
-      if(g)meta.push(`<span>⭐ 구글 ${esc(g)}</span>`);
-      if(price)meta.push(`<b>¥${esc(price)}</b>`);
-      if(area)meta.push(`<span>📍${esc(area)}</span>`);
-      if(rsv)meta.push(`<span class="rsv">${esc(rsv)}</span>`);
-      return `<div class="fcard${isPick?" pick":""}">
-        <div class="fhd"><span class="fname">${esc(r.name||"")}</span>${badges.join("")}<span class="fgenre">${esc(altVal(r.genre))}</span></div>
-        <div class="fmeta">${meta.join("")}</div>
-        ${altVal(r.note)?`<div class="fnote">${esc(altVal(r.note))}</div>`:""}
-      </div>`;
-    }).join("");
-    return `<div class="slotgroup"><div class="slothd">${esc(slot)}</div>${cards}</div>`;
-  }).join("")||'<p class="sec-sub">후보가 없습니다.</p>';
+  const groups=mealGroups();
+  if(!groups.length){host.innerHTML='<p class="sec-sub">후보가 없습니다.</p>';const ch=$("#meal-toggle");if(ch)ch.innerHTML="";return;}
+  if(!groups.some(g=>g.key===SEL_MEAL))SEL_MEAL=groups[0].key;
+  const cur=groups.find(g=>g.key===SEL_MEAL)||groups[0];
+  const chips=$("#meal-toggle");
+  if(chips)chips.innerHTML=groups.map(g=>`<button class="mealchip${g.key===SEL_MEAL?" on":""}" data-meal="${esc(g.key)}">${esc(g.label)}<span class="mc">${g.rows.length}</span></button>`).join("");
+  const hint=$("#meal-hint");if(hint)hint.textContent=cityTag(cur.rows);
+  host.innerHTML=cur.rows.slice().sort((a,b)=>pickWeight(b)-pickWeight(a)).map(r=>{
+    const pick=(r.pick||"").trim();
+    const isPick=pick==="🥇"||pick==="✅";
+    const g=altVal(r.google), price=altVal(r.price_jpy), area=altVal(r.area), rsv=altVal(r.reserve);
+    const badges=[];
+    if(pick==="🥇")badges.push('<span class="badge gold">🥇 1순위</span>');
+    if(pick==="✅")badges.push('<span class="badge gold">✅ 확정</span>');
+    if(pick==="KEEP")badges.push('<span class="badge keep">킵</span>');
+    if((r.nishiki_in||"").trim()==="Y")badges.push('<span class="badge nishiki">🏬 니시키</span>');
+    const meta=[];
+    if(g)meta.push(`<span>⭐ 구글 ${esc(g)}</span>`);
+    if(price)meta.push(`<b>¥${esc(price)}</b>`);
+    if(area)meta.push(`<span>📍${esc(area)}</span>`);
+    if(rsv)meta.push(`<span class="rsv">${esc(rsv)}</span>`);
+    return `<div class="fcard${isPick?" pick":""}">
+      <div class="fhd"><span class="fname">${esc(r.name||"")}</span>${badges.join("")}<span class="fgenre">${esc(altVal(r.genre))}</span></div>
+      <div class="fmeta">${meta.join("")}</div>
+      ${altVal(r.note)?`<div class="fnote">${esc(altVal(r.note))}</div>`:""}
+    </div>`;
+  }).join("");
 }
 function renderAltPlans(){
   const host=$("#alt-plans");if(!host)return;
@@ -1263,10 +1285,10 @@ function renderGenres(){
     return `<div class="gcat">${esc(c)}</div>${rows}`;
   }).join("")||'<p class="sec-sub">항목이 없습니다.</p>';
 }
-function setupCityToggle(){
-  const box=$("#city-toggle");if(!box)return;
-  box.addEventListener("click",e=>{const b=e.target.closest("button[data-city]");if(!b)return;
-    SEL_CITY=b.dataset.city;try{localStorage.setItem(LS_CITY,SEL_CITY);}catch(_){}
+function setupMealToggle(){
+  const box=$("#meal-toggle");if(!box)return;
+  box.addEventListener("click",e=>{const b=e.target.closest("button[data-meal]");if(!b)return;
+    SEL_MEAL=b.dataset.meal;try{localStorage.setItem(LS_MEAL,SEL_MEAL);}catch(_){}
     renderFoodCandidates();});
 }
 
@@ -1605,7 +1627,7 @@ async function init(){
   document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeMap();closeImg();}});
 
   renderPrep();
-  setupSpots();setupShopping();setupCityToggle();
+  setupSpots();setupShopping();setupMealToggle();
   await loadData();
   await loadDays();   // DAYS 준비 후 타임라인 렌더
   renderPlan();
