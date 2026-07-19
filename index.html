@@ -645,7 +645,7 @@ const FALLBACK = [
   {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(텐만바시側)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경~21:00경",cost_jpy:0,note:""},
   {day:3,date:"7/25(토)",start:"19:30",end:"21:00",city:"오사카",place:"오카와(텐만바시側 남안)",transport:"도보",type:"fes",title:"★봉납 불꽃놀이(약 3000발)",desc:"약 3,000발 · 불꽃+선단 동시(남안 텐만바시側)=사진 명당",cost_jpy:0,note:"荒天 시 중지·당일 확인"},
   {day:3,date:"7/25(토)",start:"21:00",end:"",city:"오사카",place:"오카와→남쪽 도보",transport:"도보",type:"move",title:"인파 회피 귀가",desc:"강변 남쪽 도보 15~20분(요도야바시·혼마치 방향) → 덜 붐비는 역 승차",cost_jpy:0,note:"21시 종료 후 지옥철 회피",cost_cat:"교통"},
-  {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"shop/sig",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:3000,note:"일요일=야마나카 본점 휴무",cost_cat:"쇼핑"},
+  {day:4,date:"7/26(일)",start:"09:00",end:"10:30",city:"오사카",place:"난바파크스",transport:"도보",type:"shop/sig",title:"갈무리 쇼핑 + 도토리 난바점 + 돈키 면세",desc:"난바점=지하상가",cost_jpy:3000,note:"일요일 갈무리 쇼핑",cost_cat:"쇼핑"},
   {day:4,date:"7/26(일)",start:"15:30",end:"",city:"오사카→부산",place:"KIX→김해",transport:"비행기",type:"move",title:"귀국 비행편 탑승",desc:"15:30 KIX 출발",cost_jpy:0,note:"수고하셨습니다!"},
 ];
 const FALLBACK_DAYS = [
@@ -656,7 +656,8 @@ const FALLBACK_DAYS = [
 ];
 const FALLBACK_SPOTS = [
   {category:"시그니처",title:"청수사(기요미즈데라)",note:"교토 히가시야마 · 500엔 현금 · 산넨/니넨자카 함께"},
-  {category:"사케",title:"야마나카 사케 에키마루셰점",note:"JR오사카역 직결 · 셀프 시음 50~66종"},
+  {category:"사케",title:"아사노 사케샵(浅野日本酒店 UMEDA)",note:"太融寺町 · 준마이슈 약 150종 무료시음·스탠딩바"},
+  {category:"마트",title:"이온 푸드스타일 히가시신사이바시",note:"東心斎橋 · 24시간 · 숙소 도보 6분"},
   {category:"교통",title:"라피트",note:"난바↔KIX · 편도 1560엔 · 모바일 -150엔"},
 ];
 const FALLBACK_TODO = [
@@ -1291,9 +1292,11 @@ const DAYCOLOR={1:"#1f4068",2:"#c0432b",3:"#5c7d4f",4:"#9a7b34"};
 const GEO_FALLBACK=[
   {name:"간사이공항(KIX)",lat:"34.4347",lng:"135.2440",day:"1",note:"도착·출국"},
   {name:"Chuan House 도톤보리(숙소)",lat:"34.6699",lng:"135.5058",day:"1",type:"stay",note:"島之内2-5-6·도톤보리 도보3분·닛폰바시역5분"},
+  {name:"톰보리 리버크루즈(태좌에몬바시 선착장)",lat:"34.6687",lng:"135.5012",day:"1",type:"sig",note:"도톤보리 20분 유람·숙소 도보 3분"},
   {name:"신사이바시 PARCO(도토리공화국)",lat:"34.6745",lng:"135.5012",day:"1",note:"전국 최대 도토리"},
-  {name:"야마나카 사케 에키마루셰(JR오사카역)",lat:"34.7024",lng:"135.4959",day:"1",note:"셀프 사케 시음"},
+  {name:"아사노 사케샵(浅野日本酒店 UMEDA)",lat:"34.7021897",lng:"135.5052373",day:"1",note:"준마이슈 약 150종 무료시음·스탠딩바"},
   {name:"우메다 공중정원(스카이빌딩)",lat:"34.7053",lng:"135.4901",day:"1",note:"360° 전망·야경"},
+  {name:"이온 푸드스타일 히가시신사이바시",lat:"34.6720548",lng:"135.5059359",day:"1",note:"24시간 마트·숙소 도보 6분"},
   {name:"도톤보리",lat:"34.6687",lng:"135.5012",day:"1",note:"글리코·야간쇼핑"},
   {name:"교토카와라마치",lat:"35.0036",lng:"135.7686",day:"2",note:"한큐 종착"},
   {name:"기온마츠리 야마보코 순행",lat:"35.0089",lng:"135.7596",day:"2",note:"카라스마오이케~시조"},
