@@ -1,5 +1,5 @@
 /* 간사이 여행 일정표 — 서비스워커 (오프라인 지원) */
-const CACHE = "kansai-v6";
+const CACHE = "kansai-v7";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./icons/icon.svg",
   "./data/schedule.csv", "./data/spots.csv", "./data/days.csv",
