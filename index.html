@@ -360,6 +360,29 @@ html[data-theme="dark"] .rtl-route::before{opacity:1;filter:brightness(1.12)}
 .ac-note{font-size:11px;color:var(--ink-soft);margin-top:5px}
 .alt-key{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--ink-soft);margin:0 2px 9px}
 .alt-key span{display:inline-flex;align-items:center;gap:5px}
+/* 맛집 후보(Day별) */
+.mealchips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 10px}
+.mealchip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;padding:7px 12px;border-radius:10px;cursor:pointer;white-space:nowrap;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.mealchip.on{background:var(--ai);color:#fff;border-color:var(--ai)}
+.mealchip .mc{font-size:10px;font-weight:700;background:var(--washi-2);color:var(--ink-soft);border-radius:999px;padding:1px 6px;min-width:15px;text-align:center}
+.mealchip.on .mc{background:rgba(255,255,255,.24);color:#fff}
+.slotgroup{margin-bottom:12px}
+.slothd{font-family:'Shippori Mincho',serif;font-weight:700;font-size:12.5px;color:var(--ai);margin:10px 0 6px;display:flex;align-items:center;gap:7px}
+.slothd .sday{font-size:10px;font-weight:700;color:#fff;background:var(--kin);border-radius:999px;padding:2px 8px}
+.fcard{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 12px;margin-bottom:7px;box-shadow:var(--shadow)}
+.fcard.pick{border-color:var(--kin-soft);box-shadow:0 0 0 1.5px var(--kin-soft) inset,var(--shadow)}
+.fcard .fhd{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.fcard .fname{font-family:'Shippori Mincho',serif;font-weight:700;font-size:13.5px;color:var(--ink)}
+.fcard .fgenre{font-size:11px;color:var(--ink-soft)}
+.fcard .fmeta{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--ink-soft);margin-top:5px}
+.fcard .fmeta b{color:var(--eat);font-family:'Shippori Mincho',serif}
+.fcard .fnote{font-size:11.5px;color:var(--ink-soft);margin-top:5px;line-height:1.5}
+.fbadge{font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.fbadge.gold{background:rgba(154,123,52,.14);color:var(--kin);border:1px solid var(--kin-soft)}
+.fbadge.keep{background:var(--washi-2);color:var(--ink-soft);border:1px solid var(--line)}
+.fbadge.nishiki{background:rgba(31,64,104,.1);color:var(--ai);border:1px solid var(--ai-soft)}
+.kbadge{display:inline-block;font-size:10px;font-weight:700;background:var(--washi-2);color:var(--ink-soft);border:1px solid var(--line);border-radius:999px;padding:1px 7px}
+.rsv{font-size:10.5px;border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--ink-soft)}
 .alt-key i{width:11px;height:11px;border-radius:3px;display:inline-block}
 .alt-key .lk-o{background:#5c7d4f}.alt-key .lk-t{background:#9a7b34}.alt-key .lk-x{background:#b8b0a0}
 .gcat{margin-top:12px}
@@ -534,10 +557,12 @@ footer .src{font-size:10px;opacity:.8}
       <div id="alt-plan" class="alt-cards"></div>
     </div>
 
-    <!-- 🍽 맛집 대안 -->
+    <!-- 🍽 맛집 후보 (Day별) -->
     <div class="more-pane hidden" data-morepane="food">
-      <div class="alt-h">🍽 맛집 대안 <span class="alt-sub">식당 문제 생겼을 때 대체</span></div>
-      <div id="alt-food" class="alt-cards"></div>
+      <div class="alt-h">🍽 맛집 후보 <span class="alt-sub" id="meal-hint"></span></div>
+      <p class="alt-sub" style="margin:-4px 0 9px">날을 고르면 끼니별 후보 · 🥇 1순위 먼저 · <span class="kbadge">킵</span> 백업 · 🏬 니시키</p>
+      <div class="mealchips" id="meal-toggle"></div>
+      <div id="food-candidates"></div>
     </div>
 
     <!-- 🍶 일본식 종류 리스트 -->
@@ -610,7 +635,8 @@ const CONFIG = {
   LOCAL_INFO_CSV: "data/info.csv",
   LOCAL_GEO_CSV: "data/geo.csv",      // 지도 핀 좌표(앱 자동지도 + My Maps 가져오기 겸용)
   LOCAL_ALT_PLAN_CSV: "data/alt_plan.csv",   // 대안 추천 — 일정 대안
-  LOCAL_ALT_FOOD_CSV: "data/alt_food.csv",   // 대안 추천 — 맛집 대안
+  LOCAL_ALT_FOOD_CSV: "data/alt_food.csv",   // (구) 맛집 대안 1순위/백업 — 미사용
+  LOCAL_FOOD_CSV: "data/food_candidates.csv", // 맛집 후보(Day별·평점·가격·예약)
   LOCAL_GENRES_CSV: "data/food_genres.csv",  // 대안 추천 — 일본식 종류 리스트
   // 쇼핑/추천 웹 저장(Apps Script). 비우면 이 기기(localStorage)에만 저장.
   WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwWGGvhoTJqxPYY9640p5SjCwXRm56y5murfIvecazKyXaZe7kgtkq1Y44iwzhiD-Wl/exec",                   // Apps Script 배포 URL(.../exec) — 입력을 구글 시트에 저장
@@ -684,6 +710,32 @@ const FALLBACK_ALT_FOOD = [
   {slot:"웨이팅 60분+ (공통)",primary:"—",backup:"아케이드 간식(타코야키 와나카·아치치)으로 전환",area:"미나미",reserve:"워크인",note:"대기 대신 간식"},
   {slot:"타코야키",primary:"아치치혼포",backup:"와나카 / 코가류(아메무라)",area:"도톤보리",reserve:"워크인",note:"—"},
   {slot:"라멘 야식",primary:"킨류",backup:"이치란(24시) / 카무쿠라",area:"도톤보리",reserve:"워크인",note:"—"},
+];
+const FALLBACK_FOOD = [
+  {city:"osaka",day:"1",slot:"저녁",name:"야키니쿠 호르몬 우치다",genre:"야키니쿠+호르몬 회석",google:"4.9",price_jpy:"6,000~9,900",area:"도야마초(우메다)",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"리뷰4825·6천엔 회석 합리적. Day1저녁 1순위"},
+  {city:"osaka",day:"1",slot:"저녁",name:"야키니쿠갱 우메다점",genre:"와규 무한리필",google:"4.8",price_jpy:"6,500",area:"히가시우메다",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"개인실 무한리필 가성비"},
+  {city:"osaka",day:"1",slot:"저녁",name:"야키니쿠 후지모토 오하츠텐진",genre:"코스·고베규",google:"4.6",price_jpy:"6,800~8,800",area:"소네자키",nishiki_in:"N",reserve:"인터넷",pick:"",note:"예약 난이도 높음"},
+  {city:"osaka",day:"1",slot:"저녁",name:"나마 호르몬 이타다키",genre:"호르몬(곱창)",google:"4.5",price_jpy:"5,800",area:"나카쓰",nishiki_in:"N",reserve:"인터넷",pick:"",note:"곱창·새벽3시까지"},
+  {city:"osaka",day:"1",slot:"점심",name:"원조 쿠시카츠 다루마 도톤보리",genre:"쿠시카츠",google:"–",price_jpy:"1,500~3,000",area:"도톤보리",nishiki_in:"N",reserve:"워크인",pick:"🥇",note:"원조·한국어메뉴·글리코앞·니도즈케금지"},
+  {city:"osaka",day:"1",slot:"점심",name:"쿠시노보 호젠지",genre:"쿠시카츠 오마카세",google:"–",price_jpy:"–",area:"호젠지",nishiki_in:"N",reserve:"예약",pick:"",note:"추성훈 단골·차분·술곁들이기"},
+  {city:"osaka",day:"3",slot:"점심",name:"삿포로 스프카레 JACK 모리노미야",genre:"스프카레",google:"–",price_jpy:"–",area:"오사카성 옆(모리노미야)",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"타베로그 백명점·야채 고로고로. *오사카성 GO시*"},
+  {city:"osaka",day:"3",slot:"점심대안",name:"Rojiura Curry SAMURAI 그랜드프론트",genre:"스프카레",google:"–",price_jpy:"1,000~1,999",area:"우메다",nishiki_in:"N",reserve:"워크인",pick:"",note:"야채 11~20품·예약불가"},
+  {city:"osaka",day:"–",slot:"스프카레대안",name:"매직 스파이스 나니와",genre:"스프카레",google:"–",price_jpy:"–",area:"나니와",nishiki_in:"N",reserve:"워크인",pick:"",note:"원조·미나미서 가장 가까운 전문점"},
+  {city:"osaka",day:"–",slot:"스프카레대안",name:"SPUSPU 혼마치",genre:"스프카레",google:"3.0",price_jpy:"1,650",area:"혼마치",nishiki_in:"N",reserve:"전화",pick:"",note:"15종야채·일휴무·토런치만(슬롯 안맞음)"},
+  {city:"osaka",day:"3",slot:"저녁",name:"텐진 마츠리 야타이",genre:"길거리음식",google:"–",price_jpy:"–",area:"오카와 강변",nishiki_in:"N",reserve:"–",pick:"✅",note:"축제 야타이 그레이징(불꽃 관람 중)"},
+  {city:"osaka",day:"4",slot:"아침",name:"쿠로몬 시장",genre:"스시·카이센동·성게",google:"–",price_jpy:"–",area:"쿠로몬",nishiki_in:"N",reserve:"워크인",pick:"✅",note:"원하신 해산물 몰아서"},
+  {city:"osaka",day:"–",slot:"야식",name:"라멘/타코야키 (킨류·이치란·아치치)",genre:"라멘·타코야키",google:"–",price_jpy:"–",area:"도톤보리",nishiki_in:"N",reserve:"워크인",pick:"",note:"Day1/3 야식"},
+  {city:"kyoto",day:"2",slot:"점심",name:"니시키 카츠즈시(錦 活鮨)",genre:"스시+튀김",google:"4.7",price_jpy:"2,100~2,600",area:"니시키 시장",nishiki_in:"Y",reserve:"인터넷",pick:"🥇",note:"스시·튀김·최고평점·합리적. 점심 1순위"},
+  {city:"kyoto",day:"2",slot:"점심",name:"스시 코마츠(寿し小松)",genre:"스시(주문식)",google:"4.2",price_jpy:"1,000~6,000",area:"니시키 근처",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"참치직영·단품·선술집형(여유형)"},
+  {city:"kyoto",day:"2",slot:"점심",name:"니시키 히라노(錦 平野)",genre:"텐푸라 정식",google:"4.2",price_jpy:"2,300~2,600",area:"니시키 시장",nishiki_in:"Y",reserve:"인터넷",pick:"",note:"텐푸라 원하면·리뷰854"},
+  {city:"kyoto",day:"2",slot:"점심",name:"이시베코우지 마메차",genre:"가이세키 런치",google:"4.2",price_jpy:"4,800",area:"기온시조",nishiki_in:"N",reserve:"인터넷",pick:"",note:"평일점심 한정·전날예약·90분"},
+  {city:"kyoto",day:"2",slot:"점심",name:"킨마타 카운터런치(近又)",genre:"가이세키",google:"4.5",price_jpy:"6,000~8,500",area:"카와라마치",nishiki_in:"N",reserve:"인터넷",pick:"",note:"등록문화재 미니가이세키"},
+  {city:"kyoto",day:"2",slot:"점심",name:"슌아이 사사키",genre:"가이세키",google:"–",price_jpy:"6,600~8,800",area:"교토",nishiki_in:"N",reserve:"인터넷",pick:"",note:"점심 가이세키"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"기온 시즈카(祇園静水香)",genre:"가이세키·사케페어링",google:"4.9",price_jpy:"16,500/런치7,500",area:"기온",nishiki_in:"N",reserve:"인터넷",pick:"🥇",note:"미슐랭셰프·사케 최적. ⚠️환행제와 시간겹침→20시경"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"킨마타(近又)",genre:"가이세키(등록문화재)",google:"4.5",price_jpy:"22,000~55,000",area:"카와라마치",nishiki_in:"N",reserve:"인터넷",pick:"",note:"특별한 한 끼(고가)"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"슌아이 사사키",genre:"가이세키",google:"–",price_jpy:"13,500",area:"교토",nishiki_in:"N",reserve:"인터넷",pick:"",note:"저녁 9품(18:00)"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"스시덴푸라 기온 이와이",genre:"스시+덴푸라 오마카세",google:"3.5",price_jpy:"12,800~15,800",area:"기온",nishiki_in:"N",reserve:"인터넷",pick:"",note:"효고 미슐랭 게재점"},
+  {city:"kyoto",day:"2",slot:"저녁",name:"마메하치(豆八)",genre:"두부·오반자이",google:"4.0",price_jpy:"2,530~4,620",area:"폰토초",nishiki_in:"N",reserve:"인터넷",pick:"KEEP",note:"오반자이 킵(백업)"},
 ];
 const FALLBACK_GENRES = [
   {category:"면류",genre:"라멘",like:"O",where:"킨류·이치란(도톤보리)",note:"야식"},
@@ -1243,19 +1295,89 @@ function altCard(title,area,bodyHTML,note,indoor){
     ${note&&note!=="—"?`<div class="ac-note">💬 ${esc(note)}</div>`:''}
   </div>`;
 }
+/* --- 맛집 후보(Day별 그룹·끼니 소섹션) --- */
+const LS_MEAL="kansai_altmeal_v1";
+let FOOD_ROWS=[], SEL_MEAL="";
+const MEAL_RANK={아침:0,점심:1,저녁:2,야식:3};
+function foodVal(v){v=(v||"").trim();return (v==="–"||v==="-")?"":v;}
+function mealOf(r){
+  const slot=(r.slot||"").trim();
+  if(slot==="야식") return {base:"야식",day:99,rank:3};
+  let day=parseInt((r.day||"").trim(),10);
+  let base=slot;
+  if(slot.indexOf("점심")===0||slot==="스프카레대안") base="점심";
+  if(slot==="스프카레대안" && isNaN(day)) day=3;
+  const rank=(base in MEAL_RANK)?MEAL_RANK[base]:1;
+  if(isNaN(day)) return {base:slot||"기타",day:98,rank};
+  return {base,day,rank};
+}
+function dayKeyOf(m){ return (m.day>=1&&m.day<=4)?("d"+m.day):"common"; }
+function pickWeight(r){const p=(r.pick||"").trim();return (p==="🥇"||p==="✅")?3:(p==="KEEP"?-1:0);}
+function foodCityTag(rows){
+  const cs=new Set(rows.map(r=>(r.city||"").trim()).filter(Boolean));
+  if(cs.size!==1)return "";
+  return cs.has("kyoto")?"⛩ 교토":"🏯 오사카";
+}
+function dayGroups(){
+  const map=new Map();
+  FOOD_ROWS.forEach(r=>{const m=mealOf(r);const dk=dayKeyOf(m);
+    if(!map.has(dk))map.set(dk,{key:dk,label:dk==="common"?"공통·야식":("Day"+m.day),order:dk==="common"?9:m.day,rows:[]});
+    map.get(dk).rows.push({r,m});});
+  return [...map.values()].sort((a,b)=>a.order-b.order);
+}
+function foodCardHTML(r){
+  const pick=(r.pick||"").trim();
+  const isPick=pick==="🥇"||pick==="✅";
+  const g=foodVal(r.google), price=foodVal(r.price_jpy), area=foodVal(r.area), rsv=foodVal(r.reserve);
+  const badges=[];
+  if(pick==="🥇")badges.push('<span class="fbadge gold">🥇 1순위</span>');
+  if(pick==="✅")badges.push('<span class="fbadge gold">✅ 확정</span>');
+  if(pick==="KEEP")badges.push('<span class="fbadge keep">킵</span>');
+  if((r.nishiki_in||"").trim()==="Y")badges.push('<span class="fbadge nishiki">🏬 니시키</span>');
+  const meta=[];
+  if(g)meta.push(`<span>⭐ 구글 ${esc(g)}</span>`);
+  if(price)meta.push(`<b>¥${esc(price)}</b>`);
+  if(area)meta.push(`<span>📍${esc(area)}</span>`);
+  if(rsv)meta.push(`<span class="rsv">${esc(rsv)}</span>`);
+  return `<div class="fcard${isPick?" pick":""}">
+    <div class="fhd"><span class="fname">${esc(r.name||"")}</span>${badges.join("")}<span class="fgenre">${esc(foodVal(r.genre))}</span></div>
+    <div class="fmeta">${meta.join("")}</div>
+    ${foodVal(r.note)?`<div class="fnote">${esc(foodVal(r.note))}</div>`:""}
+  </div>`;
+}
+function renderFoodCandidates(){
+  const host=$("#food-candidates");if(!host)return;
+  const groups=dayGroups();
+  if(!groups.length){host.innerHTML='<p class="alt-sub">후보가 없습니다.</p>';const ch=$("#meal-toggle");if(ch)ch.innerHTML="";return;}
+  if(!groups.some(g=>g.key===SEL_MEAL))SEL_MEAL=groups[0].key;
+  const cur=groups.find(g=>g.key===SEL_MEAL)||groups[0];
+  const chips=$("#meal-toggle");
+  if(chips)chips.innerHTML=groups.map(g=>`<button class="mealchip${g.key===SEL_MEAL?" on":""}" data-meal="${esc(g.key)}">${esc(g.label)}<span class="mc">${g.rows.length}</span></button>`).join("");
+  const hint=$("#meal-hint");if(hint)hint.textContent=foodCityTag(cur.rows.map(x=>x.r));
+  const meals={};
+  cur.rows.forEach(x=>{(meals[x.m.base]=meals[x.m.base]||{rank:x.m.rank,rows:[]}).rows.push(x.r);});
+  const order=Object.keys(meals).sort((a,b)=>meals[a].rank-meals[b].rank);
+  host.innerHTML=order.map(base=>{
+    const cards=meals[base].rows.slice().sort((a,b)=>pickWeight(b)-pickWeight(a)).map(foodCardHTML).join("");
+    return `<div class="slotgroup"><div class="slothd">${esc(base)}<span class="sday">${esc(cur.label)}</span></div>${cards}</div>`;
+  }).join("");
+}
+function setupMealToggle(){
+  const box=$("#meal-toggle");if(!box)return;
+  box.addEventListener("click",e=>{const b=e.target.closest("button[data-meal]");if(!b)return;
+    SEL_MEAL=b.dataset.meal;try{localStorage.setItem(LS_MEAL,SEL_MEAL);}catch(_){}
+    renderFoodCandidates();});
+}
 async function loadAlt(){
   // 2-A 일정 대안
   let plan=FALLBACK_ALT_PLAN;
   if(CONFIG.LOCAL_ALT_PLAN_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_ALT_PLAN_CSV);if(r.length)plan=r;}catch(e){}}
   $("#alt-plan").innerHTML=plan.map(r=>altCard(r.trigger,r.area,esc(r.plan_b),r.note,r.indoor)).join("");
-  // 2-B 맛집 대안
-  let food=FALLBACK_ALT_FOOD;
-  if(CONFIG.LOCAL_ALT_FOOD_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_ALT_FOOD_CSV);if(r.length)food=r;}catch(e){}}
-  $("#alt-food").innerHTML=food.map(r=>{
-    const body=`<span class="ac-lead">1순위</span>${esc(r.primary)}<br><span class="ac-lead">대안</span>${esc(r.backup)}`;
-    const note=[r.reserve,r.note].map(x=>String(x||"").trim()).filter(x=>x&&x!=="—").join(" · ");
-    return altCard(r.slot,r.area,body,note,"N");
-  }).join("");
+  // 2-B 맛집 후보 (Day별)
+  FOOD_ROWS=FALLBACK_FOOD;
+  if(CONFIG.LOCAL_FOOD_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_FOOD_CSV);if(r.length)FOOD_ROWS=r;}catch(e){}}
+  try{const c=localStorage.getItem(LS_MEAL);if(c)SEL_MEAL=c;}catch(_){}
+  renderFoodCandidates();
   // 2-C 일본식 종류 리스트
   let gen=FALLBACK_GENRES;
   if(CONFIG.LOCAL_GENRES_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_GENRES_CSV);if(r.length)gen=r;}catch(e){}}
@@ -1648,7 +1770,7 @@ async function init(){
   document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeMap();closeImg();}});
 
   renderPrep();
-  setupSpots();setupShopping();
+  setupSpots();setupShopping();setupMealToggle();
   await loadData();
   await loadDays();   // DAYS 준비 후 타임라인 렌더
   renderPlan();
