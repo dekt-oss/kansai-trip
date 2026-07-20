@@ -385,6 +385,12 @@ html[data-theme="dark"] .rtl-route::before{opacity:1;filter:brightness(1.12)}
 .rsv{font-size:10.5px;border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--ink-soft)}
 .alt-key i{width:11px;height:11px;border-radius:3px;display:inline-block}
 .alt-key .lk-o{background:#5c7d4f}.alt-key .lk-t{background:#9a7b34}.alt-key .lk-x{background:#b8b0a0}
+/* 축제 동선 요약·순행 이미지 */
+.fes-summary{background:var(--card);border:1px dashed var(--shu);border-radius:12px;padding:10px 13px;margin:2px 0 14px;font-size:12.5px;line-height:1.85;color:var(--ink)}
+.fes-summary b{color:var(--shu);font-family:'Shippori Mincho',serif}
+.fes-mapwrap{margin:0 0 14px}
+.fes-map{max-height:340px;object-fit:contain;margin-top:0;background:var(--washi-2)}
+.fes-cap{font-size:10.5px;color:var(--ink-soft);margin:6px 2px 0;text-align:center}
 .gcat{margin-top:12px}
 .gcat-h{font-size:11.5px;font-weight:700;color:var(--ai);margin:0 0 4px 2px}
 .grow{display:flex;align-items:flex-start;gap:10px;padding:7px 10px;background:var(--card);border:1px solid var(--line);border-radius:9px;margin-bottom:5px;font-size:12.5px}
@@ -530,6 +536,7 @@ footer .src{font-size:10px;opacity:.8}
     <div class="alt-tabs" id="more-tabs">
       <button class="alt-tab active" data-more="spot">⭐추천</button>
       <button class="alt-tab" data-more="plan">🗓일정</button>
+      <button class="alt-tab" data-more="fes">🎇축제</button>
       <button class="alt-tab" data-more="food">🍽맛집</button>
       <button class="alt-tab" data-more="genres">🍶종류</button>
       <button class="alt-tab" data-more="shop">🛍쇼핑</button>
@@ -555,6 +562,25 @@ footer .src{font-size:10px;opacity:.8}
     <div class="more-pane hidden" data-morepane="plan">
       <div class="alt-h">🗓 일정 대안 <span class="alt-sub">막혔을 때 빠른 갈아타기 · 🏠=실내</span></div>
       <div id="alt-plan" class="alt-cards"></div>
+    </div>
+
+    <!-- 🎇 축제 시간별 동선 -->
+    <div class="more-pane hidden" data-morepane="fes">
+      <div class="alt-h">🎇 축제 동선 <span class="alt-sub">기온마츠리·텐진마츠리 시간별 관람 위치</span></div>
+      <div class="fes-summary">
+        <b>Day2 오전</b> 四条河原町 코너서 2차 츠지마와시(10:40) → 도보 5분 니시키 카츠즈시(11:30 예약)<br>
+        <b>Day2 저녁</b> 청수사 하산(16:30) → 시조/御旅所서 미코시 差し上げ 잠깐(17시) → 폰토초 저녁(18시)<br>
+        <b>Day3 저녁</b> 16:30~17:00까지 오카와 남안(텐만바시側) 자리 → 후나토교+불꽃 한자리
+      </div>
+      <div class="fes-mapwrap" id="fes-mapwrap">
+        <img class="thumb fes-map" src="images/gion_ato_course.png" alt="기온 후기순행 코스(공식)" loading="lazy" onerror="document.getElementById('fes-mapwrap').style.display='none'">
+        <p class="fes-cap">출처: 祇園祭 山鉾連合会 공식(gionmatsuri.or.jp) · 개인 참고용</p>
+      </div>
+      <div id="fes-list"></div>
+      <div class="map-howto">
+        <b>⚠ 주의</b><br>
+        순행·환행제 雨天決行(우비 준비) · 청수사 7·8월 폐문 18:30 · 교토 막차 ~24시 재확인 · 텐진 불꽃 荒天중지 시 <a href="https://www.tenjinsan.com" target="_blank" rel="noopener">tenjinsan.com</a> 확인
+      </div>
     </div>
 
     <!-- 🍽 맛집 후보 (Day별) -->
@@ -638,6 +664,7 @@ const CONFIG = {
   LOCAL_ALT_FOOD_CSV: "data/alt_food.csv",   // (구) 맛집 대안 1순위/백업 — 미사용
   LOCAL_FOOD_CSV: "data/food_candidates.csv", // 맛집 후보(Day별·평점·가격·예약)
   LOCAL_GENRES_CSV: "data/food_genres.csv",  // 대안 추천 — 일본식 종류 리스트
+  LOCAL_FESTIVALS_CSV: "data/festivals.csv", // 축제 — 시간별 관람 동선
   // 쇼핑/추천 웹 저장(Apps Script). 비우면 이 기기(localStorage)에만 저장.
   WEBAPP_URL: "https://script.google.com/macros/s/AKfycbwWGGvhoTJqxPYY9640p5SjCwXRm56y5murfIvecazKyXaZe7kgtkq1Y44iwzhiD-Wl/exec",                   // Apps Script 배포 URL(.../exec) — 입력을 구글 시트에 저장
   WEBAPP_TOKEN: "",                 // (선택) code.gs의 TOKEN과 동일하게
@@ -664,8 +691,10 @@ const FALLBACK = [
   {day:1,date:"7/23(목)",start:"20:00",end:"21:30",city:"오사카",place:"난바/도톤보리",transport:"도보",type:"eat",title:"이자카야 + 사케 첫 만찬",desc:"니혼슈 워밍업(2인)",cost_jpy:5000,note:"",cost_cat:"식비",tbd:true},
   {day:2,date:"7/24(금)",start:"07:30",end:"08:40",city:"오사카→교토",place:"난바→교토카와라마치",transport:"지하철+한큐",type:"move",title:"한큐 교토선 특급",desc:"카와라마치=순행 종착 인근",cost_jpy:650,note:"",cost_cat:"교통",move_note:"약 47km · 43분"},
   {day:2,date:"7/24(금)",start:"09:30",end:"11:20",city:"교토",place:"가와라마치오이케~시조",transport:"도보",type:"fes",title:"★기온마츠리 야마보코 후기 순행",desc:"11기 巡行·츠지마와시(辻回し)·쿠지아라타메 · 명당=가와라마치오이케(한산·추천) 또는 시조가와라마치 · 유료석 ¥8000~",cost_jpy:0,note:"양산·물·모자 필수"},
+  {day:2,date:"7/24(금)",start:"11:30",end:"13:00",city:"교토",place:"니시키 시장",transport:"도보",type:"eat",title:"★니시키 카츠즈시(錦 活鮨) · 점심 확정",desc:"스시+튀김 · 니시키 시장 내",cost_jpy:2000,note:"예약완료 7/24 11:30·2명(MVUDGA3XNV)",cost_cat:"식비"},
   {day:2,date:"7/24(금)",start:"13:30",end:"16:30",city:"교토",place:"청수사",transport:"버스+도보",type:"sig",title:"★기요미즈데라 + 산넨자카·니넨자카",desc:"교토 최고 명소. 니넨자카점=토토로 포토존",cost_jpy:500,note:"⚠7·8월 18:30 폐문 → 전 하산·현금만",cost_cat:"입장",move_note:"버스 약 4km · 15분"},
-  {day:2,date:"7/24(금)",start:"17:00",end:"21:00",city:"교토",place:"시조~기온·폰토초",transport:"도보",type:"fes",title:"★환행제(미코시 도교) + 기온 저녁",desc:"17:00 御旅所 출발 · 3기 미코시(中·東·西御座) · 差し上げ(사시아게) · 가모강 카와도코 저녁",cost_jpy:6000,note:"야간 행사·막차 시간 확인",cost_cat:"식비"},
+  {day:2,date:"7/24(금)",start:"17:00",end:"17:30",city:"교토",place:"四条御旅所",transport:"도보",type:"fes",title:"★환행제 差し上げ 잠깐 관람",desc:"공식 16:00경~ 시작 · 3기 미코시(中·東·西御座) · 差し上げ(사시아게)",cost_jpy:0,note:"끝까지 안 봐도 됨 · 差し上げ만 보고 폰토초로 이동"},
+  {day:2,date:"7/24(금)",start:"18:00",end:"20:00",city:"교토",place:"폰토초",transport:"도보",type:"eat",title:"폰토초 저녁",desc:"가모강 카와도코 · 사케면 로빈/토리하라 예약, 가벼우면 마메하치 킵·워크인",cost_jpy:6000,note:"식당 미확정 · 막차 시간 확인",cost_cat:"식비",tbd:true},
   {day:3,date:"7/25(토)",start:"10:00",end:"13:00",city:"오사카",place:"도톤보리·신사이바시",transport:"도보",type:"eat/shop",title:"도톤보리·신사이바시 쇼핑 + 점심",desc:"돈키 면세·551·코나몬 점심·글리코 포토 · 실내/아케이드 폭염 회피 · 짐 호텔 보관 후 출발",cost_jpy:4000,note:"",cost_cat:"식비"},
   {day:3,date:"7/25(토)",start:"15:00",end:"16:00",city:"오사카",place:"오사카성 천수각",transport:"도보",type:"sig",title:"★오사카성 천수각(절충·내부 짧게)",desc:"해자·천수각 정면·니시노마루 정원 · 내부 짧게 후 16시 출발 · 역서 곧장 천수각 직행",cost_jpy:1200,note:"⚠입장 마감 ~16:30이나 명당 위해 16시 출발·물·모자",cost_cat:"입장"},
   {day:3,date:"7/25(토)",start:"18:00",end:"19:30",city:"오사카",place:"오카와(텐만바시側)",transport:"도보",type:"fes",title:"★텐진마츠리 후나토교(배 행렬)",desc:"약 100척 선단 화톳불. 18:00경~21:00경",cost_jpy:0,note:""},
@@ -745,7 +774,7 @@ const FALLBACK_GENRES = [
   {category:"밥·덮밥",genre:"카이센동",like:"O",where:"쿠로몬 시장",note:"Day4 아침"},
   {category:"밥·덮밥",genre:"텐동",like:"O",where:"(미배치)",note:"Day1점심/Day3 스왑"},
   {category:"밥·덮밥",genre:"카레라이스",like:"O",where:"야키니쿠집 마무리",note:"후식식사"},
-  {category:"구이",genre:"야키니쿠",like:"O",where:"리키마루 우메다",note:"필수"},
+  {category:"구이",genre:"야키니쿠",like:"O",where:"우치다(우메다)",note:"필수"},
   {category:"구이",genre:"야키토리",like:"△",where:"(옵션)",note:"—"},
   {category:"구이",genre:"로바타야키",like:"△",where:"(핀 미정)",note:"가보고 싶음"},
   {category:"구이",genre:"텟판·와규스테이크",like:"X",where:"—",note:"가성비 이유 제외"},
@@ -765,6 +794,15 @@ const FALLBACK_GENRES = [
   {category:"교토·정식",genre:"카이세키",like:"△",where:"폰토초 로빈",note:"비싸면 패스"},
   {category:"교토·정식",genre:"테이쇼쿠",like:"△",where:"—",note:"궁금"},
   {category:"이자카야",genre:"사케 안주 페어링",like:"O",where:"우라난바·폰토초",note:"사케 최적"},
+];
+const FALLBACK_FESTIVALS = [
+  {day:"2",festival:"기온 마츠리",time:"09:30",event:"후기순행 출발(하시벤케이야마)",location:"카라스마오이케",watch_spot:"오이케도리",pick:"",note:"11기 순행"},
+  {day:"2",festival:"기온 마츠리",time:"10:40",event:"2차 츠지마와시",location:"四条河原町",watch_spot:"四条河原町 코너",pick:"🥇",note:"명장면+니시키 도보권. 끝까지 안봐도 됨"},
+  {day:"2",festival:"기온 마츠리",time:"11:20",event:"순행 종료",location:"四条烏丸",watch_spot:"",pick:"",note:"→11:30 카츠즈시 점심(도보5분)"},
+  {day:"2",festival:"기온 마츠리",time:"16:00~밤",event:"환행제 미코시 도교(3기)",location:"四条御旅所→氏子→야사카신사(밤환궁)",watch_spot:"시조/御旅所서 差し上げ 잠깐",pick:"🥇",note:"끝까지 X. 差し上げ만 보고 폰토초 저녁"},
+  {day:"3",festival:"텐진 마츠리",time:"~15:30~",event:"육행(陸渡御) 출발",location:"오사카텐만구",watch_spot:"텐만구 앞",pick:"",note:"도보 행렬"},
+  {day:"3",festival:"텐진 마츠리",time:"18:00~21:00",event:"후나토교(배 ~100척)",location:"오카와(텐진바시~사쿠라노미야바시)",watch_spot:"남안(텐만바시側)",pick:"🥇",note:"~100척 화톳불"},
+  {day:"3",festival:"텐진 마츠리",time:"19:30~21:00",event:"봉납 불꽃(~3,000발)",location:"가와사키·사쿠라노미야공원",watch_spot:"남안(텐만바시側)",pick:"🥇",note:"불꽃+선단 동시. ⚠️荒天중지-tenjinsan.com"},
 ];
 const FALLBACK_INFO = [
   {label:"항공편 (가는편)",value:"7/23(목) 김해 09:20 → KIX 10:50",note:"",type:""},
@@ -1395,6 +1433,32 @@ async function loadAlt(){
   }).join("");
 }
 
+/* --- 축제 시간별 동선 --- */
+function festivalCardHTML(r){
+  const pick=(r.pick||"").trim();
+  const badge=pick==="🥇"?'<span class="fbadge gold">🥇 명당</span>':"";
+  return `<div class="fcard${pick?" pick":""}">
+    <div class="fhd"><span class="time">${esc(r.time||"")}</span><span class="fname">${esc(r.event||"")}</span>${badge}</div>
+    <div class="fmeta"><span>📍${esc(r.location||"")}</span>${r.watch_spot?`<span>👀 ${esc(r.watch_spot)}</span>`:""}</div>
+    ${r.note?`<div class="fnote">${esc(r.note)}</div>`:""}
+  </div>`;
+}
+function renderFestivals(rows){
+  const host=$("#fes-list");if(!host)return;
+  const byDay=new Map();
+  rows.forEach(r=>{const d=(r.day||"").trim();
+    if(!byDay.has(d))byDay.set(d,{fes:(r.festival||"").trim(),rows:[]});
+    byDay.get(d).rows.push(r);});
+  host.innerHTML=[...byDay.entries()].sort((a,b)=>a[0]-b[0]).map(([d,g])=>
+    `<div class="slotgroup"><div class="slothd">${esc(g.fes)}<span class="sday">Day${esc(d)}</span></div>${g.rows.map(festivalCardHTML).join("")}</div>`
+  ).join("");
+}
+async function loadFestivals(){
+  let rows=FALLBACK_FESTIVALS;
+  if(CONFIG.LOCAL_FESTIVALS_CSV){try{const r=await fetchCsv(CONFIG.LOCAL_FESTIVALS_CSV);if(r.length)rows=r;}catch(e){}}
+  renderFestivals(rows);
+}
+
 /* ===================== 핵심·비상 정보 ===================== */
 async function loadInfo(){
   let rows=FALLBACK_INFO;
@@ -1430,6 +1494,8 @@ const GEO_FALLBACK=[
   {name:"오사카텐만구",lat:"34.6962",lng:"135.5128",day:"3",note:"텐진마츠리 본궁"},
   {name:"오카와(텐만바시側 남안)",lat:"34.6960",lng:"135.5145",day:"3",note:"후나토교·봉납 불꽃 명당(남안)"},
   {name:"쿠로몬 시장",lat:"34.6656",lng:"135.5058",day:"4",note:"해산물 아침"},
+  {name:"四条河原町(순행 관람)",lat:"35.0037",lng:"135.7682",day:"2",type:"fes",note:"10:40 2차 츠지마와시 명당·니시키 도보5분"},
+  {name:"사쿠라노미야공원(불꽃 발사지)",lat:"34.7177",lng:"135.5208",day:"3",type:"fes",note:"텐진마츠리 봉납불꽃 발사장"},
 ];
 let LEAFMAP=null, MAP_BUILT=false, MAP_ROWS=[], MAP_LAYER=null, MAP_SEL="all";
 function ensureLeaflet(){
@@ -1774,7 +1840,7 @@ async function init(){
   await loadData();
   await loadDays();   // DAYS 준비 후 타임라인 렌더
   renderPlan();
-  loadSpots();loadTodo();loadAlt();loadShopping();loadInfo();loadMap();
+  loadSpots();loadTodo();loadAlt();loadFestivals();loadShopping();loadInfo();loadMap();
   loadWeather().then(renderNowNext);   // 날씨 로드 후 지금/다음 카드에 날씨칩 반영
 
   const ti=dayIndexToday();
